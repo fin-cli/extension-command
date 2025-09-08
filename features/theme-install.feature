@@ -1,11 +1,11 @@
-Feature: Install WordPress themes
+Feature: Install FinPress themes
 
   Background:
-    Given a WP install
-    And I run `wp theme delete --all --force`
+    Given a FP install
+    And I run `fp theme delete --all --force`
 
   Scenario: Return code is 1 when one or more theme installations fail
-    When I try `wp theme install twentytwelve twentytwelve-not-a-theme`
+    When I try `fp theme install twentytwelve twentytwelve-not-a-theme`
     Then STDERR should contain:
       """
       Warning:
@@ -28,7 +28,7 @@ Feature: Install WordPress themes
       """
     And the return code should be 1
 
-    When I try `wp theme install twentytwelve`
+    When I try `fp theme install twentytwelve`
     Then STDOUT should be:
       """
       Success: Theme already installed.
@@ -39,7 +39,7 @@ Feature: Install WordPress themes
       """
     And the return code should be 0
 
-    When I try `wp theme install twentytwelve-not-a-theme`
+    When I try `fp theme install twentytwelve-not-a-theme`
     Then STDERR should contain:
       """
       Warning:
@@ -56,10 +56,10 @@ Feature: Install WordPress themes
     And the return code should be 1
 
   Scenario: Ensure automatic parent theme installation uses http cacher
-    Given a WP install
+    Given a FP install
     And an empty cache
 
-    When I run `wp theme install moina`
+    When I run `fp theme install moina`
     Then STDOUT should contain:
       """
       Success: Installed 1 of 1 themes.
@@ -69,13 +69,13 @@ Feature: Install WordPress themes
       Using cached file
       """
 
-    When I run `wp theme uninstall moina`
+    When I run `fp theme uninstall moina`
     Then STDOUT should contain:
       """
       Success: Deleted 1 of 1 themes.
       """
 
-    When I run `wp theme install moina-blog`
+    When I run `fp theme install moina-blog`
     Then STDOUT should contain:
       """
       Success: Installed 1 of 1 themes.
@@ -90,10 +90,10 @@ Feature: Install WordPress themes
       """
 
   Scenario: Verify installed theme activation
-    When I run `wp theme install twentytwelve`
+    When I run `fp theme install twentytwelve`
     Then STDOUT should not be empty
 
-    When I try `wp theme install twentytwelve --activate`
+    When I try `fp theme install twentytwelve --activate`
     Then STDERR should contain:
       """
       Warning: twentytwelve: Theme already installed.
@@ -107,36 +107,36 @@ Feature: Install WordPress themes
       """
 
   Scenario: Installation of multiple themes with activate
-    When I try `wp theme install twentytwelve twentyeleven --activate`
+    When I try `fp theme install twentytwelve twentyeleven --activate`
     Then STDERR should contain:
       """
       Warning: Only this single theme will be activated: twentyeleven
       """
 
-    When I run `wp theme list --field=name`
+    When I run `fp theme list --field=name`
     Then STDOUT should contain:
       """
       twentyeleven
       twentytwelve
       """
 
-    When I run `wp theme list --field=name --status=active`
+    When I run `fp theme list --field=name --status=active`
     Then STDOUT should contain:
       """
       twentyeleven
       """
 
   @require-php-7
-  Scenario: Can't install theme that requires a newer version of WordPress
-    Given a WP install
+  Scenario: Can't install theme that requires a newer version of FinPress
+    Given a FP install
 
-    When I run `wp core download --version=6.4 --force`
-    And I run `rm -r wp-content/themes/*`
+    When I run `fp core download --version=6.4 --force`
+    And I run `rm -r fp-content/themes/*`
 
-    And I try `wp theme install twentytwentyfive`
+    And I try `fp theme install twentytwentyfive`
     Then STDERR should contain:
       """
-      Warning: twentytwentyfive: This theme does not work with your version of WordPress.
+      Warning: twentytwentyfive: This theme does not work with your version of FinPress.
       """
 
     And STDERR should contain:
@@ -144,14 +144,14 @@ Feature: Install WordPress themes
       Error: No themes installed.
       """
 
-  @less-than-php-7.4 @require-wp-5.6
+  @less-than-php-7.4 @require-fp-5.6
   Scenario: Can't install theme that requires a newer version of PHP
-    Given a WP install
+    Given a FP install
 
-    And I try `wp theme install oceanwp`
+    And I try `fp theme install oceanfp`
     Then STDERR should contain:
       """
-      Warning: oceanwp: This theme does not work with your version of PHP.
+      Warning: oceanfp: This theme does not work with your version of PHP.
       """
 
     And STDERR should contain:

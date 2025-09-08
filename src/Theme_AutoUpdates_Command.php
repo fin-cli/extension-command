@@ -1,9 +1,9 @@
 <?php
 
-use WP_CLI\Fetchers\Theme;
-use WP_CLI\Formatter;
-use WP_CLI\ParseThemeNameInput;
-use WP_CLI\Utils;
+use FP_CLI\Fetchers\Theme;
+use FP_CLI\Formatter;
+use FP_CLI\ParseThemeNameInput;
+use FP_CLI\Utils;
 
 /**
  * Manages theme auto-updates.
@@ -11,25 +11,25 @@ use WP_CLI\Utils;
  * ## EXAMPLES
  *
  *     # Enable the auto-updates for a theme
- *     $ wp theme auto-updates enable twentysixteen
+ *     $ fp theme auto-updates enable twentysixteen
  *     Theme auto-updates for 'twentysixteen' enabled.
  *     Success: Enabled 1 of 1 theme auto-updates.
  *
  *     # Disable the auto-updates for a theme
- *     $ wp theme auto-updates disable twentysixteen
+ *     $ fp theme auto-updates disable twentysixteen
  *     Theme auto-updates for 'twentysixteen' disabled.
  *     Success: Disabled 1 of 1 theme auto-updates.
  *
  *     # Get the status of theme auto-updates
- *     $ wp theme auto-updates status twentysixteen
+ *     $ fp theme auto-updates status twentysixteen
  *     Auto-updates for theme 'twentysixteen' are disabled.
  *
- * @package wp-cli
+ * @package fp-cli
  */
 class Theme_AutoUpdates_Command {
 
 	/**
-	 * @use ParseThemeNameInput<\WP_Theme>
+	 * @use ParseThemeNameInput<\FP_Theme>
 	 */
 	use ParseThemeNameInput;
 
@@ -72,7 +72,7 @@ class Theme_AutoUpdates_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Enable the auto-updates for a theme
-	 *     $ wp theme auto-updates enable twentysixteen
+	 *     $ fp theme auto-updates enable twentysixteen
 	 *     Theme auto-updates for 'twentysixteen' enabled.
 	 *     Success: Enabled 1 of 1 theme auto-updates.
 	 */
@@ -105,7 +105,7 @@ class Theme_AutoUpdates_Command {
 			++$count;
 
 			if ( $enabled ) {
-				WP_CLI::warning(
+				FP_CLI::warning(
 					"Auto-updates already enabled for theme {$theme->stylesheet}."
 				);
 			} else {
@@ -115,7 +115,7 @@ class Theme_AutoUpdates_Command {
 		}
 
 		if ( 0 === $count ) {
-			WP_CLI::error(
+			FP_CLI::error(
 				'No themes provided to enable auto-updates for.'
 			);
 		}
@@ -149,7 +149,7 @@ class Theme_AutoUpdates_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Disable the auto-updates for a theme
-	 *     $ wp theme auto-updates disable twentysixteen
+	 *     $ fp theme auto-updates disable twentysixteen
 	 *     Theme auto-updates for 'twentysixteen' disabled.
 	 *     Success: Disabled 1 of 1 theme auto-updates.
 	 */
@@ -182,7 +182,7 @@ class Theme_AutoUpdates_Command {
 			++$count;
 
 			if ( ! $enabled ) {
-				WP_CLI::warning(
+				FP_CLI::warning(
 					"Auto-updates already disabled for theme {$theme->stylesheet}."
 				);
 			} else {
@@ -192,7 +192,7 @@ class Theme_AutoUpdates_Command {
 		}
 
 		if ( 0 === $count ) {
-			WP_CLI::error(
+			FP_CLI::error(
 				'No themes provided to disable auto-updates for.'
 			);
 		}
@@ -249,7 +249,7 @@ class Theme_AutoUpdates_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Get the status of theme auto-updates
-	 *     $ wp theme auto-updates status twentysixteen
+	 *     $ fp theme auto-updates status twentysixteen
 	 *     +---------------+----------+
 	 *     | name          | status   |
 	 *     +---------------+----------+
@@ -257,7 +257,7 @@ class Theme_AutoUpdates_Command {
 	 *     +---------------+----------+
 	 *
 	 *     # Get the list of themes that have auto-updates enabled
-	 *     $ wp theme auto-updates status --all --enabled-only --field=name
+	 *     $ fp theme auto-updates status --all --enabled-only --field=name
 	 *     twentysixteen
 	 *     twentyseventeen
 	 */
@@ -267,7 +267,7 @@ class Theme_AutoUpdates_Command {
 		$disabled_only = Utils\get_flag_value( $assoc_args, 'disabled-only', false );
 
 		if ( $enabled_only && $disabled_only ) {
-			WP_CLI::error(
+			FP_CLI::error(
 				'--enabled-only and --disabled-only are mutually exclusive and '
 				. 'cannot be used at the same time.'
 			);

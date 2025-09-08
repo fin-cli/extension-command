@@ -1,9 +1,9 @@
 <?php
 
-use WP_CLI\Fetchers\Plugin;
-use WP_CLI\Formatter;
-use WP_CLI\ParsePluginNameInput;
-use WP_CLI\Utils;
+use FP_CLI\Fetchers\Plugin;
+use FP_CLI\Formatter;
+use FP_CLI\ParsePluginNameInput;
+use FP_CLI\Utils;
 
 /**
  * Manages plugin auto-updates.
@@ -11,20 +11,20 @@ use WP_CLI\Utils;
  * ## EXAMPLES
  *
  *     # Enable the auto-updates for a plugin
- *     $ wp plugin auto-updates enable hello
+ *     $ fp plugin auto-updates enable hello
  *     Plugin auto-updates for 'hello' enabled.
  *     Success: Enabled 1 of 1 plugin auto-updates.
  *
  *     # Disable the auto-updates for a plugin
- *     $ wp plugin auto-updates disable hello
+ *     $ fp plugin auto-updates disable hello
  *     Plugin auto-updates for 'hello' disabled.
  *     Success: Disabled 1 of 1 plugin auto-updates.
  *
  *     # Get the status of plugin auto-updates
- *     $ wp plugin auto-updates status hello
+ *     $ fp plugin auto-updates status hello
  *     Auto-updates for plugin 'hello' are disabled.
  *
- * @package wp-cli
+ * @package fp-cli
  */
 class Plugin_AutoUpdates_Command {
 
@@ -69,7 +69,7 @@ class Plugin_AutoUpdates_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Enable the auto-updates for a plugin
-	 *     $ wp plugin auto-updates enable hello
+	 *     $ fp plugin auto-updates enable hello
 	 *     Plugin auto-updates for 'hello' enabled.
 	 *     Success: Enabled 1 of 1 plugin auto-updates.
 	 *
@@ -105,7 +105,7 @@ class Plugin_AutoUpdates_Command {
 			++$count;
 
 			if ( $enabled ) {
-				WP_CLI::warning(
+				FP_CLI::warning(
 					"Auto-updates already enabled for plugin {$plugin->name}."
 				);
 			} else {
@@ -115,7 +115,7 @@ class Plugin_AutoUpdates_Command {
 		}
 
 		if ( 0 === $count ) {
-			WP_CLI::error(
+			FP_CLI::error(
 				'No plugins provided to enable auto-updates for.'
 			);
 		}
@@ -149,7 +149,7 @@ class Plugin_AutoUpdates_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Disable the auto-updates for a plugin
-	 *     $ wp plugin auto-updates disable hello
+	 *     $ fp plugin auto-updates disable hello
 	 *     Plugin auto-updates for 'hello' disabled.
 	 *     Success: Disabled 1 of 1 plugin auto-updates.
 	 */
@@ -182,7 +182,7 @@ class Plugin_AutoUpdates_Command {
 			++$count;
 
 			if ( ! $enabled ) {
-				WP_CLI::warning(
+				FP_CLI::warning(
 					"Auto-updates already disabled for plugin {$plugin->name}."
 				);
 			} else {
@@ -192,7 +192,7 @@ class Plugin_AutoUpdates_Command {
 		}
 
 		if ( 0 === $count ) {
-			WP_CLI::error(
+			FP_CLI::error(
 				'No plugins provided to disable auto-updates for.'
 			);
 		}
@@ -249,7 +249,7 @@ class Plugin_AutoUpdates_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Get the status of plugin auto-updates
-	 *     $ wp plugin auto-updates status hello
+	 *     $ fp plugin auto-updates status hello
 	 *     +-------+----------+
 	 *     | name  | status   |
 	 *     +-------+----------+
@@ -257,7 +257,7 @@ class Plugin_AutoUpdates_Command {
 	 *     +-------+----------+
 	 *
 	 *     # Get the list of plugins that have auto-updates enabled
-	 *     $ wp plugin auto-updates status --all --enabled-only --field=name
+	 *     $ fp plugin auto-updates status --all --enabled-only --field=name
 	 *     akismet
 	 *     duplicate-post
 	 */
@@ -267,7 +267,7 @@ class Plugin_AutoUpdates_Command {
 		$disabled_only = Utils\get_flag_value( $assoc_args, 'disabled-only', false );
 
 		if ( $enabled_only && $disabled_only ) {
-			WP_CLI::error(
+			FP_CLI::error(
 				'--enabled-only and --disabled-only are mutually exclusive and '
 				. 'cannot be used at the same time.'
 			);

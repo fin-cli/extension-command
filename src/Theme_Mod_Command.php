@@ -6,18 +6,18 @@
  * ## EXAMPLES
  *
  *     # Set the 'background_color' theme mod to '000000'.
- *     $ wp theme mod set background_color 000000
+ *     $ fp theme mod set background_color 000000
  *     Success: Theme mod background_color set to 000000.
  *
  *     # Get single theme mod in JSON format.
- *     $ wp theme mod get background_color --format=json
+ *     $ fp theme mod get background_color --format=json
  *     [{"key":"background_color","value":"dd3333"}]
  *
  *     # Remove all theme mods.
- *     $ wp theme mod remove --all
+ *     $ fp theme mod remove --all
  *     Success: Theme mods removed.
  */
-class Theme_Mod_Command extends WP_CLI_Command {
+class Theme_Mod_Command extends FP_CLI_Command {
 
 	private $fields = [ 'key', 'value' ];
 
@@ -49,7 +49,7 @@ class Theme_Mod_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Get all theme mods.
-	 *     $ wp theme mod get --all
+	 *     $ fp theme mod get --all
 	 *     +------------------+---------+
 	 *     | key              | value   |
 	 *     +------------------+---------+
@@ -59,15 +59,15 @@ class Theme_Mod_Command extends WP_CLI_Command {
 	 *     +------------------+---------+
 	 *
 	 *     # Get single theme mod in JSON format.
-	 *     $ wp theme mod get background_color --format=json
+	 *     $ fp theme mod get background_color --format=json
 	 *     [{"key":"background_color","value":"dd3333"}]
 	 *
 	 *     # Get value of a single theme mod.
-	 *     $ wp theme mod get background_color --field=value
+	 *     $ fp theme mod get background_color --field=value
 	 *     dd3333
 	 *
 	 *     # Get multiple theme mods.
-	 *     $ wp theme mod get background_color header_textcolor
+	 *     $ fp theme mod get background_color header_textcolor
 	 *     +------------------+--------+
 	 *     | key              | value  |
 	 *     +------------------+--------+
@@ -80,11 +80,11 @@ class Theme_Mod_Command extends WP_CLI_Command {
 	 */
 	public function get( $args, $assoc_args ) {
 
-		if ( ! \WP_CLI\Utils\get_flag_value( $assoc_args, 'all' ) && empty( $args ) ) {
-			WP_CLI::error( 'You must specify at least one mod or use --all.' );
+		if ( ! \FP_CLI\Utils\get_flag_value( $assoc_args, 'all' ) && empty( $args ) ) {
+			FP_CLI::error( 'You must specify at least one mod or use --all.' );
 		}
 
-		if ( \WP_CLI\Utils\get_flag_value( $assoc_args, 'all' ) ) {
+		if ( \FP_CLI\Utils\get_flag_value( $assoc_args, 'all' ) ) {
 			$args = array();
 		}
 
@@ -129,7 +129,7 @@ class Theme_Mod_Command extends WP_CLI_Command {
 			}
 		}
 
-		$formatter = new \WP_CLI\Formatter( $assoc_args, $this->fields, 'thememods' );
+		$formatter = new \FP_CLI\Formatter( $assoc_args, $this->fields, 'thememods' );
 		$formatter->display_items( $list );
 	}
 
@@ -155,7 +155,7 @@ class Theme_Mod_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Gets a list of theme mods.
-	 *     $ wp theme mod list
+	 *     $ fp theme mod list
 	 *     +------------------+---------+
 	 *     | key              | value   |
 	 *     +------------------+---------+
@@ -190,15 +190,15 @@ class Theme_Mod_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Remove all theme mods.
-	 *     $ wp theme mod remove --all
+	 *     $ fp theme mod remove --all
 	 *     Success: Theme mods removed.
 	 *
 	 *     # Remove single theme mod.
-	 *     $ wp theme mod remove background_color
+	 *     $ fp theme mod remove background_color
 	 *     Success: 1 mod removed.
 	 *
 	 *     # Remove multiple theme mods.
-	 *     $ wp theme mod remove background_color header_textcolor
+	 *     $ fp theme mod remove background_color header_textcolor
 	 *     Success: 2 mods removed.
 	 *
 	 * @param string[]          $args       Positional arguments.
@@ -206,13 +206,13 @@ class Theme_Mod_Command extends WP_CLI_Command {
 	 */
 	public function remove( $args, $assoc_args ) {
 
-		if ( ! \WP_CLI\Utils\get_flag_value( $assoc_args, 'all' ) && empty( $args ) ) {
-			WP_CLI::error( 'You must specify at least one mod or use --all.' );
+		if ( ! \FP_CLI\Utils\get_flag_value( $assoc_args, 'all' ) && empty( $args ) ) {
+			FP_CLI::error( 'You must specify at least one mod or use --all.' );
 		}
 
-		if ( \WP_CLI\Utils\get_flag_value( $assoc_args, 'all' ) ) {
+		if ( \FP_CLI\Utils\get_flag_value( $assoc_args, 'all' ) ) {
 			remove_theme_mods();
-			WP_CLI::success( 'Theme mods removed.' );
+			FP_CLI::success( 'Theme mods removed.' );
 			return;
 		}
 
@@ -222,7 +222,7 @@ class Theme_Mod_Command extends WP_CLI_Command {
 
 		$count           = count( $args );
 		$success_message = ( 1 === $count ) ? '%d mod removed.' : '%d mods removed.';
-		WP_CLI::success( sprintf( $success_message, $count ) );
+		FP_CLI::success( sprintf( $success_message, $count ) );
 	}
 
 	/**
@@ -239,7 +239,7 @@ class Theme_Mod_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Set theme mod
-	 *     $ wp theme mod set background_color 000000
+	 *     $ fp theme mod set background_color 000000
 	 *     Success: Theme mod background_color set to 000000.
 	 *
 	 * @param array{0: string, 1: string} $args Positional arguments.
@@ -251,9 +251,9 @@ class Theme_Mod_Command extends WP_CLI_Command {
 		set_theme_mod( $mod, $value );
 
 		if ( get_theme_mod( $mod ) === $value ) {
-			WP_CLI::success( "Theme mod {$mod} set to {$value}." );
+			FP_CLI::success( "Theme mod {$mod} set to {$value}." );
 		} else {
-			WP_CLI::success( "Could not update theme mod {$mod}." );
+			FP_CLI::success( "Could not update theme mod {$mod}." );
 		}
 	}
 }

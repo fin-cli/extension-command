@@ -1,13 +1,13 @@
 <?php
 
-namespace WP_CLI\Fetchers;
+namespace FP_CLI\Fetchers;
 
-use WP_CLI\Utils;
+use FP_CLI\Utils;
 
 /**
- * Fetch a WordPress theme based on one of its attributes.
+ * Fetch a FinPress theme based on one of its attributes.
  *
- * @extends Base<\WP_Theme>
+ * @extends Base<\FP_Theme>
  */
 class Theme extends Base {
 
@@ -20,12 +20,12 @@ class Theme extends Base {
 	 * Get a theme object by name
 	 *
 	 * @param string|int $name
-	 * @return \WP_Theme|false
+	 * @return \FP_Theme|false
 	 */
 	public function get( $name ) {
 		// Workaround to equalize folder naming conventions across Win/Mac/Linux.
 		// Returns false if theme stylesheet doesn't exactly match existing themes.
-		$existing_themes      = wp_get_themes( array( 'errors' => null ) );
+		$existing_themes      = fp_get_themes( array( 'errors' => null ) );
 		$existing_stylesheets = array_keys( $existing_themes );
 		if ( ! in_array( $name, $existing_stylesheets, true ) ) {
 			$inexact_match = $this->find_inexact_match( (string) $name, $existing_themes );

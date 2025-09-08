@@ -1,11 +1,11 @@
-Feature: Delete WordPress plugins
+Feature: Delete FinPress plugins
 
   Background:
-    Given a WP install
-    And I run `wp plugin install https://github.com/wp-cli/sample-plugin/archive/refs/heads/master.zip`
+    Given a FP install
+    And I run `fp plugin install https://github.com/fp-cli/sample-plugin/archive/refs/heads/master.zip`
 
   Scenario: Delete an installed plugin
-    When I run `wp plugin delete akismet`
+    When I run `fp plugin delete akismet`
     Then STDOUT should be:
       """
       Deleted 'akismet' plugin.
@@ -14,7 +14,7 @@ Feature: Delete WordPress plugins
     And the return code should be 0
 
   Scenario: Delete all installed plugins
-    When I run `wp plugin delete --all`
+    When I run `fp plugin delete --all`
     Then STDOUT should contain:
       """
       Deleted 'akismet' plugin.
@@ -36,7 +36,7 @@ Feature: Delete WordPress plugins
       """
 
   Scenario: Attempting to delete a plugin that doesn't exist
-    When I try `wp plugin delete debug-bar`
+    When I try `fp plugin delete debug-bar`
     Then STDOUT should be:
       """
       Success: Plugin already deleted.
@@ -48,7 +48,7 @@ Feature: Delete WordPress plugins
     And the return code should be 0
 
   Scenario: Excluding a plugin from deletion when using --all switch
-    When I try `wp plugin delete --all --exclude=akismet,sample-plugin,hello,hello-dolly`
+    When I try `fp plugin delete --all --exclude=akismet,sample-plugin,hello,hello-dolly`
     Then STDOUT should be:
       """
       Success: No plugins deleted.
@@ -56,8 +56,8 @@ Feature: Delete WordPress plugins
     And the return code should be 0
 
   Scenario: Excluding a missing plugin should not throw an error
-    Given a WP install
-    And I run `wp plugin delete --all --exclude=missing-plugin`
+    Given a FP install
+    And I run `fp plugin delete --all --exclude=missing-plugin`
     Then STDERR should be empty
     And STDOUT should contain:
       """
@@ -66,10 +66,10 @@ Feature: Delete WordPress plugins
     And the return code should be 0
 
   Scenario: Reports a failure for a plugin that can't be deleted
-    Given a WP install
+    Given a FP install
 
-    When I run `chmod -w wp-content/plugins/akismet`
-    And I try `wp plugin delete akismet`
+    When I run `chmod -w fp-content/plugins/akismet`
+    And I try `fp plugin delete akismet`
     Then STDERR should contain:
       """
       Warning: The 'akismet' plugin could not be deleted.
@@ -83,8 +83,8 @@ Feature: Delete WordPress plugins
       Success:
       """
 
-    When I run `chmod +w wp-content/plugins/akismet`
-    And I run `wp plugin delete akismet`
+    When I run `chmod +w fp-content/plugins/akismet`
+    And I run `fp plugin delete akismet`
     Then STDERR should not contain:
       """
       Error:

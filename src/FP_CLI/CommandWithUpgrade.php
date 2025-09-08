@@ -1,15 +1,15 @@
 <?php
 
-namespace WP_CLI;
+namespace FP_CLI;
 
 use Composer\Semver\VersionParser;
 use Composer\Semver\Comparator;
 use Exception;
-use WP_CLI;
-use WP_CLI\Fetchers;
-use WP_CLI\Loggers;
-use WP_CLI\Utils;
-use WP_Error;
+use FP_CLI;
+use FP_CLI\Fetchers;
+use FP_CLI\Loggers;
+use FP_CLI\Utils;
+use FP_Error;
 
 /**
  * @phpstan-import-type ThemeInformation from \Theme_Command
@@ -17,7 +17,7 @@ use WP_Error;
  *
  * @template T
  */
-abstract class CommandWithUpgrade extends \WP_CLI_Command {
+abstract class CommandWithUpgrade extends \FP_CLI_Command {
 
 	protected $fetcher;
 	protected $item_type;
@@ -68,7 +68,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 	}
 
 	/**
-	 * @return class-string<\WP_Upgrader>
+	 * @return class-string<\FP_Upgrader>
 	 */
 	abstract protected function get_upgrader_class( $force );
 
@@ -105,7 +105,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 	abstract public function activate( $args, $assoc_args = [] );
 
 	public function status( $args ) {
-		// Force WordPress to check for updates.
+		// Force FinPress to check for updates.
 		call_user_func( $this->upgrade_refresh );
 
 		if ( empty( $args ) ) {
@@ -120,7 +120,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 
 		$n = count( $items );
 
-		WP_CLI::log(
+		FP_CLI::log(
 			sprintf( '%d installed %s:', $n, Utils\pluralize( $this->item_type, absint( $n ) ) )
 		);
 
@@ -139,10 +139,10 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 				$line .= ' ' . $details['version'];
 			}
 
-			WP_CLI::line( WP_CLI::colorize( $line ) );
+			FP_CLI::line( FP_CLI::colorize( $line ) );
 		}
 
-		WP_CLI::line();
+		FP_CLI::line();
 
 		$this->show_legend( $items );
 	}
@@ -162,7 +162,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 	}
 
 	private function show_legend( $items ) {
-		$statuses = array_unique( wp_list_pluck( $items, 'status' ) );
+		$statuses = array_unique( fp_list_pluck( $items, 'status' ) );
 
 		$legend_line = array();
 
@@ -174,11 +174,11 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 				$this->map['long'][ $status ]
 			);
 		}
-		if ( in_array( 'available', wp_list_pluck( $items, 'update' ), true ) ) {
+		if ( in_array( 'available', fp_list_pluck( $items, 'update' ), true ) ) {
 			$legend_line[] = '%yU = Update Available%n';
 		}
 
-		WP_CLI::line( 'Legend: ' . WP_CLI::colorize( implode( ', ', $legend_line ) ) );
+		FP_CLI::line( 'Legend: ' . FP_CLI::colorize( implode( ', ', $legend_line ) ) );
 	}
 
 	public function install( $args, $assoc_args ) {
@@ -187,7 +187,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 		foreach ( $args as $slug ) {
 
 			if ( empty( $slug ) ) {
-				WP_CLI::warning( 'Ignoring ambiguous empty slug value.' );
+				FP_CLI::warning( 'Ignoring ambiguous empty slug value.' );
 				continue;
 			}
 
@@ -201,8 +201,8 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 				if ( $github_repo ) {
 					$version = $this->get_the_latest_github_version( $github_repo );
 
-					if ( is_wp_error( $version ) ) {
-						WP_CLI::error( $version->get_error_message() );
+					if ( is_fp_error( $version ) ) {
+						FP_CLI::error( $version->get_error_message() );
 					}
 
 					/**
@@ -210,7 +210,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 					 */
 					$slug = $version['url'];
 
-					WP_CLI::log( 'Latest release resolved to ' . $version['name'] );
+					FP_CLI::log( 'Latest release resolved to ' . $version['name'] );
 				}
 			}
 
@@ -244,12 +244,12 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 						}
 						$new_path = substr_replace( $source, $slug_dir, (int) strrpos( $source, $source_dir ), strlen( $source_dir ) );
 
-						if ( $GLOBALS['wp_filesystem']->move( $source, $new_path ) ) {
-							WP_CLI::log( sprintf( "Renamed Github-based project from '%s' to '%s'.", $source_dir, $slug_dir ) );
+						if ( $GLOBALS['fp_filesystem']->move( $source, $new_path ) ) {
+							FP_CLI::log( sprintf( "Renamed Github-based project from '%s' to '%s'.", $source_dir, $slug_dir ) );
 							return $new_path;
 						}
 
-						return new WP_Error( 'wpcli_install_github', "Couldn't move Github-based project to appropriate directory." );
+						return new FP_Error( 'fpcli_install_github', "Couldn't move Github-based project to appropriate directory." );
 					};
 					add_filter( 'upgrader_source_selection', $filter, 10 );
 				}
@@ -268,19 +268,19 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 					++$errors;
 				}
 			} else {
-				// Assume a plugin/theme slug from the WordPress.org repository has been specified.
+				// Assume a plugin/theme slug from the FinPress.org repository has been specified.
 				$result = $this->install_from_repo( $slug, $assoc_args );
 
 				if ( is_null( $result ) ) {
 					++$errors;
-				} elseif ( is_wp_error( $result ) ) {
+				} elseif ( is_fp_error( $result ) ) {
 					$key = $result->get_error_code();
 					if ( in_array( $key, [ 'plugins_api_failed', 'themes_api_failed' ], true )
 						&& ! empty( $result->error_data[ $key ] ) && in_array( $result->error_data[ $key ], [ 'N;', 'b:0;' ], true ) ) {
-						WP_CLI::warning( "Couldn't find '$slug' in the WordPress.org {$this->item_type} directory." );
+						FP_CLI::warning( "Couldn't find '$slug' in the FinPress.org {$this->item_type} directory." );
 						++$errors;
 					} else {
-						WP_CLI::warning( "$slug: " . $result->get_error_message() );
+						FP_CLI::warning( "$slug: " . $result->get_error_message() );
 						if ( 'already_installed' !== $key ) {
 							++$errors;
 						}
@@ -297,19 +297,19 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 			$allow_activation = $result;
 
 			// Allow installation for installed extension.
-			if ( is_wp_error( $result ) && 'already_installed' === $result->get_error_code() ) {
+			if ( is_fp_error( $result ) && 'already_installed' === $result->get_error_code() ) {
 				$allow_activation = true;
 			}
 
 			if ( true === $allow_activation && count( $extension ) > 0 ) {
 				$this->chained_command = true;
 				if ( Utils\get_flag_value( $assoc_args, 'activate-network' ) ) {
-					WP_CLI::log( "Network-activating '$slug'..." );
+					FP_CLI::log( "Network-activating '$slug'..." );
 					$this->activate( array( $slug ), array( 'network' => true ) );
 				}
 
 				if ( Utils\get_flag_value( $assoc_args, 'activate' ) ) {
-					WP_CLI::log( "Activating '$slug'..." );
+					FP_CLI::log( "Activating '$slug'..." );
 					$this->activate( array( $slug ) );
 				}
 				$this->chained_command = false;
@@ -331,7 +331,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 			return;
 		}
 
-		// WordPress.org forces https, but still sometimes returns http
+		// FinPress.org forces https, but still sometimes returns http
 		// See https://twitter.com/nacin/status/512362694205140992
 		$response->download_link = str_replace( 'http://', 'https://', $response->download_link );
 
@@ -353,17 +353,17 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 			$response->version       = $version;
 
 			// Check if the requested version exists.
-			$response      = wp_remote_head( $response->download_link );
-			$response_code = wp_remote_retrieve_response_code( $response );
+			$response      = fp_remote_head( $response->download_link );
+			$response_code = fp_remote_retrieve_response_code( $response );
 			if ( 200 !== (int) $response_code ) {
-				if ( is_wp_error( $response ) ) {
+				if ( is_fp_error( $response ) ) {
 					$error_msg = $response->get_error_message();
 				} else {
 					$error_msg = sprintf( 'HTTP code %d', $response_code );
 				}
-				WP_CLI::error(
+				FP_CLI::error(
 					sprintf(
-						"Can't find the requested %s's version %s in the WordPress.org %s repository (%s).",
+						"Can't find the requested %s's version %s in the FinPress.org %s repository (%s).",
 						$download_type,
 						$version,
 						$download_type,
@@ -385,16 +385,16 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 		call_user_func( $this->upgrade_refresh );
 
 		if ( ! empty( $assoc_args['format'] ) && in_array( $assoc_args['format'], [ 'json', 'csv' ], true ) ) {
-			$logger = new Loggers\Quiet( WP_CLI::get_runner()->in_color() );
-			WP_CLI::set_logger( $logger );
+			$logger = new Loggers\Quiet( FP_CLI::get_runner()->in_color() );
+			FP_CLI::set_logger( $logger );
 		}
 
 		if ( ! Utils\get_flag_value( $assoc_args, 'all' ) && empty( $args ) ) {
-			WP_CLI::error( "Please specify one or more {$this->item_type}s, or use --all." );
+			FP_CLI::error( "Please specify one or more {$this->item_type}s, or use --all." );
 		}
 
 		if ( Utils\get_flag_value( $assoc_args, 'minor' ) && Utils\get_flag_value( $assoc_args, 'patch' ) ) {
-			WP_CLI::error( '--minor and --patch cannot be used together.' );
+			FP_CLI::error( '--minor and --patch cannot be used together.' );
 		}
 
 		$items = $this->get_item_list();
@@ -441,7 +441,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 					}
 					unset( $items_to_update[ $plugin->file ] );
 				} elseif ( 'theme' === $this->item_type ) {
-					$theme = wp_get_theme( $item );
+					$theme = fp_get_theme( $item );
 					if ( $theme->exists() ) {
 						unset( $items_to_update[ $theme->get_stylesheet() ] );
 					}
@@ -452,12 +452,12 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 		// Check for items to update and remove extensions that have version higher than expected.
 		foreach ( $items_to_update as $item_key => $item_info ) {
 			if ( static::INVALID_VERSION_MESSAGE === $item_info['update'] ) {
-				WP_CLI::warning( "{$item_info['name']}: " . static::INVALID_VERSION_MESSAGE . '.' );
+				FP_CLI::warning( "{$item_info['name']}: " . static::INVALID_VERSION_MESSAGE . '.' );
 				++$skipped;
 				unset( $items_to_update[ $item_key ] );
 			}
 			if ( 'unavailable' === $item_info['update'] ) {
-				WP_CLI::warning( "{$item_info['name']}: {$item_info['update_unavailable_reason']}" );
+				FP_CLI::warning( "{$item_info['name']}: {$item_info['update_unavailable_reason']}" );
 				++$skipped;
 				unset( $items_to_update[ $item_key ] );
 			}
@@ -465,10 +465,10 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 
 		if ( Utils\get_flag_value( $assoc_args, 'dry-run' ) ) {
 			if ( empty( $items_to_update ) ) {
-				WP_CLI::log( "No {$this->item_type} updates available." );
+				FP_CLI::log( "No {$this->item_type} updates available." );
 
 				if ( null !== $exclude ) {
-					WP_CLI::log( "Skipped updates for: $exclude" );
+					FP_CLI::log( "Skipped updates for: $exclude" );
 				}
 
 				return;
@@ -477,17 +477,17 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 			if ( ! empty( $assoc_args['format'] ) && in_array( $assoc_args['format'], [ 'json', 'csv' ], true ) ) {
 				Utils\format_items( $assoc_args['format'], $items_to_update, [ 'name', 'status', 'version', 'update_version' ] );
 			} elseif ( ! empty( $assoc_args['format'] ) && 'summary' === $assoc_args['format'] ) {
-				WP_CLI::log( "Available {$this->item_type} updates:" );
+				FP_CLI::log( "Available {$this->item_type} updates:" );
 				foreach ( $items_to_update as $item_to_update => $info ) {
-					WP_CLI::log( "{$info['title']} update from version {$info['version']} to version {$info['update_version']}" );
+					FP_CLI::log( "{$info['title']} update from version {$info['version']} to version {$info['update_version']}" );
 				}
 			} else {
-				WP_CLI::log( "Available {$this->item_type} updates:" );
+				FP_CLI::log( "Available {$this->item_type} updates:" );
 				Utils\format_items( 'table', $items_to_update, [ 'name', 'status', 'version', 'update_version' ] );
 			}
 
 			if ( null !== $exclude ) {
-				WP_CLI::log( "Skipped updates for: $exclude" );
+				FP_CLI::log( "Skipped updates for: $exclude" );
 			}
 
 			return;
@@ -497,7 +497,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 
 		// Only attempt to update if there is something to update.
 		if ( ! empty( $items_to_update ) ) {
-			$cache_manager = WP_CLI::get_http_cache_manager();
+			$cache_manager = FP_CLI::get_http_cache_manager();
 			foreach ( $items_to_update as $item ) {
 				$cache_manager->whitelist_package( $item['update_package'], $this->item_type, $item['name'], $item['update_version'] );
 			}
@@ -521,7 +521,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 				return $transient;
 			};
 			add_filter( 'site_transient_' . $this->upgrade_transient, $transient_filter, 999 );
-			$result = $upgrader->bulk_upgrade( wp_list_pluck( $items_to_update, 'update_id' ) );
+			$result = $upgrader->bulk_upgrade( fp_list_pluck( $items_to_update, 'update_id' ) );
 			remove_filter( 'site_transient_' . $this->upgrade_transient, $transient_filter, 999 );
 		}
 
@@ -535,7 +535,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 			array_filter(
 				$result,
 				static function ( $result ) {
-					return $result && ! is_wp_error( $result );
+					return $result && ! is_fp_error( $result );
 				}
 			)
 		);
@@ -544,7 +544,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 			if ( ! empty( $assoc_args['format'] ) && 'summary' === $assoc_args['format'] ) {
 				foreach ( $items_to_update as $item_to_update => $info ) {
 					$message = null !== $result[ $info['update_id'] ] ? 'updated successfully' : 'did not update';
-					WP_CLI::log( "{$info['title']} {$message} from version {$info['version']} to version {$info['update_version']}" );
+					FP_CLI::log( "{$info['title']} {$message} from version {$info['version']} to version {$info['update_version']}" );
 				}
 			} else {
 				$status = array();
@@ -553,9 +553,9 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 						'name'        => $info['name'],
 						'old_version' => $info['version'],
 						'new_version' => $info['update_version'],
-						'status'      => ( null !== $result[ $info['update_id'] ] && ! is_wp_error( $result[ $info['update_id'] ] ) ) ? 'Updated' : 'Error',
+						'status'      => ( null !== $result[ $info['update_id'] ] && ! is_fp_error( $result[ $info['update_id'] ] ) ) ? 'Updated' : 'Error',
 					];
-					if ( null === $result[ $info['update_id'] ] || is_wp_error( $result[ $info['update_id'] ] ) ) {
+					if ( null === $result[ $info['update_id'] ] || is_fp_error( $result[ $info['update_id'] ] ) ) {
 						++$errors;
 					}
 				}
@@ -576,14 +576,14 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 		}
 		Utils\report_batch_operation_results( $this->item_type, 'update', $total_updated, $num_updated, $errors, $skipped );
 		if ( null !== $exclude ) {
-			WP_CLI::log( "Skipped updates for: $exclude" );
+			FP_CLI::log( "Skipped updates for: $exclude" );
 		}
 	}
 
 	// phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore -- Whitelisting to provide backward compatibility to classes possibly extending this class.
 	protected function _list( $_, $assoc_args ) {
 
-		// Force WordPress to check for updates if `--skip-update-check` is not passed.
+		// Force FinPress to check for updates if `--skip-update-check` is not passed.
 		if ( false === Utils\get_flag_value( $assoc_args, 'skip-update-check', false ) ) {
 			delete_site_transient( $this->upgrade_transient );
 			call_user_func( $this->upgrade_refresh );
@@ -601,7 +601,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 		}
 
 		if ( ! is_array( $all_items ) ) {
-			WP_CLI::error( "No {$this->item_type}s found." );
+			FP_CLI::error( "No {$this->item_type}s found." );
 		}
 
 		foreach ( $all_items as $key => &$item ) {
@@ -732,13 +732,13 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 	 * @return array
 	 */
 	private function get_minor_or_patch_updates( $items, $type, $insecure, $require_stable, $item_type ) {
-		$wp_org_api = new WpOrgApi( [ 'insecure' => $insecure ] );
+		$fp_org_api = new WpOrgApi( [ 'insecure' => $insecure ] );
 		foreach ( $items as $i => $item ) {
 			try {
 				/**
 				 * @var callable $callback
 				 */
-				$callback = [ $wp_org_api, "get_{$item_type}_info" ];
+				$callback = [ $fp_org_api, "get_{$item_type}_info" ];
 				$data     = call_user_func(
 					$callback,
 					$item['name'],
@@ -798,7 +798,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Search wordpress.org repo.
+	 * Search finpress.org repo.
 	 *
 	 * @param  array $args       A arguments array containing the search term in the first element.
 	 * @param  array $assoc_args Data passed in from command.
@@ -837,25 +837,25 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 		}
 
 		/**
-		 * @var \WP_Error|object{info: object{page: int, pages: int, results: int}} $api
+		 * @var \FP_Error|object{info: object{page: int, pages: int, results: int}} $api
 		 */
 
-		if ( is_wp_error( $api ) ) {
-			WP_CLI::error( $api->get_error_message() . __( ' Try again' ) );
+		if ( is_fp_error( $api ) ) {
+			FP_CLI::error( $api->get_error_message() . __( ' Try again' ) );
 		}
 
 		$plural = $this->item_type . 's';
 
 		if ( ! isset( $api->$plural ) ) {
-			WP_CLI::error( __( 'API error. Try Again.' ) );
+			FP_CLI::error( __( 'API error. Try Again.' ) );
 		}
 
 		$items = $api->$plural;
 
-		// Add `url` for plugin or theme on wordpress.org.
+		// Add `url` for plugin or theme on finpress.org.
 		foreach ( $items as $index => $item_object ) {
 			if ( $item_object instanceof \stdClass ) {
-				$item_object->url = "https://wordpress.org/{$plural}/{$item_object->slug}/";
+				$item_object->url = "https://finpress.org/{$plural}/{$item_object->slug}/";
 			}
 		}
 
@@ -864,31 +864,31 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 			 * @var string $count
 			 */
 			$count = Utils\get_flag_value( (array) $api->info, 'results', 'unknown' );
-			WP_CLI::success( sprintf( 'Showing %s of %s %s.', count( $items ), $count, $plural ) );
+			FP_CLI::success( sprintf( 'Showing %s of %s %s.', count( $items ), $count, $plural ) );
 		}
 
 		$formatter->display_items( $items );
 	}
 
 	protected function get_formatter( &$assoc_args ) {
-		return new \WP_CLI\Formatter( $assoc_args, $this->obj_fields, $this->item_type );
+		return new \FP_CLI\Formatter( $assoc_args, $this->obj_fields, $this->item_type );
 	}
 
 	/**
-	 * Error handler to ignore failures on accessing SSL "https://api.wordpress.org/themes/update-check/1.1/" in `wp_update_themes()`
-	 * and "https://api.wordpress.org/plugins/update-check/1.1/" in `wp_update_plugins()` which seem to occur intermittently.
+	 * Error handler to ignore failures on accessing SSL "https://api.finpress.org/themes/update-check/1.1/" in `fp_update_themes()`
+	 * and "https://api.finpress.org/plugins/update-check/1.1/" in `fp_update_plugins()` which seem to occur intermittently.
 	 */
 	public static function error_handler( $errno, $errstr, $errfile, $errline, $errcontext = null ) {
 		// If ignoring E_USER_WARNING | E_USER_NOTICE, default.
 		if ( ! ( error_reporting() & $errno ) ) {
 			return false;
 		}
-		// If not in "wp-includes/update.php", default.
-		$update_php = 'wp-includes/update.php';
+		// If not in "fp-includes/update.php", default.
+		$update_php = 'fp-includes/update.php';
 		if ( 0 !== substr_compare( $errfile, $update_php, -strlen( $update_php ) ) ) {
 			return false;
 		}
-		// Else assume it's in `wp_update_themes()` or `wp_update_plugins()` and just ignore it.
+		// Else assume it's in `fp_update_themes()` or `fp_update_plugins()` and just ignore it.
 		return true;
 	}
 
@@ -900,15 +900,15 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 	protected static function maybe_cache( $url, $item_type ) {
 		$matches = [];
 
-		// cache release URLs like `https://github.com/wp-cli-test/generic-example-plugin/releases/download/v0.1.0/generic-example-plugin.0.1.0.zip`
+		// cache release URLs like `https://github.com/fp-cli-test/generic-example-plugin/releases/download/v0.1.0/generic-example-plugin.0.1.0.zip`
 		if ( preg_match( '#github\.com/[^/]+/([^/]+)/releases/download/v?([^/]+)/.+\.zip#', $url, $matches ) ) {
-			WP_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[2] );
-			// cache archive URLs like `https://github.com/wp-cli-test/generic-example-plugin/archive/v0.1.0.zip`
+			FP_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[2] );
+			// cache archive URLs like `https://github.com/fp-cli-test/generic-example-plugin/archive/v0.1.0.zip`
 		} elseif ( preg_match( '#github\.com/[^/]+/([^/]+)/archive/(version/|)v?([^/]+)\.zip#', $url, $matches ) ) {
-			WP_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[3] );
+			FP_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[3] );
 			// cache release URLs like `https://api.github.com/repos/danielbachhuber/one-time-login/zipball/v0.4.0`
 		} elseif ( preg_match( '#api\.github\.com/repos/[^/]+/([^/]+)/zipball/v?([^/]+)#', $url, $matches ) ) {
-			WP_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[2] );
+			FP_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[2] );
 		}
 	}
 
@@ -917,7 +917,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 	 *
 	 * @param string $repo_slug
 	 *
-	 * @return array{ name: string, url: string }|\WP_Error
+	 * @return array{ name: string, url: string }|\FP_Error
 	 */
 	protected function get_the_latest_github_version( $repo_slug ) {
 		$api_url = sprintf( $this->github_releases_api_endpoint, $repo_slug );
@@ -925,35 +925,35 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 
 		$request_arguments = $token ? [ 'headers' => 'Authorization: Bearer ' . getenv( 'GITHUB_TOKEN' ) ] : [];
 
-		$response = \wp_remote_get( $api_url, $request_arguments );
+		$response = \fp_remote_get( $api_url, $request_arguments );
 
-		if ( \is_wp_error( $response ) ) {
+		if ( \is_fp_error( $response ) ) {
 			return $response;
 		}
 
-		$body         = \wp_remote_retrieve_body( $response );
+		$body         = \fp_remote_retrieve_body( $response );
 		$decoded_body = json_decode( $body );
 
-		// WP_Http::FORBIDDEN doesn't exist in WordPress 3.7
-		if ( 403 === wp_remote_retrieve_response_code( $response ) ) {
-			return new \WP_Error(
+		// FP_Http::FORBIDDEN doesn't exist in FinPress 3.7
+		if ( 403 === fp_remote_retrieve_response_code( $response ) ) {
+			return new \FP_Error(
 				403,
 				$this->build_rate_limiting_error_message( $decoded_body )
 			);
 		}
 
-		if ( 404 === wp_remote_retrieve_response_code( $response ) ) {
+		if ( 404 === fp_remote_retrieve_response_code( $response ) ) {
 			/**
 			 * @var object{status: string, message: string} $decoded_body
 			 */
-			return new \WP_Error(
+			return new \FP_Error(
 				$decoded_body->status,
 				$decoded_body->message
 			);
 		}
 
 		if ( null === $decoded_body ) {
-			return new \WP_Error( 500, 'Empty response received from GitHub.com API' );
+			return new \FP_Error( 500, 'Empty response received from GitHub.com API' );
 		}
 
 		/**
@@ -961,7 +961,7 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 		 */
 
 		if ( ! isset( $decoded_body[0] ) ) {
-			return new \WP_Error( '400', 'The given Github repository does not have any releases' );
+			return new \FP_Error( '400', 'The given Github repository does not have any releases' );
 		}
 
 		$latest_release = $decoded_body[0];
@@ -1001,13 +1001,13 @@ abstract class CommandWithUpgrade extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Build the error message we display in WP-CLI for the API Rate limiting error response.
+	 * Build the error message we display in FP-CLI for the API Rate limiting error response.
 	 *
 	 * @param $decoded_body
 	 *
 	 * @return string
 	 */
 	private function build_rate_limiting_error_message( $decoded_body ) {
-		return $decoded_body->message . PHP_EOL . $decoded_body->documentation_url . PHP_EOL . 'In order to pass the token to WP-CLI, you need to use the GITHUB_TOKEN environment variable.';
+		return $decoded_body->message . PHP_EOL . $decoded_body->documentation_url . PHP_EOL . 'In order to pass the token to FP-CLI, you need to use the GITHUB_TOKEN environment variable.';
 	}
 }

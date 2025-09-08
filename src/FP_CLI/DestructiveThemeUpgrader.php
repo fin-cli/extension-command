@@ -1,6 +1,6 @@
 <?php
 
-namespace WP_CLI;
+namespace FP_CLI;
 
 /**
  * A theme upgrader class that clears the destination directory.

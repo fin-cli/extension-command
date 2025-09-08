@@ -1,6 +1,6 @@
 <?php
 
-namespace WP_CLI;
+namespace FP_CLI;
 
 /**
  * A plugin upgrader class that clears the destination directory.

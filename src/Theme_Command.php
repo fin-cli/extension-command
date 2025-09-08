@@ -1,20 +1,20 @@
 <?php
 
-use WP_CLI\CommandWithUpgrade;
-use WP_CLI\ParseThemeNameInput;
-use WP_CLI\Utils;
+use FP_CLI\CommandWithUpgrade;
+use FP_CLI\ParseThemeNameInput;
+use FP_CLI\Utils;
 
 /**
  * Manages themes, including installs, activations, and updates.
  *
- * See the WordPress [Theme Handbook](https://developer.wordpress.org/themes/) developer resource for more information on themes.
+ * See the FinPress [Theme Handbook](https://developer.finpress.org/themes/) developer resource for more information on themes.
  *
  * ## EXAMPLES
  *
- *     # Install the latest version of a theme from wordpress.org and activate
- *     $ wp theme install twentysixteen --activate
+ *     # Install the latest version of a theme from finpress.org and activate
+ *     $ fp theme install twentysixteen --activate
  *     Installing Twenty Sixteen (1.2)
- *     Downloading install package from http://downloads.wordpress.org/theme/twentysixteen.1.2.zip...
+ *     Downloading install package from http://downloads.finpress.org/theme/twentysixteen.1.2.zip...
  *     Unpacking the package...
  *     Installing the theme...
  *     Theme installed successfully.
@@ -23,7 +23,7 @@ use WP_CLI\Utils;
  *     Success: Installed 1 of 1 themes.
  *
  *     # Get details of an installed theme
- *     $ wp theme get twentysixteen --fields=name,title,version
+ *     $ fp theme get twentysixteen --fields=name,title,version
  *     +---------+----------------+
  *     | Field   | Value          |
  *     +---------+----------------+
@@ -33,27 +33,27 @@ use WP_CLI\Utils;
  *     +---------+----------------+
  *
  *     # Get status of theme
- *     $ wp theme status twentysixteen
+ *     $ fp theme status twentysixteen
  *     Theme twentysixteen details:
  *          Name: Twenty Sixteen
  *          Status: Active
  *          Version: 1.2
- *          Author: the WordPress team
+ *          Author: the FinPress team
  *
- * @package wp-cli
+ * @package fp-cli
  *
  * @phpstan-type ThemeInformation object{name: string, slug: non-empty-string, version: string, new_version: string, download_link: string, requires_php?: string, requires?: string}&\stdClass
- * @extends CommandWithUpgrade<\WP_Theme>
+ * @extends CommandWithUpgrade<\FP_Theme>
  */
 class Theme_Command extends CommandWithUpgrade {
 
 	/**
-	 * @use ParseThemeNameInput<\WP_Theme>
+	 * @use ParseThemeNameInput<\FP_Theme>
 	 */
 	use ParseThemeNameInput;
 
 	protected $item_type         = 'theme';
-	protected $upgrade_refresh   = 'wp_update_themes';
+	protected $upgrade_refresh   = 'fp_update_themes';
 	protected $upgrade_transient = 'update_themes';
 
 	protected $obj_fields = [
@@ -71,11 +71,11 @@ class Theme_Command extends CommandWithUpgrade {
 		}
 		parent::__construct();
 
-		$this->fetcher = new WP_CLI\Fetchers\Theme();
+		$this->fetcher = new FP_CLI\Fetchers\Theme();
 	}
 
 	protected function get_upgrader_class( $force ) {
-		return $force ? '\\WP_CLI\\DestructiveThemeUpgrader' : 'Theme_Upgrader';
+		return $force ? '\\FP_CLI\\DestructiveThemeUpgrader' : 'Theme_Upgrader';
 	}
 
 	/**
@@ -88,20 +88,20 @@ class Theme_Command extends CommandWithUpgrade {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp theme status twentysixteen
+	 *     $ fp theme status twentysixteen
 	 *     Theme twentysixteen details:
 	 *          Name: Twenty Sixteen
 	 *          Status: Inactive
 	 *          Version: 1.2
-	 *          Author: the WordPress team
+	 *          Author: the FinPress team
 	 */
 	public function status( $args ) {
 		if ( isset( $args[0] ) ) {
 			$theme  = $this->fetcher->get_check( $args[0] );
 			$errors = $theme->errors();
-			if ( is_wp_error( $errors ) ) {
+			if ( is_fp_error( $errors ) ) {
 				$message = $errors->get_error_message();
-				WP_CLI::error( $message );
+				FP_CLI::error( $message );
 			}
 		}
 
@@ -109,9 +109,9 @@ class Theme_Command extends CommandWithUpgrade {
 	}
 
 	/**
-	 * Searches the WordPress.org theme directory.
+	 * Searches the FinPress.org theme directory.
 	 *
-	 * Displays themes in the WordPress.org theme directory matching a given
+	 * Displays themes in the FinPress.org theme directory matching a given
 	 * search query.
 	 *
 	 * ## OPTIONS
@@ -144,7 +144,7 @@ class Theme_Command extends CommandWithUpgrade {
 	 *     **num_ratings**: Number of Theme Ratings
 	 *     **homepage**: Theme Author's Homepage
 	 *     **description**: Theme Description
-	 *     **url**: Theme's URL on wordpress.org
+	 *     **url**: Theme's URL on finpress.org
 	 *
 	 * [--format=<format>]
 	 * : Render output in a particular format.
@@ -160,7 +160,7 @@ class Theme_Command extends CommandWithUpgrade {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp theme search photo --per-page=6
+	 *     $ fp theme search photo --per-page=6
 	 *     Success: Showing 6 of 203 themes.
 	 *     +----------------------+----------------------+--------+
 	 *     | name                 | slug                 | rating |
@@ -187,7 +187,7 @@ class Theme_Command extends CommandWithUpgrade {
 			$version .= ' (%gUpdate available%n)';
 		}
 
-		echo WP_CLI::colorize(
+		echo FP_CLI::colorize(
 			Utils\mustache_render(
 				self::get_template_path( 'theme-status.mustache' ),
 				[
@@ -215,7 +215,7 @@ class Theme_Command extends CommandWithUpgrade {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp theme activate twentysixteen
+	 *     $ fp theme activate twentysixteen
 	 *     Success: Switched to 'Twenty Sixteen' theme.
 	 *
 	 * @param string[] $args       Positional arguments.
@@ -225,35 +225,35 @@ class Theme_Command extends CommandWithUpgrade {
 		$theme = $this->fetcher->get_check( $args[0] );
 
 		$errors = $theme->errors();
-		if ( is_wp_error( $errors ) ) {
+		if ( is_fp_error( $errors ) ) {
 			$message = $errors->get_error_message();
-			WP_CLI::error( $message );
+			FP_CLI::error( $message );
 		}
 
 		$name = $theme->get( 'Name' );
 
 		if ( 'active' === $this->get_status( $theme ) ) {
-			WP_CLI::warning( "The '$name' theme is already active." );
+			FP_CLI::warning( "The '$name' theme is already active." );
 			return;
 		}
 
 		if ( $theme->get_stylesheet() !== $theme->get_template() && ! $this->fetcher->get( $theme->get_template() ) ) {
-			WP_CLI::error( "The '{$theme->get_stylesheet()}' theme cannot be activated without its parent, '{$theme->get_template()}'." );
+			FP_CLI::error( "The '{$theme->get_stylesheet()}' theme cannot be activated without its parent, '{$theme->get_template()}'." );
 		}
 
 		switch_theme( $theme->get_stylesheet() );
 
 		if ( $this->is_active_theme( $theme ) ) {
-			WP_CLI::success( "Switched to '$name' theme." );
+			FP_CLI::success( "Switched to '$name' theme." );
 		} else {
-			WP_CLI::error( "Could not switch to '$name' theme." );
+			FP_CLI::error( "Could not switch to '$name' theme." );
 		}
 	}
 
 	/**
-	 * Enables a theme on a WordPress multisite install.
+	 * Enables a theme on a FinPress multisite install.
 	 *
-	 * Permits theme to be activated from the dashboard of a site on a WordPress
+	 * Permits theme to be activated from the dashboard of a site on a FinPress
 	 * multisite install.
 	 *
 	 * ## OPTIONS
@@ -271,25 +271,25 @@ class Theme_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Enable theme
-	 *     $ wp theme enable twentysixteen
+	 *     $ fp theme enable twentysixteen
 	 *     Success: Enabled the 'Twenty Sixteen' theme.
 	 *
 	 *     # Network enable theme
-	 *     $ wp theme enable twentysixteen --network
+	 *     $ fp theme enable twentysixteen --network
 	 *     Success: Network enabled the 'Twenty Sixteen' theme.
 	 *
 	 *     # Network enable and activate theme for current site
-	 *     $ wp theme enable twentysixteen --activate
+	 *     $ fp theme enable twentysixteen --activate
 	 *     Success: Enabled the 'Twenty Sixteen' theme.
 	 *     Success: Switched to 'Twenty Sixteen' theme.
 	 */
 	public function enable( $args, $assoc_args ) {
 		if ( ! is_multisite() ) {
-			WP_CLI::error( 'This is not a multisite installation.' );
+			FP_CLI::error( 'This is not a multisite installation.' );
 		}
 
 		/**
-		 * @var \WP_Theme $theme
+		 * @var \FP_Theme $theme
 		 */
 		$theme = $this->fetcher->get_check( $args[0] );
 		$name  = $theme->get( 'Name' );
@@ -311,9 +311,9 @@ class Theme_Command extends CommandWithUpgrade {
 		call_user_func( "update{$_site}_option", 'allowedthemes', $allowed_themes );
 
 		if ( ! empty( $assoc_args['network'] ) ) {
-			WP_CLI::success( "Network enabled the '$name' theme." );
+			FP_CLI::success( "Network enabled the '$name' theme." );
 		} else {
-			WP_CLI::success( "Enabled the '$name' theme." );
+			FP_CLI::success( "Enabled the '$name' theme." );
 		}
 
 		# If the --activate flag is set, activate the theme for the current site
@@ -323,10 +323,10 @@ class Theme_Command extends CommandWithUpgrade {
 	}
 
 	/**
-	 * Disables a theme on a WordPress multisite install.
+	 * Disables a theme on a FinPress multisite install.
 	 *
 	 * Removes ability for a theme to be activated from the dashboard of a site
-	 * on a WordPress multisite install.
+	 * on a FinPress multisite install.
 	 *
 	 * ## OPTIONS
 	 *
@@ -341,16 +341,16 @@ class Theme_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Disable theme
-	 *     $ wp theme disable twentysixteen
+	 *     $ fp theme disable twentysixteen
 	 *     Success: Disabled the 'Twenty Sixteen' theme.
 	 *
 	 *     # Disable theme in network level
-	 *     $ wp theme disable twentysixteen --network
+	 *     $ fp theme disable twentysixteen --network
 	 *     Success: Network disabled the 'Twenty Sixteen' theme.
 	 */
 	public function disable( $args, $assoc_args ) {
 		if ( ! is_multisite() ) {
-			WP_CLI::error( 'This is not a multisite installation.' );
+			FP_CLI::error( 'This is not a multisite installation.' );
 		}
 
 		$theme = $this->fetcher->get_check( $args[0] );
@@ -372,9 +372,9 @@ class Theme_Command extends CommandWithUpgrade {
 		call_user_func( "update{$_site}_option", 'allowedthemes', $allowed_themes );
 
 		if ( ! empty( $assoc_args['network'] ) ) {
-			WP_CLI::success( "Network disabled the '$name' theme." );
+			FP_CLI::success( "Network disabled the '$name' theme." );
 		} else {
-			WP_CLI::success( "Disabled the '$name' theme." );
+			FP_CLI::success( "Disabled the '$name' theme." );
 		}
 	}
 
@@ -394,15 +394,15 @@ class Theme_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Get theme path
-	 *     $ wp theme path
-	 *     /var/www/example.com/public_html/wp-content/themes
+	 *     $ fp theme path
+	 *     /var/www/example.com/public_html/fp-content/themes
 	 *
 	 *     # Change directory to theme path
-	 *     $ cd $(wp theme path)
+	 *     $ cd $(fp theme path)
 	 */
 	public function path( $args, $assoc_args ) {
 		if ( empty( $args ) ) {
-			$path = WP_CONTENT_DIR . '/themes';
+			$path = FP_CONTENT_DIR . '/themes';
 		} else {
 			$theme = $this->fetcher->get_check( $args[0] );
 
@@ -413,21 +413,21 @@ class Theme_Command extends CommandWithUpgrade {
 			}
 		}
 
-		WP_CLI::line( $path );
+		FP_CLI::line( $path );
 	}
 
 	protected function install_from_repo( $slug, $assoc_args ) {
-		global $wp_version;
-		// Extract the major WordPress version (e.g., "6.3") from the full version string
-		list($wp_core_version) = explode( '-', $wp_version );
-		$wp_core_version       = implode( '.', array_slice( explode( '.', $wp_core_version ), 0, 2 ) );
+		global $fp_version;
+		// Extract the major FinPress version (e.g., "6.3") from the full version string
+		list($fp_core_version) = explode( '-', $fp_version );
+		$fp_core_version       = implode( '.', array_slice( explode( '.', $fp_core_version ), 0, 2 ) );
 
 		/**
-		 * @var \WP_Error|ThemeInformation $api
+		 * @var \FP_Error|ThemeInformation $api
 		 */
 		$api = themes_api( 'theme_information', array( 'slug' => $slug ) );
 
-		if ( is_wp_error( $api ) ) {
+		if ( is_fp_error( $api ) ) {
 			return $api;
 		}
 
@@ -435,39 +435,39 @@ class Theme_Command extends CommandWithUpgrade {
 			self::alter_api_response( $api, $assoc_args['version'] );
 		} elseif ( ! Utils\get_flag_value( $assoc_args, 'ignore-requirements', false ) ) {
 			$requires_php = isset( $api->requires_php ) ? $api->requires_php : null;
-			$requires_wp  = isset( $api->requires ) ? $api->requires : null;
+			$requires_fp  = isset( $api->requires ) ? $api->requires : null;
 
 			$compatible_php = empty( $requires_php ) || version_compare( PHP_VERSION, $requires_php, '>=' );
-			$compatible_wp  = empty( $requires_wp ) || version_compare( $wp_core_version, $requires_wp, '>=' );
+			$compatible_fp  = empty( $requires_fp ) || version_compare( $fp_core_version, $requires_fp, '>=' );
 
-			if ( ! $compatible_wp ) {
-				return new WP_Error( 'requirements_not_met', "This theme does not work with your version of WordPress. Minimum WordPress requirement is $requires_wp" );
+			if ( ! $compatible_fp ) {
+				return new FP_Error( 'requirements_not_met', "This theme does not work with your version of FinPress. Minimum FinPress requirement is $requires_fp" );
 			}
 
 			if ( ! $compatible_php ) {
-				return new WP_Error( 'requirements_not_met', "This theme does not work with your version of PHP. Minimum PHP required is $requires_php" );
+				return new FP_Error( 'requirements_not_met', "This theme does not work with your version of PHP. Minimum PHP required is $requires_php" );
 			}
 		}
 
 		if ( ! Utils\get_flag_value( $assoc_args, 'force' ) ) {
-			$theme = wp_get_theme( $slug );
+			$theme = fp_get_theme( $slug );
 			if ( $theme->exists() ) {
 				// We know this will fail, so avoid a needless download of the package.
-				return new WP_Error( 'already_installed', 'Theme already installed.' );
+				return new FP_Error( 'already_installed', 'Theme already installed.' );
 			}
-			// Clear cache so WP_Theme doesn't create a "missing theme" object.
+			// Clear cache so FP_Theme doesn't create a "missing theme" object.
 			$cache_hash = md5( $theme->theme_root . '/' . $theme->stylesheet );
 			foreach ( [ 'theme', 'screenshot', 'headers', 'page_templates' ] as $key ) {
-				wp_cache_delete( $key . '-' . $cache_hash, 'themes' );
+				fp_cache_delete( $key . '-' . $cache_hash, 'themes' );
 			}
 		}
 
-		WP_CLI::log( sprintf( 'Installing %s (%s)', html_entity_decode( $api->name, ENT_QUOTES ), $api->version ) );
+		FP_CLI::log( sprintf( 'Installing %s (%s)', html_entity_decode( $api->name, ENT_QUOTES ), $api->version ) );
 		if ( Utils\get_flag_value( $assoc_args, 'version' ) !== 'dev' ) {
-			WP_CLI::get_http_cache_manager()->whitelist_package( $api->download_link, $this->item_type, $api->slug, $api->version );
+			FP_CLI::get_http_cache_manager()->whitelist_package( $api->download_link, $this->item_type, $api->slug, $api->version );
 		}
 
-		// Ignore failures on accessing SSL "https://api.wordpress.org/themes/update-check/1.1/" in `wp_update_themes()` which seem to occur intermittently.
+		// Ignore failures on accessing SSL "https://api.finpress.org/themes/update-check/1.1/" in `fp_update_themes()` which seem to occur intermittently.
 		set_error_handler( array( __CLASS__, 'error_handler' ), E_USER_WARNING | E_USER_NOTICE );
 
 		$result = $this->get_upgrader( $assoc_args )->install( $api->download_link );
@@ -499,7 +499,7 @@ class Theme_Command extends CommandWithUpgrade {
 	 * : One or more themes to install. Accepts a theme slug, the path to a local zip file, or a URL to a remote zip file.
 	 *
 	 * [--version=<version>]
-	 * : If set, get that particular version from wordpress.org, instead of the
+	 * : If set, get that particular version from finpress.org, instead of the
 	 * stable version.
 	 *
 	 * [--force]
@@ -507,7 +507,7 @@ class Theme_Command extends CommandWithUpgrade {
 	 * for confirmation.
 	 *
 	 * [--ignore-requirements]
-	 * : If set, the command will install the theme while ignoring any WordPress or PHP version requirements
+	 * : If set, the command will install the theme while ignoring any FinPress or PHP version requirements
 	 * specified by the theme authors.
 	 *
 	 * [--activate]
@@ -518,10 +518,10 @@ class Theme_Command extends CommandWithUpgrade {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Install the latest version from wordpress.org and activate
-	 *     $ wp theme install twentysixteen --activate
+	 *     # Install the latest version from finpress.org and activate
+	 *     $ fp theme install twentysixteen --activate
 	 *     Installing Twenty Sixteen (1.2)
-	 *     Downloading install package from http://downloads.wordpress.org/theme/twentysixteen.1.2.zip...
+	 *     Downloading install package from http://downloads.finpress.org/theme/twentysixteen.1.2.zip...
 	 *     Unpacking the package...
 	 *     Installing the theme...
 	 *     Theme installed successfully.
@@ -530,20 +530,20 @@ class Theme_Command extends CommandWithUpgrade {
 	 *     Success: Installed 1 of 1 themes.
 	 *
 	 *     # Install from a local zip file
-	 *     $ wp theme install ../my-theme.zip
+	 *     $ fp theme install ../my-theme.zip
 	 *
 	 *     # Install from a remote zip file
-	 *     $ wp theme install http://s3.amazonaws.com/bucketname/my-theme.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
+	 *     $ fp theme install http://s3.amazonaws.com/bucketname/my-theme.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
 	 */
 	public function install( $args, $assoc_args ) {
 		if ( count( $args ) > 1 && Utils\get_flag_value( $assoc_args, 'activate', false ) ) {
-			WP_CLI::warning( sprintf( 'Only this single theme will be activated: %s', end( $args ) ) );
+			FP_CLI::warning( sprintf( 'Only this single theme will be activated: %s', end( $args ) ) );
 			reset( $args );
 		}
 
 		$theme_root = get_theme_root();
 		if ( $theme_root && ! is_dir( $theme_root ) ) {
-			wp_mkdir_p( $theme_root );
+			fp_mkdir_p( $theme_root );
 			register_theme_directory( $theme_root );
 		}
 
@@ -577,7 +577,7 @@ class Theme_Command extends CommandWithUpgrade {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp theme get twentysixteen --fields=name,title,version
+	 *     $ fp theme get twentysixteen --fields=name,title,version
 	 *     +---------+----------------+
 	 *     | Field   | Value          |
 	 *     +---------+----------------+
@@ -590,12 +590,12 @@ class Theme_Command extends CommandWithUpgrade {
 		$theme = $this->fetcher->get_check( $args[0] );
 
 		$errors = $theme->errors();
-		if ( is_wp_error( $errors ) ) {
+		if ( is_fp_error( $errors ) ) {
 			$message = $errors->get_error_message();
-			WP_CLI::error( $message );
+			FP_CLI::error( $message );
 		}
 
-		// WP_Theme object employs magic getter, unfortunately.
+		// FP_Theme object employs magic getter, unfortunately.
 		$theme_vars = [
 			'name',
 			'title',
@@ -672,13 +672,13 @@ class Theme_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Update multiple themes
-	 *     $ wp theme update twentyfifteen twentysixteen
-	 *     Downloading update from https://downloads.wordpress.org/theme/twentyfifteen.1.5.zip...
+	 *     $ fp theme update twentyfifteen twentysixteen
+	 *     Downloading update from https://downloads.finpress.org/theme/twentyfifteen.1.5.zip...
 	 *     Unpacking the update...
 	 *     Installing the latest version...
 	 *     Removing the old version of the theme...
 	 *     Theme updated successfully.
-	 *     Downloading update from https://downloads.wordpress.org/theme/twentysixteen.1.2.zip...
+	 *     Downloading update from https://downloads.finpress.org/theme/twentysixteen.1.2.zip...
 	 *     Unpacking the update...
 	 *     Installing the latest version...
 	 *     Removing the old version of the theme...
@@ -692,13 +692,13 @@ class Theme_Command extends CommandWithUpgrade {
 	 *     Success: Updated 2 of 2 themes.
 	 *
 	 *     # Exclude themes updates when bulk updating the themes
-	 *     $ wp theme update --all --exclude=twentyfifteen
-	 *     Downloading update from https://downloads.wordpress.org/theme/astra.1.0.5.1.zip...
+	 *     $ fp theme update --all --exclude=twentyfifteen
+	 *     Downloading update from https://downloads.finpress.org/theme/astra.1.0.5.1.zip...
 	 *     Unpacking the update...
 	 *     Installing the latest version...
 	 *     Removing the old version of the theme...
 	 *     Theme updated successfully.
-	 *     Downloading update from https://downloads.wordpress.org/theme/twentyseventeen.1.2.zip...
+	 *     Downloading update from https://downloads.finpress.org/theme/twentyseventeen.1.2.zip...
 	 *     Unpacking the update...
 	 *     Installing the latest version...
 	 *     Removing the old version of the theme...
@@ -712,7 +712,7 @@ class Theme_Command extends CommandWithUpgrade {
 	 *     Success: Updated 2 of 2 themes.
 	 *
 	 *     # Update all themes
-	 *     $ wp theme update --all
+	 *     $ fp theme update --all
 	 *
 	 * @alias upgrade
 	 */
@@ -725,7 +725,7 @@ class Theme_Command extends CommandWithUpgrade {
 		}
 
 		if ( isset( $assoc_args['version'] ) && isset( $assoc_args['dry-run'] ) ) {
-			WP_CLI::error( '--dry-run cannot be used together with --version.' );
+			FP_CLI::error( '--dry-run cannot be used together with --version.' );
 		}
 
 		if ( isset( $assoc_args['version'] ) ) {
@@ -751,19 +751,19 @@ class Theme_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Check whether theme is installed; exit status 0 if installed, otherwise 1
-	 *     $ wp theme is-installed hello
+	 *     $ fp theme is-installed hello
 	 *     $ echo $?
 	 *     1
 	 *
 	 * @subcommand is-installed
 	 */
 	public function is_installed( $args, $assoc_args ) {
-		$theme = wp_get_theme( $args[0] );
+		$theme = fp_get_theme( $args[0] );
 
 		if ( $theme->exists() ) {
-			WP_CLI::halt( 0 );
+			FP_CLI::halt( 0 );
 		} else {
-			WP_CLI::halt( 1 );
+			FP_CLI::halt( 1 );
 		}
 	}
 
@@ -780,20 +780,20 @@ class Theme_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Check whether theme is Active; exit status 0 if active, otherwise 1
-	 *     $ wp theme is-active twentyfifteen
+	 *     $ fp theme is-active twentyfifteen
 	 *     $ echo $?
 	 *     1
 	 *
 	 * @subcommand is-active
 	 */
 	public function is_active( $args, $assoc_args ) {
-		$theme = wp_get_theme( $args[0] );
+		$theme = fp_get_theme( $args[0] );
 
 		if ( ! $theme->exists() ) {
-			WP_CLI::halt( 1 );
+			FP_CLI::halt( 1 );
 		}
 
-		$this->is_active_theme( $theme ) || $this->is_active_parent_theme( $theme ) ? WP_CLI::halt( 0 ) : WP_CLI::halt( 1 );
+		$this->is_active_theme( $theme ) || $this->is_active_parent_theme( $theme ) ? FP_CLI::halt( 0 ) : FP_CLI::halt( 1 );
 	}
 
 	/**
@@ -814,7 +814,7 @@ class Theme_Command extends CommandWithUpgrade {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp theme delete twentytwelve
+	 *     $ fp theme delete twentytwelve
 	 *     Deleted 'twentytwelve' theme.
 	 *     Success: Deleted 1 of 1 themes.
 	 *
@@ -838,7 +838,7 @@ class Theme_Command extends CommandWithUpgrade {
 
 			if ( $this->is_active_theme( $theme ) && ! $force ) {
 				if ( ! $all ) {
-					WP_CLI::warning( "Can't delete the currently active theme: $theme_slug" );
+					FP_CLI::warning( "Can't delete the currently active theme: $theme_slug" );
 					++$errors;
 				}
 				continue;
@@ -846,7 +846,7 @@ class Theme_Command extends CommandWithUpgrade {
 
 			if ( $this->is_active_parent_theme( $theme ) && ! $force ) {
 				if ( ! $all ) {
-					WP_CLI::warning( "Can't delete the parent of the currently active theme: $theme_slug" );
+					FP_CLI::warning( "Can't delete the parent of the currently active theme: $theme_slug" );
 					++$errors;
 				}
 				continue;
@@ -854,11 +854,11 @@ class Theme_Command extends CommandWithUpgrade {
 
 			$r = delete_theme( $theme_slug );
 
-			if ( is_wp_error( $r ) ) {
-				WP_CLI::warning( $r );
+			if ( is_fp_error( $r ) ) {
+				FP_CLI::warning( $r );
 				++$errors;
 			} else {
-				WP_CLI::log( "Deleted '$theme_slug' theme." );
+				FP_CLI::log( "Deleted '$theme_slug' theme." );
 				++$successes;
 			}
 		}
@@ -926,7 +926,7 @@ class Theme_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # List inactive themes.
-	 *     $ wp theme list --status=inactive --format=csv
+	 *     $ fp theme list --status=inactive --format=csv
 	 *     name,status,update,version,update_version,auto_update
 	 *     twentyfourteen,inactive,none,3.8,,off
 	 *     twentysixteen,inactive,available,3.0,3.1,off
@@ -945,7 +945,7 @@ class Theme_Command extends CommandWithUpgrade {
 		$template_path = "{$command_root}/templates/{$template}";
 
 		if ( ! file_exists( $template_path ) ) {
-			WP_CLI::error( "Couldn't find {$template}" );
+			FP_CLI::error( "Couldn't find {$template}" );
 		}
 
 		return $template_path;

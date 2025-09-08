@@ -1,10 +1,10 @@
-Feature: Manage WordPress extension installation
+Feature: Manage FinPress extension installation
 
-  @require-wp-5.1.1
+  @require-fp-5.1.1
   Scenario: Installing Extensions theme or plugin
-    Given a WP install
+    Given a FP install
 
-    When I try `wp theme install test-ext --activate`
+    When I try `fp theme install test-ext --activate`
     Then STDERR should be:
       """
       Warning: test-ext: Theme not found
@@ -12,7 +12,7 @@ Feature: Manage WordPress extension installation
       Error: No themes installed.
       """
 
-    When I try `wp plugin install test-ext --activate`
+    When I try `fp plugin install test-ext --activate`
     Then STDERR should be:
       """
       Warning: test-ext: Plugin not found.

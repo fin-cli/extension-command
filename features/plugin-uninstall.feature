@@ -1,11 +1,11 @@
-Feature: Uninstall a WordPress plugin
+Feature: Uninstall a FinPress plugin
 
   Background:
-    Given a WP install
-    And I run `wp plugin install https://github.com/wp-cli/sample-plugin/archive/refs/heads/master.zip`
+    Given a FP install
+    And I run `fp plugin install https://github.com/fp-cli/sample-plugin/archive/refs/heads/master.zip`
 
   Scenario: Uninstall an installed plugin should uninstall, delete files
-    When I run `wp plugin uninstall akismet`
+    When I run `fp plugin uninstall akismet`
     Then STDOUT should be:
       """
       Uninstalled and deleted 'akismet' plugin.
@@ -13,10 +13,10 @@ Feature: Uninstall a WordPress plugin
       """
     And the return code should be 0
     And STDERR should be empty
-    And the wp-content/plugins/akismet directory should not exist
+    And the fp-content/plugins/akismet directory should not exist
 
   Scenario: Uninstall an installed plugin but do not delete its files
-    When I run `wp plugin uninstall akismet --skip-delete`
+    When I run `fp plugin uninstall akismet --skip-delete`
     Then STDOUT should be:
       """
       Ran uninstall procedure for 'akismet' plugin without deleting.
@@ -24,10 +24,10 @@ Feature: Uninstall a WordPress plugin
       """
     And the return code should be 0
     And STDERR should be empty
-    And the wp-content/plugins/akismet directory should exist
+    And the fp-content/plugins/akismet directory should exist
 
   Scenario: Uninstall a plugin that is not in a folder and has custom name
-    When I run `wp plugin uninstall sample-plugin`
+    When I run `fp plugin uninstall sample-plugin`
     Then STDOUT should be:
       """
       Uninstalled and deleted 'sample-plugin' plugin.
@@ -35,10 +35,10 @@ Feature: Uninstall a WordPress plugin
       """
     And the return code should be 0
     And STDERR should be empty
-    And the wp-content/plugins/sample-plugin.php file should not exist
+    And the fp-content/plugins/sample-plugin.php file should not exist
 
   Scenario: Missing required inputs
-    When I try `wp plugin uninstall`
+    When I try `fp plugin uninstall`
     Then STDERR should be:
       """
       Error: Please specify one or more plugins, or use --all.
@@ -47,10 +47,10 @@ Feature: Uninstall a WordPress plugin
     And STDOUT should be empty
 
   Scenario: Attempting to uninstall a plugin that's activated
-    When I run `wp plugin activate akismet`
+    When I run `fp plugin activate akismet`
     Then STDOUT should not be empty
 
-    When I try `wp plugin uninstall akismet`
+    When I try `fp plugin uninstall akismet`
     Then STDERR should be:
       """
       Warning: The 'akismet' plugin is active.
@@ -60,10 +60,10 @@ Feature: Uninstall a WordPress plugin
     And the return code should be 1
 
   Scenario: Attempting to uninstall a plugin that's activated (using --deactivate)
-    When I run `wp plugin activate akismet`
+    When I run `fp plugin activate akismet`
     Then STDOUT should not be empty
 
-    When I try `wp plugin uninstall akismet --deactivate`
+    When I try `fp plugin uninstall akismet --deactivate`
     Then STDOUT should be:
       """
       Deactivating 'akismet'...
@@ -75,7 +75,7 @@ Feature: Uninstall a WordPress plugin
     And the return code should be 0
 
   Scenario: Attempting to uninstall a plugin that doesn't exist
-    When I try `wp plugin uninstall debug-bar`
+    When I try `fp plugin uninstall debug-bar`
     Then STDERR should be:
       """
       Warning: The 'debug-bar' plugin could not be found.
@@ -84,7 +84,7 @@ Feature: Uninstall a WordPress plugin
     And the return code should be 1
 
   Scenario: Uninstall all installed plugins
-    When I run `wp plugin uninstall --all`
+    When I run `fp plugin uninstall --all`
     Then STDOUT should contain:
       """
       Uninstalled and deleted 'akismet' plugin.
@@ -108,13 +108,13 @@ Feature: Uninstall a WordPress plugin
     And STDERR should be empty
 
   Scenario:  Uninstall all installed plugins when one or more activated
-    When I run `wp plugin activate --all`
+    When I run `fp plugin activate --all`
     Then STDOUT should contain:
       """
       Success: Activated 3 of 3 plugins.
       """
 
-    When I try `wp plugin uninstall --all`
+    When I try `fp plugin uninstall --all`
     Then STDERR should contain:
       """
       Warning: The 'akismet' plugin is active.
@@ -130,7 +130,7 @@ Feature: Uninstall a WordPress plugin
     And the return code should be 1
     And STDOUT should be empty
 
-    When I run `wp plugin uninstall --deactivate --all`
+    When I run `fp plugin uninstall --deactivate --all`
     Then STDOUT should contain:
       """
       Success: Uninstalled 3 of 3 plugins.
@@ -138,7 +138,7 @@ Feature: Uninstall a WordPress plugin
     And STDERR should be empty
 
   Scenario: Excluding a plugin from uninstallation when using --all switch
-    When I try `wp plugin uninstall --all --exclude=akismet,sample-plugin,hello,hello-dolly`
+    When I try `fp plugin uninstall --all --exclude=akismet,sample-plugin,hello,hello-dolly`
     Then STDOUT should be:
       """
       Success: No plugins uninstalled.
@@ -147,8 +147,8 @@ Feature: Uninstall a WordPress plugin
     And STDERR should be empty
 
   Scenario: Excluding a missing plugin should not throw an error
-    Given a WP install
-    And I run `wp plugin uninstall --all --exclude=missing-plugin`
+    Given a FP install
+    And I run `fp plugin uninstall --all --exclude=missing-plugin`
     Then STDERR should be empty
     And STDOUT should contain:
       """
@@ -156,52 +156,52 @@ Feature: Uninstall a WordPress plugin
       """
     And the return code should be 0
 
-  @require-wp-5.2
+  @require-fp-5.2
   Scenario: Uninstalling a plugin should remove its language pack
-    Given a WP install
-    And I run `wp plugin install wordpress-importer`
-    And I run `wp core language install fr_FR`
-    And I run `wp site switch-language fr_FR`
+    Given a FP install
+    And I run `fp plugin install finpress-importer`
+    And I run `fp core language install fr_FR`
+    And I run `fp site switch-language fr_FR`
 
-    When I run `wp language plugin install wordpress-importer fr_FR`
+    When I run `fp language plugin install finpress-importer fr_FR`
     Then STDOUT should contain:
       """
       Success:
       """
-    And the wp-content/languages/plugins/wordpress-importer-fr_FR.mo file should exist
-    And the wp-content/languages/plugins/wordpress-importer-fr_FR.po file should exist
-    And the wp-content/languages/plugins/wordpress-importer-fr_FR.l10n.php file should exist
+    And the fp-content/languages/plugins/finpress-importer-fr_FR.mo file should exist
+    And the fp-content/languages/plugins/finpress-importer-fr_FR.po file should exist
+    And the fp-content/languages/plugins/finpress-importer-fr_FR.l10n.php file should exist
 
-    When I run `wp plugin uninstall wordpress-importer`
+    When I run `fp plugin uninstall finpress-importer`
     Then STDOUT should contain:
       """
       Success:
       """
-    And the wp-content/languages/plugins/wordpress-importer-fr_FR.mo file should not exist
-    And the wp-content/languages/plugins/wordpress-importer-fr_FR.po file should not exist
-    And the wp-content/languages/plugins/wordpress-importer-fr_FR.l10n.php file should not exist
+    And the fp-content/languages/plugins/finpress-importer-fr_FR.mo file should not exist
+    And the fp-content/languages/plugins/finpress-importer-fr_FR.po file should not exist
+    And the fp-content/languages/plugins/finpress-importer-fr_FR.l10n.php file should not exist
     And STDERR should be empty
 
-  @require-wp-5.2
+  @require-fp-5.2
   Scenario: Uninstalling a plugin should remove its update info
-    Given a WP install
-    And I run `wp plugin install wordpress-importer --version=0.6`
-    And I run `wp plugin status wordpress-importer`
+    Given a FP install
+    And I run `fp plugin install finpress-importer --version=0.6`
+    And I run `fp plugin status finpress-importer`
 
-    And I run `wp transient get --network update_plugins`
+    And I run `fp transient get --network update_plugins`
     Then STDOUT should contain:
       """
-      wordpress-importer
+      finpress-importer
       """
 
-    When I run `wp plugin uninstall wordpress-importer`
+    When I run `fp plugin uninstall finpress-importer`
     Then STDOUT should contain:
       """
       Success:
       """
 
-    When I run `wp transient get --network update_plugins`
+    When I run `fp transient get --network update_plugins`
     Then STDOUT should not contain:
       """
-      wordpress-importer
+      finpress-importer
       """

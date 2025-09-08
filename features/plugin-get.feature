@@ -1,8 +1,8 @@
-Feature: Get WordPress plugin
+Feature: Get FinPress plugin
 
   Scenario: Get plugin info
-    Given a WP install
-    And a wp-content/plugins/foo.php file:
+    Given a FP install
+    And a fp-content/plugins/foo.php file:
       """
       /**
        * Plugin Name: Sample Plugin
@@ -18,7 +18,7 @@ Feature: Get WordPress plugin
        */
       """
 
-    When I run `wp plugin get foo --fields=name,author,version,status`
+    When I run `fp plugin get foo --fields=name,author,version,status`
     Then STDOUT should be a table containing rows:
       | Field   | Value    |
       | name    | foo      |
@@ -26,16 +26,16 @@ Feature: Get WordPress plugin
       | version | 1.0.0    |
       | status  | inactive |
 
-    When I run `wp plugin get foo --format=json`
+    When I run `fp plugin get foo --format=json`
     Then STDOUT should be:
       """
       {"name":"foo","title":"Sample Plugin","author":"John Doe","version":"1.0.0","description":"Description for sample plugin.","status":"inactive"}
       """
 
-  @require-wp-6.5
+  @require-fp-6.5
   Scenario: Get Requires Plugins header of plugin
-    Given a WP install
-    And a wp-content/plugins/foo.php file:
+    Given a FP install
+    And a fp-content/plugins/foo.php file:
       """
       <?php
       /**
@@ -46,16 +46,16 @@ Feature: Get WordPress plugin
        */
       """
 
-    When I run `wp plugin get foo --field=requires_plugins`
+    When I run `fp plugin get foo --field=requires_plugins`
     Then STDOUT should be:
       """
       jetpack, woocommerce
       """
 
-  @require-wp-5.3
-  Scenario: Get Requires PHP and Requires WP header of plugin
-    Given a WP install
-    And a wp-content/plugins/foo.php file:
+  @require-fp-5.3
+  Scenario: Get Requires PHP and Requires FP header of plugin
+    Given a FP install
+    And a fp-content/plugins/foo.php file:
       """
       <?php
       /**
@@ -67,8 +67,8 @@ Feature: Get WordPress plugin
        */
       """
 
-    When I run `wp plugin get foo --fields=requires_wp,requires_php`
+    When I run `fp plugin get foo --fields=requires_fp,requires_php`
     Then STDOUT should be a table containing rows:
       | Field        | Value |
-      | requires_wp  | 6.2   |
+      | requires_fp  | 6.2   |
       | requires_php | 7.4   |

@@ -1,39 +1,39 @@
 <?php
 
-use WP_CLI\CommandWithUpgrade;
-use WP_CLI\ParsePluginNameInput;
-use WP_CLI\Utils;
-use WP_CLI\WpOrgApi;
+use FP_CLI\CommandWithUpgrade;
+use FP_CLI\ParsePluginNameInput;
+use FP_CLI\Utils;
+use FP_CLI\WpOrgApi;
 
-use function WP_CLI\Utils\normalize_path;
+use function FP_CLI\Utils\normalize_path;
 
 /**
  * Manages plugins, including installs, activations, and updates.
  *
- * See the WordPress [Plugin Handbook](https://developer.wordpress.org/plugins/) developer resource for more information on plugins.
+ * See the FinPress [Plugin Handbook](https://developer.finpress.org/plugins/) developer resource for more information on plugins.
  *
  * ## EXAMPLES
  *
  *     # Activate plugin
- *     $ wp plugin activate hello
+ *     $ fp plugin activate hello
  *     Plugin 'hello' activated.
  *     Success: Activated 1 of 1 plugins.
  *
  *     # Deactivate plugin
- *     $ wp plugin deactivate hello
+ *     $ fp plugin deactivate hello
  *     Plugin 'hello' deactivated.
  *     Success: Deactivated 1 of 1 plugins.
  *
  *     # Delete plugin
- *     $ wp plugin delete hello
+ *     $ fp plugin delete hello
  *     Deleted 'hello' plugin.
  *     Success: Deleted 1 of 1 plugins.
  *
- *     # Install the latest version from wordpress.org and activate
- *     $ wp plugin install bbpress --activate
+ *     # Install the latest version from finpress.org and activate
+ *     $ fp plugin install bbpress --activate
  *     Installing bbPress (2.5.9)
- *     Downloading install package from https://downloads.wordpress.org/plugin/bbpress.2.5.9.zip...
- *     Using cached file '/home/vagrant/.wp-cli/cache/plugin/bbpress-2.5.9.zip'...
+ *     Downloading install package from https://downloads.finpress.org/plugin/bbpress.2.5.9.zip...
+ *     Using cached file '/home/vagrant/.fp-cli/cache/plugin/bbpress-2.5.9.zip'...
  *     Unpacking the package...
  *     Installing the plugin...
  *     Plugin installed successfully.
@@ -41,7 +41,7 @@ use function WP_CLI\Utils\normalize_path;
  *     Plugin 'bbpress' activated.
  *     Success: Installed 1 of 1 plugins.
  *
- * @package wp-cli
+ * @package fp-cli
  *
  * @phpstan-type PluginInformation object{name: string, slug: non-empty-string, version: string, new_version: string, download_link: string, requires_php?: string, requires?: string, package: string}&\stdClass
  * @extends CommandWithUpgrade<string,>
@@ -50,9 +50,9 @@ class Plugin_Command extends CommandWithUpgrade {
 	use ParsePluginNameInput;
 
 	protected $item_type         = 'plugin';
-	protected $upgrade_refresh   = 'wp_update_plugins';
+	protected $upgrade_refresh   = 'fp_update_plugins';
 	protected $upgrade_transient = 'update_plugins';
-	protected $check_wporg       = [
+	protected $check_fporg       = [
 		'status'       => false,
 		'last_updated' => false,
 	];
@@ -70,16 +70,16 @@ class Plugin_Command extends CommandWithUpgrade {
 	);
 
 	public function __construct() {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+		require_once ABSPATH . 'fp-admin/includes/plugin.php';
+		require_once ABSPATH . 'fp-admin/includes/plugin-install.php';
 
 		parent::__construct();
 
-		$this->fetcher = new WP_CLI\Fetchers\Plugin();
+		$this->fetcher = new FP_CLI\Fetchers\Plugin();
 	}
 
 	protected function get_upgrader_class( $force ) {
-		return $force ? '\\WP_CLI\\DestructivePluginUpgrader' : 'Plugin_Upgrader';
+		return $force ? '\\FP_CLI\\DestructivePluginUpgrader' : 'Plugin_Upgrader';
 	}
 
 	/**
@@ -93,7 +93,7 @@ class Plugin_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Displays status of all plugins
-	 *     $ wp plugin status
+	 *     $ fp plugin status
 	 *     5 installed plugins:
 	 *       I akismet                3.1.11
 	 *       I easy-digital-downloads 2.5.16
@@ -103,22 +103,22 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *     Legend: I = Inactive, A = Active, M = Must Use
 	 *
 	 *     # Displays status of a plugin
-	 *     $ wp plugin status theme-check
+	 *     $ fp plugin status theme-check
 	 *     Plugin theme-check details:
 	 *         Name: Theme Check
 	 *         Status: Active
 	 *         Version: 20160523.1
 	 *         Author: Otto42, pross
-	 *         Description: A simple and easy way to test your theme for all the latest WordPress standards and practices. A great theme development tool!
+	 *         Description: A simple and easy way to test your theme for all the latest FinPress standards and practices. A great theme development tool!
 	 */
 	public function status( $args ) {
 		parent::status( $args );
 	}
 
 	/**
-	 * Searches the WordPress.org plugin directory.
+	 * Searches the FinPress.org plugin directory.
 	 *
-	 * Displays plugins in the WordPress.org plugin directory matching a given
+	 * Displays plugins in the FinPress.org plugin directory matching a given
 	 * search query.
 	 *
 	 * ## OPTIONS
@@ -162,7 +162,7 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *     **sections**: Plugin Readme Sections: description, installation, FAQ, screenshots, other notes, and changelog
 	 *     **downloaded**: Plugin Download Count
 	 *     **last_updated**: Plugin's Last Update
-	 *     **added**: Plugin's Date Added to wordpress.org Repository
+	 *     **added**: Plugin's Date Added to finpress.org Repository
 	 *     **tags**: Plugin's Tags
 	 *     **versions**: Plugin's Available Versions with D/L Link
 	 *     **donate_link**: Plugin's Donation Link
@@ -170,7 +170,7 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *     **icons**: Plugin's Icon Image Link
 	 *     **active_installs**: Plugin's Number of Active Installs
 	 *     **contributors**: Plugin's List of Contributors
-	 *     **url**: Plugin's URL on wordpress.org
+	 *     **url**: Plugin's URL on finpress.org
 	 *
 	 * [--format=<format>]
 	 * : Render output in a particular format.
@@ -186,11 +186,11 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp plugin search dsgnwrks --per-page=20 --format=json
+	 *     $ fp plugin search dsgnwrks --per-page=20 --format=json
 	 *     Success: Showing 3 of 3 plugins.
 	 *     [{"name":"DsgnWrks Instagram Importer Debug","slug":"dsgnwrks-instagram-importer-debug","rating":0},{"name":"DsgnWrks Instagram Importer","slug":"dsgnwrks-instagram-importer","rating":84},{"name":"DsgnWrks Twitter Importer","slug":"dsgnwrks-twitter-importer","rating":80}]
 	 *
-	 *     $ wp plugin search dsgnwrks --fields=name,version,slug,rating,num_ratings
+	 *     $ fp plugin search dsgnwrks --fields=name,version,slug,rating,num_ratings
 	 *     Success: Showing 3 of 3 plugins.
 	 *     +-----------------------------------+---------+-----------------------------------+--------+-------------+
 	 *     | name                              | version | slug                              | rating | num_ratings |
@@ -221,7 +221,7 @@ class Plugin_Command extends CommandWithUpgrade {
 			$version .= ' (%gUpdate available%n)';
 		}
 
-		echo WP_CLI::colorize(
+		echo FP_CLI::colorize(
 			Utils\mustache_render(
 				self::get_template_path( 'plugin-status.mustache' ),
 				[
@@ -255,7 +255,7 @@ class Plugin_Command extends CommandWithUpgrade {
 				$mu_description = $mu_plugin['Description'];
 			}
 			$mu_name    = Utils\get_plugin_name( $file );
-			$wporg_info = $this->get_wporg_data( $mu_name );
+			$fporg_info = $this->get_fporg_data( $mu_name );
 
 			$items[ $file ] = array(
 				'name'               => $mu_name,
@@ -272,8 +272,8 @@ class Plugin_Command extends CommandWithUpgrade {
 				'tested_up_to'       => '',
 				'requires'           => '',
 				'requires_php'       => '',
-				'wporg_status'       => $wporg_info['status'],
-				'wporg_last_updated' => $wporg_info['last_updated'],
+				'fporg_status'       => $fporg_info['status'],
+				'fporg_last_updated' => $fporg_info['last_updated'],
 			);
 		}
 
@@ -296,8 +296,8 @@ class Plugin_Command extends CommandWithUpgrade {
 				'tested_up_to'       => '',
 				'requires'           => '',
 				'requires_php'       => '',
-				'wporg_status'       => '',
-				'wporg_last_updated' => '',
+				'fporg_status'       => '',
+				'fporg_last_updated' => '',
 			];
 		}
 
@@ -324,23 +324,23 @@ class Plugin_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Activate plugin
-	 *     $ wp plugin activate hello
+	 *     $ fp plugin activate hello
 	 *     Plugin 'hello' activated.
 	 *     Success: Activated 1 of 1 plugins.
 	 *
 	 *     # Activate plugin in entire multisite network
-	 *     $ wp plugin activate hello --network
+	 *     $ fp plugin activate hello --network
 	 *     Plugin 'hello' network activated.
 	 *     Success: Network activated 1 of 1 plugins.
 	 *
 	 *     # Activate plugins that were recently active.
-	 *     $ wp plugin activate $(wp plugin list --recently-active --field=name)
+	 *     $ fp plugin activate $(fp plugin list --recently-active --field=name)
 	 *     Plugin 'bbpress' activated.
 	 *     Plugin 'buddypress' activated.
 	 *     Success: Activated 2 of 2 plugins.
 	 *
 	 *     # Activate plugins that were recently active on a multisite.
-	 *     $ wp plugin activate $(wp plugin list --recently-active --field=name) --network
+	 *     $ fp plugin activate $(fp plugin list --recently-active --field=name) --network
 	 *     Plugin 'bbpress' network activated.
 	 *     Plugin 'buddypress' network activated.
 	 *     Success: Activated 2 of 2 plugins.
@@ -379,12 +379,12 @@ class Plugin_Command extends CommandWithUpgrade {
 			}
 			// Network-active is the highest level of activation status.
 			if ( 'active-network' === $status ) {
-				WP_CLI::warning( "Plugin '{$plugin->name}' is already network active." );
+				FP_CLI::warning( "Plugin '{$plugin->name}' is already network active." );
 				continue;
 			}
 			// Don't reactivate active plugins, but do let them become network-active.
 			if ( ! $network_wide && 'active' === $status ) {
-				WP_CLI::warning( "Plugin '{$plugin->name}' is already active." );
+				FP_CLI::warning( "Plugin '{$plugin->name}' is already active." );
 				continue;
 			}
 
@@ -395,12 +395,12 @@ class Plugin_Command extends CommandWithUpgrade {
 
 			$result = activate_plugin( $plugin->file, '', $network_wide );
 
-			if ( is_wp_error( $result ) ) {
+			if ( is_fp_error( $result ) ) {
 				$message = $result->get_error_message();
 				$message = (string) preg_replace( '/<a\s[^>]+>.*<\/a>/im', '', $message );
-				$message = wp_strip_all_tags( $message );
+				$message = fp_strip_all_tags( $message );
 				$message = str_replace( 'Error: ', '', $message );
-				WP_CLI::warning( "Failed to activate plugin. {$message}" );
+				FP_CLI::warning( "Failed to activate plugin. {$message}" );
 				++$errors;
 			} else {
 				$this->active_output( $plugin->name, $plugin->file, $network_wide, 'activate' );
@@ -437,12 +437,12 @@ class Plugin_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Deactivate plugin
-	 *     $ wp plugin deactivate hello
+	 *     $ fp plugin deactivate hello
 	 *     Plugin 'hello' deactivated.
 	 *     Success: Deactivated 1 of 1 plugins.
 	 *
 	 *     # Deactivate all plugins with exclusion
-	 *     $ wp plugin deactivate --all --exclude=hello,wordpress-seo
+	 *     $ fp plugin deactivate --all --exclude=hello,finpress-seo
 	 *     Plugin 'contact-form-7' deactivated.
 	 *     Plugin 'ninja-forms' deactivated.
 	 *     Success: Deactivated 2 of 2 plugins.
@@ -477,13 +477,13 @@ class Plugin_Command extends CommandWithUpgrade {
 
 			// Network active plugins must be explicitly deactivated.
 			if ( ! $network_wide && 'active-network' === $status ) {
-				WP_CLI::warning( "Plugin '{$plugin->name}' is network active and must be deactivated with --network flag." );
+				FP_CLI::warning( "Plugin '{$plugin->name}' is network active and must be deactivated with --network flag." );
 				++$errors;
 				continue;
 			}
 
 			if ( ! in_array( $status, [ 'active', 'active-network' ], true ) ) {
-				WP_CLI::warning( "Plugin '{$plugin->name}' isn't active." );
+				FP_CLI::warning( "Plugin '{$plugin->name}' isn't active." );
 				continue;
 			}
 
@@ -505,7 +505,7 @@ class Plugin_Command extends CommandWithUpgrade {
 			++$successes;
 
 			if ( Utils\get_flag_value( $assoc_args, 'uninstall' ) ) {
-				WP_CLI::log( "Uninstalling '{$plugin->name}'..." );
+				FP_CLI::log( "Uninstalling '{$plugin->name}'..." );
 				$this->chained_command = true;
 				$this->uninstall( array( $plugin->name ) );
 				$this->chained_command = false;
@@ -535,12 +535,12 @@ class Plugin_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Akismet is currently activated
-	 *     $ wp plugin toggle akismet
+	 *     $ fp plugin toggle akismet
 	 *     Plugin 'akismet' deactivated.
 	 *     Success: Toggled 1 of 1 plugins.
 	 *
 	 *     # Akismet is currently deactivated
-	 *     $ wp plugin toggle akismet
+	 *     $ fp plugin toggle akismet
 	 *     Plugin 'akismet' activated.
 	 *     Success: Toggled 1 of 1 plugins.
 	 */
@@ -581,11 +581,11 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ cd $(wp plugin path) && pwd
-	 *     /var/www/wordpress/wp-content/plugins
+	 *     $ cd $(fp plugin path) && pwd
+	 *     /var/www/finpress/fp-content/plugins
 	 */
 	public function path( $args, $assoc_args ) {
-		$path = untrailingslashit( WP_PLUGIN_DIR );
+		$path = untrailingslashit( FP_PLUGIN_DIR );
 
 		if ( ! empty( $args ) ) {
 			/**
@@ -599,21 +599,21 @@ class Plugin_Command extends CommandWithUpgrade {
 			}
 		}
 
-		WP_CLI::line( $path );
+		FP_CLI::line( $path );
 	}
 
 	protected function install_from_repo( $slug, $assoc_args ) {
-		global $wp_version;
-		// Extract the major WordPress version (e.g., "6.3") from the full version string
-		list($wp_core_version) = explode( '-', $wp_version );
-		$wp_core_version       = implode( '.', array_slice( explode( '.', $wp_core_version ), 0, 2 ) );
+		global $fp_version;
+		// Extract the major FinPress version (e.g., "6.3") from the full version string
+		list($fp_core_version) = explode( '-', $fp_version );
+		$fp_core_version       = implode( '.', array_slice( explode( '.', $fp_core_version ), 0, 2 ) );
 
 		/**
-		 * @var \WP_Error|PluginInformation $api
+		 * @var \FP_Error|PluginInformation $api
 		 */
 		$api = plugins_api( 'plugin_information', array( 'slug' => $slug ) );
 
-		if ( is_wp_error( $api ) ) {
+		if ( is_fp_error( $api ) ) {
 			return $api;
 		}
 
@@ -621,17 +621,17 @@ class Plugin_Command extends CommandWithUpgrade {
 			self::alter_api_response( $api, $assoc_args['version'] );
 		} elseif ( ! Utils\get_flag_value( $assoc_args, 'ignore-requirements', false ) ) {
 			$requires_php = isset( $api->requires_php ) ? $api->requires_php : null;
-			$requires_wp  = isset( $api->requires ) ? $api->requires : null;
+			$requires_fp  = isset( $api->requires ) ? $api->requires : null;
 
 			$compatible_php = empty( $requires_php ) || version_compare( PHP_VERSION, $requires_php, '>=' );
-			$compatible_wp  = empty( $requires_wp ) || version_compare( $wp_core_version, $requires_wp, '>=' );
+			$compatible_fp  = empty( $requires_fp ) || version_compare( $fp_core_version, $requires_fp, '>=' );
 
-			if ( ! $compatible_wp ) {
-				return new WP_Error( 'requirements_not_met', "This plugin does not work with your version of WordPress. Minimum WordPress requirement is $requires_wp" );
+			if ( ! $compatible_fp ) {
+				return new FP_Error( 'requirements_not_met', "This plugin does not work with your version of FinPress. Minimum FinPress requirement is $requires_fp" );
 			}
 
 			if ( ! $compatible_php ) {
-				return new WP_Error( 'requirements_not_met', "This plugin does not work with your version of PHP. Minimum PHP required is $compatible_php" );
+				return new FP_Error( 'requirements_not_met', "This plugin does not work with your version of PHP. Minimum PHP required is $compatible_php" );
 			}
 		}
 
@@ -639,15 +639,15 @@ class Plugin_Command extends CommandWithUpgrade {
 
 		if ( ! Utils\get_flag_value( $assoc_args, 'force' ) && 'install' !== $status['status'] ) {
 			// We know this will fail, so avoid a needless download of the package.
-			return new WP_Error( 'already_installed', 'Plugin already installed.' );
+			return new FP_Error( 'already_installed', 'Plugin already installed.' );
 		}
 
-		WP_CLI::log( sprintf( 'Installing %s (%s)', html_entity_decode( $api->name, ENT_QUOTES ), $api->version ) );
+		FP_CLI::log( sprintf( 'Installing %s (%s)', html_entity_decode( $api->name, ENT_QUOTES ), $api->version ) );
 		if ( Utils\get_flag_value( $assoc_args, 'version' ) !== 'dev' ) {
-			WP_CLI::get_http_cache_manager()->whitelist_package( $api->download_link, $this->item_type, $api->slug, $api->version );
+			FP_CLI::get_http_cache_manager()->whitelist_package( $api->download_link, $this->item_type, $api->slug, $api->version );
 		}
 
-		// Ignore failures on accessing SSL "https://api.wordpress.org/plugins/update-check/1.1/" in `wp_update_plugins()` which seem to occur intermittently.
+		// Ignore failures on accessing SSL "https://api.finpress.org/plugins/update-check/1.1/" in `fp_update_plugins()` which seem to occur intermittently.
 		set_error_handler( array( __CLASS__, 'error_handler' ), E_USER_WARNING | E_USER_NOTICE );
 
 		$result = $this->get_upgrader( $assoc_args )->install( $api->download_link );
@@ -699,23 +699,23 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp plugin update bbpress --version=dev
+	 *     $ fp plugin update bbpress --version=dev
 	 *     Installing bbPress (Development Version)
-	 *     Downloading install package from https://downloads.wordpress.org/plugin/bbpress.zip...
+	 *     Downloading install package from https://downloads.finpress.org/plugin/bbpress.zip...
 	 *     Unpacking the package...
 	 *     Installing the plugin...
 	 *     Removing the old version of the plugin...
 	 *     Plugin updated successfully.
 	 *     Success: Updated 1 of 2 plugins.
 	 *
-	 *     $ wp plugin update --all
+	 *     $ fp plugin update --all
 	 *     Enabling Maintenance mode...
-	 *     Downloading update from https://downloads.wordpress.org/plugin/akismet.3.1.11.zip...
+	 *     Downloading update from https://downloads.finpress.org/plugin/akismet.3.1.11.zip...
 	 *     Unpacking the update...
 	 *     Installing the latest version...
 	 *     Removing the old version of the plugin...
 	 *     Plugin updated successfully.
-	 *     Downloading update from https://downloads.wordpress.org/plugin/nginx-champuru.3.2.0.zip...
+	 *     Downloading update from https://downloads.finpress.org/plugin/nginx-champuru.3.2.0.zip...
 	 *     Unpacking the update...
 	 *     Installing the latest version...
 	 *     Removing the old version of the plugin...
@@ -729,9 +729,9 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *     +------------------------+-------------+-------------+---------+
 	 *     Success: Updated 2 of 2 plugins.
 	 *
-	 *     $ wp plugin update --all --exclude=akismet
+	 *     $ fp plugin update --all --exclude=akismet
 	 *     Enabling Maintenance mode...
-	 *     Downloading update from https://downloads.wordpress.org/plugin/nginx-champuru.3.2.0.zip...
+	 *     Downloading update from https://downloads.finpress.org/plugin/nginx-champuru.3.2.0.zip...
 	 *     Unpacking the update...
 	 *     Installing the latest version...
 	 *     Removing the old version of the plugin...
@@ -764,7 +764,7 @@ class Plugin_Command extends CommandWithUpgrade {
 	}
 
 	protected function get_item_list() {
-		global $wp_version;
+		global $fp_version;
 
 		$items           = [];
 		$duplicate_names = [];
@@ -789,8 +789,8 @@ class Plugin_Command extends CommandWithUpgrade {
 			// @phpstan-ignore notIdentical.alwaysTrue
 			$update_info = ( isset( $all_update_info->response[ $file ] ) && null !== $all_update_info->response[ $file ] ) ? (array) $all_update_info->response[ $file ] : null;
 			$name        = Utils\get_plugin_name( $file );
-			$wporg_info  = $this->get_wporg_data( $name );
-			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $file, false, false );
+			$fporg_info  = $this->get_fporg_data( $name );
+			$plugin_data = get_plugin_data( FP_PLUGIN_DIR . '/' . $file, false, false );
 
 			if ( ! isset( $duplicate_names[ $name ] ) ) {
 				$duplicate_names[ $name ] = array();
@@ -800,7 +800,7 @@ class Plugin_Command extends CommandWithUpgrade {
 			$requires_php = isset( $update_info ) && isset( $update_info['requires_php'] ) ? $update_info['requires_php'] : null;
 
 			// If an update has requires_php set, check to see if the local version of PHP meets that requirement
-			// The plugins update API already filters out plugins that don't meet WordPress requirements, but does not
+			// The plugins update API already filters out plugins that don't meet FinPress requirements, but does not
 			// filter out plugins based on PHP requirements -- so we must do that here
 			$compatible_php = empty( $requires_php ) || version_compare( PHP_VERSION, $requires_php, '>=' );
 
@@ -819,7 +819,7 @@ class Plugin_Command extends CommandWithUpgrade {
 			// requires and requires_php are only provided by the plugins update API in the case of an update available.
 			// For display consistency, get these values from the current plugin file if they aren't in this response
 			if ( null === $requires ) {
-				$requires = ! empty( $plugin_data['RequiresWP'] ) ? $plugin_data['RequiresWP'] : '';
+				$requires = ! empty( $plugin_data['RequiresFP'] ) ? $plugin_data['RequiresFP'] : '';
 			}
 
 			if ( null === $requires_php ) {
@@ -843,14 +843,14 @@ class Plugin_Command extends CommandWithUpgrade {
 				'tested_up_to'              => '',
 				'requires'                  => $requires,
 				'requires_php'              => $requires_php,
-				'wporg_status'              => $wporg_info['status'],
-				'wporg_last_updated'        => $wporg_info['last_updated'],
+				'fporg_status'              => $fporg_info['status'],
+				'fporg_last_updated'        => $fporg_info['last_updated'],
 				'recently_active'           => in_array( $file, array_keys( $recently_active ), true ),
 				'update_unavailable_reason' => isset( $update_unavailable_reason ) ? $update_unavailable_reason : '',
 			];
 
 			if ( $this->check_headers['tested_up_to'] ) {
-				$plugin_readme = normalize_path( dirname( WP_PLUGIN_DIR . '/' . $file ) . '/readme.txt' );
+				$plugin_readme = normalize_path( dirname( FP_PLUGIN_DIR . '/' . $file ) . '/readme.txt' );
 
 				if ( file_exists( $plugin_readme ) && is_readable( $plugin_readme ) ) {
 					$readme_obj = new SplFileObject( $plugin_readme );
@@ -862,7 +862,7 @@ class Plugin_Command extends CommandWithUpgrade {
 					while ( $readme_line < 100 && ! $readme_obj->eof() ) {
 						$line = $readme_obj->fgets();
 
-						// Similar to WP.org, it matches for both "Tested up to" and "Tested" header in the readme file.
+						// Similar to FP.org, it matches for both "Tested up to" and "Tested" header in the readme file.
 						preg_match( '/^tested(:| up to:) (.*)$/i', strtolower( $line ), $matches );
 
 						if ( isset( $matches[2] ) && ! empty( $matches[2] ) ) {
@@ -889,7 +889,7 @@ class Plugin_Command extends CommandWithUpgrade {
 				}
 
 				// If there is a plugin in no_update with a newer version than the local copy, it is either because:
-				// A: the plugins update API has already filtered it because the local WordPress version is too low
+				// A: the plugins update API has already filtered it because the local FinPress version is too low
 				// B: It is possibly a paid plugin that has an update which the user does not qualify for
 				if ( null !== $plugin_update_info && version_compare( $details['Version'], $plugin_update_info->new_version, '<' ) ) {
 					$items[ $file ]['update']         = 'unavailable';
@@ -897,8 +897,8 @@ class Plugin_Command extends CommandWithUpgrade {
 					$items[ $file ]['requires']       = isset( $plugin_update_info->requires ) ? $plugin_update_info->requires : null;
 					$items[ $file ]['requires_php']   = isset( $plugin_update_info->requires_php ) ? $plugin_update_info->requires_php : null;
 
-					if ( isset( $plugin_update_info->requires ) && version_compare( $wp_version, $requires, '>=' ) ) {
-						$reason = "This update requires WordPress version $plugin_update_info->requires, but the version installed is $wp_version.";
+					if ( isset( $plugin_update_info->requires ) && version_compare( $fp_version, $requires, '>=' ) ) {
+						$reason = "This update requires FinPress version $plugin_update_info->requires, but the version installed is $fp_version.";
 					} elseif ( ! isset( $plugin_update_info->package ) ) {
 						$reason = 'Update file not provided. Contact author for more details';
 					} else {
@@ -924,22 +924,22 @@ class Plugin_Command extends CommandWithUpgrade {
 	}
 
 	/**
-	 * Get the wordpress.org status of a plugin.
+	 * Get the finpress.org status of a plugin.
 	 *
 	 * @param string $plugin_name The plugin slug.
 	 *
 	 * @return array{status: string, last_updated: string|false, status?: string, last_updated?: string} The status of the plugin, includes the last update date.
 	 */
-	protected function get_wporg_data( $plugin_name ) {
+	protected function get_fporg_data( $plugin_name ) {
 		$data = [
 			'status'       => '',
 			'last_updated' => '',
 		];
-		if ( ! $this->check_wporg['status'] && ! $this->check_wporg['last_updated'] ) {
+		if ( ! $this->check_fporg['status'] && ! $this->check_fporg['last_updated'] ) {
 			return $data;
 		}
 
-		if ( $this->check_wporg ) {
+		if ( $this->check_fporg ) {
 			try {
 				$plugin_data = ( new WpOrgApi() )->get_plugin_info( $plugin_name );
 			} catch ( Exception $e ) {
@@ -948,15 +948,15 @@ class Plugin_Command extends CommandWithUpgrade {
 			}
 			if ( $plugin_data ) {
 				$data['status'] = 'active';
-				if ( ! $this->check_wporg['last_updated'] ) {
+				if ( ! $this->check_fporg['last_updated'] ) {
 					return $data; // The plugin is active on .org, but we don't need the date.
 				}
 			}
 			// Just because the plugin is not in the api, does not mean it was never on .org.
 		}
 
-		$request       = wp_remote_get( "https://plugins.trac.wordpress.org/log/{$plugin_name}/?limit=1&mode=stop_on_copy&format=rss" );
-		$response_code = wp_remote_retrieve_response_code( $request );
+		$request       = fp_remote_get( "https://plugins.trac.finpress.org/log/{$plugin_name}/?limit=1&mode=stop_on_copy&format=rss" );
+		$response_code = fp_remote_retrieve_response_code( $request );
 		if ( 404 === $response_code ) {
 			return $data; // This plugin was never on .org, there is no date to check.
 		}
@@ -964,18 +964,18 @@ class Plugin_Command extends CommandWithUpgrade {
 			$data['status'] = 'closed'; // This plugin was on .org at some point, but not anymore.
 		}
 		if ( ! class_exists( 'SimpleXMLElement' ) ) {
-			WP_CLI::error( "The PHP extension 'SimpleXMLElement' is not available but is required for XML-formatted output." );
+			FP_CLI::error( "The PHP extension 'SimpleXMLElement' is not available but is required for XML-formatted output." );
 		}
 
 		// Check the last update date.
-		$r_body = wp_remote_retrieve_body( $request );
+		$r_body = fp_remote_retrieve_body( $request );
 		if ( strpos( $r_body, 'pubDate' ) !== false ) {
 			// Very raw check, not validating the format or anything else.
 			$xml = simplexml_load_string( $r_body );
 			if ( false !== $xml ) {
 				$xml_pub_date = $xml->xpath( '//pubDate' );
 				if ( $xml_pub_date ) {
-					$data['last_updated'] = wp_date( 'Y-m-d', strtotime( $xml_pub_date[0] ) ?: null );
+					$data['last_updated'] = fp_date( 'Y-m-d', strtotime( $xml_pub_date[0] ) ?: null );
 				}
 			}
 		}
@@ -984,7 +984,7 @@ class Plugin_Command extends CommandWithUpgrade {
 	}
 
 	protected function filter_item_list( $items, $args ) {
-		$basenames = wp_list_pluck( $this->fetcher->get_many( $args ), 'file' );
+		$basenames = fp_list_pluck( $this->fetcher->get_many( $args ), 'file' );
 		return Utils\pick_fields( $items, $basenames );
 	}
 
@@ -997,7 +997,7 @@ class Plugin_Command extends CommandWithUpgrade {
 	 * : One or more plugins to install. Accepts a plugin slug, the path to a local zip file, or a URL to a remote zip file.
 	 *
 	 * [--version=<version>]
-	 * : If set, get that particular version from wordpress.org, instead of the
+	 * : If set, get that particular version from finpress.org, instead of the
 	 * stable version.
 	 *
 	 * [--force]
@@ -1005,7 +1005,7 @@ class Plugin_Command extends CommandWithUpgrade {
 	 * for confirmation.
 	 *
 	 * [--ignore-requirements]
-	 * : If set, the command will install the plugin while ignoring any WordPress or PHP version requirements
+	 * : If set, the command will install the plugin while ignoring any FinPress or PHP version requirements
 	 * specified by the plugin authors.
 	 *
 	 * [--activate]
@@ -1019,11 +1019,11 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Install the latest version from wordpress.org and activate
-	 *     $ wp plugin install bbpress --activate
+	 *     # Install the latest version from finpress.org and activate
+	 *     $ fp plugin install bbpress --activate
 	 *     Installing bbPress (2.5.9)
-	 *     Downloading install package from https://downloads.wordpress.org/plugin/bbpress.2.5.9.zip...
-	 *     Using cached file '/home/vagrant/.wp-cli/cache/plugin/bbpress-2.5.9.zip'...
+	 *     Downloading install package from https://downloads.finpress.org/plugin/bbpress.2.5.9.zip...
+	 *     Using cached file '/home/vagrant/.fp-cli/cache/plugin/bbpress-2.5.9.zip'...
 	 *     Unpacking the package...
 	 *     Installing the plugin...
 	 *     Plugin installed successfully.
@@ -1031,24 +1031,24 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *     Plugin 'bbpress' activated.
 	 *     Success: Installed 1 of 1 plugins.
 	 *
-	 *     # Install the development version from wordpress.org
-	 *     $ wp plugin install bbpress --version=dev
+	 *     # Install the development version from finpress.org
+	 *     $ fp plugin install bbpress --version=dev
 	 *     Installing bbPress (Development Version)
-	 *     Downloading install package from https://downloads.wordpress.org/plugin/bbpress.zip...
+	 *     Downloading install package from https://downloads.finpress.org/plugin/bbpress.zip...
 	 *     Unpacking the package...
 	 *     Installing the plugin...
 	 *     Plugin installed successfully.
 	 *     Success: Installed 1 of 1 plugins.
 	 *
 	 *     # Install from a local zip file
-	 *     $ wp plugin install ../my-plugin.zip
+	 *     $ fp plugin install ../my-plugin.zip
 	 *     Unpacking the package...
 	 *     Installing the plugin...
 	 *     Plugin installed successfully.
 	 *     Success: Installed 1 of 1 plugins.
 	 *
 	 *     # Install from a remote zip file
-	 *     $ wp plugin install http://s3.amazonaws.com/bucketname/my-plugin.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
+	 *     $ fp plugin install http://s3.amazonaws.com/bucketname/my-plugin.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
 	 *     Downloading install package from http://s3.amazonaws.com/bucketname/my-plugin.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
 	 *     Unpacking the package...
 	 *     Installing the plugin...
@@ -1056,18 +1056,18 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *     Success: Installed 1 of 1 plugins.
 	 *
 	 *     # Update from a remote zip file
-	 *     $ wp plugin install https://github.com/envato/wp-envato-market/archive/master.zip --force
-	 *     Downloading install package from https://github.com/envato/wp-envato-market/archive/master.zip
+	 *     $ fp plugin install https://github.com/envato/fp-envato-market/archive/master.zip --force
+	 *     Downloading install package from https://github.com/envato/fp-envato-market/archive/master.zip
 	 *     Unpacking the package...
 	 *     Installing the plugin...
-	 *     Renamed Github-based project from 'wp-envato-market-master' to 'wp-envato-market'.
+	 *     Renamed Github-based project from 'fp-envato-market-master' to 'fp-envato-market'.
 	 *     Plugin updated successfully
 	 *     Success: Installed 1 of 1 plugins.
 	 *
 	 *     # Forcefully re-install all installed plugins
-	 *     $ wp plugin install $(wp plugin list --field=name) --force
+	 *     $ fp plugin install $(fp plugin list --field=name) --force
 	 *     Installing Akismet (3.1.11)
-	 *     Downloading install package from https://downloads.wordpress.org/plugin/akismet.3.1.11.zip...
+	 *     Downloading install package from https://downloads.finpress.org/plugin/akismet.3.1.11.zip...
 	 *     Unpacking the package...
 	 *     Installing the plugin...
 	 *     Removing the old version of the plugin...
@@ -1076,8 +1076,8 @@ class Plugin_Command extends CommandWithUpgrade {
 	 */
 	public function install( $args, $assoc_args ) {
 
-		if ( ! is_dir( WP_PLUGIN_DIR ) ) {
-			wp_mkdir_p( WP_PLUGIN_DIR );
+		if ( ! is_dir( FP_PLUGIN_DIR ) ) {
+			fp_mkdir_p( FP_PLUGIN_DIR );
 		}
 
 		parent::install( $args, $assoc_args );
@@ -1121,15 +1121,15 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *
 	 * These fields are optionally available:
 	 *
-	 * * requires_wp
+	 * * requires_fp
 	 * * requires_php
 	 * * requires_plugins
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     # Get plugin details.
-	 *     $ wp plugin get bbpress --format=json
-	 *     {"name":"bbpress","title":"bbPress","author":"The bbPress Contributors","version":"2.6.9","description":"bbPress is forum software with a twist from the creators of WordPress.","status":"active"}
+	 *     $ fp plugin get bbpress --format=json
+	 *     {"name":"bbpress","title":"bbPress","author":"The bbPress Contributors","version":"2.6.9","description":"bbPress is forum software with a twist from the creators of FinPress.","status":"active"}
 	 */
 	public function get( $args, $assoc_args ) {
 		$default_fields = array(
@@ -1147,7 +1147,7 @@ class Plugin_Command extends CommandWithUpgrade {
 		$plugin = $this->fetcher->get_check( $args[0] );
 		$file   = $plugin->file;
 
-		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $file, false, false );
+		$plugin_data = get_plugin_data( FP_PLUGIN_DIR . '/' . $file, false, false );
 
 		$plugin_obj = (object) [
 			'name'             => Utils\get_plugin_name( $file ),
@@ -1156,7 +1156,7 @@ class Plugin_Command extends CommandWithUpgrade {
 			'version'          => $plugin_data['Version'],
 			'description'      => wordwrap( $plugin_data['Description'] ),
 			'status'           => $this->get_status( $file ),
-			'requires_wp'      => ! empty( $plugin_data['RequiresWP'] ) ? $plugin_data['RequiresWP'] : '',
+			'requires_fp'      => ! empty( $plugin_data['RequiresFP'] ) ? $plugin_data['RequiresFP'] : '',
 			'requires_php'     => ! empty( $plugin_data['RequiresPHP'] ) ? $plugin_data['RequiresPHP'] : '',
 			'requires_plugins' => ! empty( $plugin_data['RequiresPlugins'] ) ? $plugin_data['RequiresPlugins'] : '',
 		];
@@ -1192,12 +1192,12 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp plugin uninstall hello
+	 *     $ fp plugin uninstall hello
 	 *     Uninstalled and deleted 'hello' plugin.
 	 *     Success: Uninstalled 1 of 1 plugins.
 	 *
 	 *     # Uninstall all plugins excluding specified ones
-	 *     $ wp plugin uninstall --all --exclude=hello-dolly,jetpack
+	 *     $ fp plugin uninstall --all --exclude=hello-dolly,jetpack
 	 *     Uninstalled and deleted 'akismet' plugin.
 	 *     Uninstalled and deleted 'tinymce-templates' plugin.
 	 *     Success: Uninstalled 2 of 2 plugins.
@@ -1227,14 +1227,14 @@ class Plugin_Command extends CommandWithUpgrade {
 		}
 
 		foreach ( $plugins as $plugin ) {
-			if ( is_plugin_active( $plugin->file ) && ! WP_CLI\Utils\get_flag_value( $assoc_args, 'deactivate' ) ) {
-				WP_CLI::warning( "The '{$plugin->name}' plugin is active." );
+			if ( is_plugin_active( $plugin->file ) && ! FP_CLI\Utils\get_flag_value( $assoc_args, 'deactivate' ) ) {
+				FP_CLI::warning( "The '{$plugin->name}' plugin is active." );
 				++$errors;
 				continue;
 			}
 
 			if ( Utils\get_flag_value( $assoc_args, 'deactivate' ) ) {
-				WP_CLI::log( "Deactivating '{$plugin->name}'..." );
+				FP_CLI::log( "Deactivating '{$plugin->name}'..." );
 				$this->chained_command = true;
 				$this->deactivate( array( $plugin->name ) );
 				$this->chained_command = false;
@@ -1242,7 +1242,7 @@ class Plugin_Command extends CommandWithUpgrade {
 
 			uninstall_plugin( $plugin->file );
 
-			$plugin_translations = wp_get_installed_translations( 'plugins' );
+			$plugin_translations = fp_get_installed_translations( 'plugins' );
 
 			$plugin_slug = dirname( $plugin->file );
 
@@ -1255,23 +1255,23 @@ class Plugin_Command extends CommandWithUpgrade {
 				$translations = $plugin_translations[ $plugin_slug ];
 
 				/**
-				 * @var \WP_Filesystem_Base $wp_filesystem
+				 * @var \FP_Filesystem_Base $fp_filesystem
 				 */
-				global $wp_filesystem;
-				require_once ABSPATH . '/wp-admin/includes/file.php';
-				WP_Filesystem();
+				global $fp_filesystem;
+				require_once ABSPATH . '/fp-admin/includes/file.php';
+				FP_Filesystem();
 
 				foreach ( $translations as $translation => $data ) {
-					$wp_filesystem->delete( WP_LANG_DIR . '/plugins/' . $plugin_slug . '-' . $translation . '.po' );
-					$wp_filesystem->delete( WP_LANG_DIR . '/plugins/' . $plugin_slug . '-' . $translation . '.mo' );
-					$wp_filesystem->delete( WP_LANG_DIR . '/plugins/' . $plugin_slug . '-' . $translation . '.l10n.php' );
+					$fp_filesystem->delete( FP_LANG_DIR . '/plugins/' . $plugin_slug . '-' . $translation . '.po' );
+					$fp_filesystem->delete( FP_LANG_DIR . '/plugins/' . $plugin_slug . '-' . $translation . '.mo' );
+					$fp_filesystem->delete( FP_LANG_DIR . '/plugins/' . $plugin_slug . '-' . $translation . '.l10n.php' );
 
-					$json_translation_files = glob( WP_LANG_DIR . '/plugins/' . $plugin_slug . '-' . $translation . '-*.json' );
+					$json_translation_files = glob( FP_LANG_DIR . '/plugins/' . $plugin_slug . '-' . $translation . '-*.json' );
 					if ( $json_translation_files ) {
 						/**
 						 * @var callable $callback
 						 */
-						$callback = [ $wp_filesystem, 'delete' ];
+						$callback = [ $fp_filesystem, 'delete' ];
 						array_map( $callback, $json_translation_files );
 					}
 				}
@@ -1280,15 +1280,15 @@ class Plugin_Command extends CommandWithUpgrade {
 			if ( ! Utils\get_flag_value( $assoc_args, 'skip-delete' ) ) {
 				if ( $this->delete_plugin( $plugin ) ) {
 					$deleted_plugin_files[] = $plugin->file;
-					WP_CLI::log( "Uninstalled and deleted '$plugin->name' plugin." );
+					FP_CLI::log( "Uninstalled and deleted '$plugin->name' plugin." );
 				} else {
 					$delete_errors[] = $plugin->file;
-					WP_CLI::log( "Ran uninstall procedure for '$plugin->name' plugin. Deletion of plugin files failed" );
+					FP_CLI::log( "Ran uninstall procedure for '$plugin->name' plugin. Deletion of plugin files failed" );
 					++$errors;
 					continue;
 				}
 			} else {
-				WP_CLI::log( "Ran uninstall procedure for '$plugin->name' plugin without deleting." );
+				FP_CLI::log( "Ran uninstall procedure for '$plugin->name' plugin without deleting." );
 			}
 			++$successes;
 		}
@@ -1329,7 +1329,7 @@ class Plugin_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Check whether plugin is installed; exit status 0 if installed, otherwise 1
-	 *     $ wp plugin is-installed hello
+	 *     $ fp plugin is-installed hello
 	 *     $ echo $?
 	 *     1
 	 *
@@ -1337,9 +1337,9 @@ class Plugin_Command extends CommandWithUpgrade {
 	 */
 	public function is_installed( $args, $assoc_args ) {
 		if ( $this->fetcher->get( $args[0] ) ) {
-			WP_CLI::halt( 0 );
+			FP_CLI::halt( 0 );
 		} else {
-			WP_CLI::halt( 1 );
+			FP_CLI::halt( 1 );
 		}
 	}
 
@@ -1359,7 +1359,7 @@ class Plugin_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Check whether plugin is Active; exit status 0 if active, otherwise 1
-	 *     $ wp plugin is-active hello
+	 *     $ fp plugin is-active hello
 	 *     $ echo $?
 	 *     1
 	 *
@@ -1371,10 +1371,10 @@ class Plugin_Command extends CommandWithUpgrade {
 		$plugin = $this->fetcher->get( $args[0] );
 
 		if ( ! $plugin ) {
-			WP_CLI::halt( 1 );
+			FP_CLI::halt( 1 );
 		}
 
-		$this->check_active( $plugin->file, $network_wide ) ? WP_CLI::halt( 0 ) : WP_CLI::halt( 1 );
+		$this->check_active( $plugin->file, $network_wide ) ? FP_CLI::halt( 0 ) : FP_CLI::halt( 1 );
 	}
 
 	/**
@@ -1394,17 +1394,17 @@ class Plugin_Command extends CommandWithUpgrade {
 	 * ## EXAMPLES
 	 *
 	 *     # Delete plugin
-	 *     $ wp plugin delete hello
+	 *     $ fp plugin delete hello
 	 *     Deleted 'hello' plugin.
 	 *     Success: Deleted 1 of 1 plugins.
 	 *
 	 *     # Delete inactive plugins
-	 *     $ wp plugin delete $(wp plugin list --status=inactive --field=name)
+	 *     $ fp plugin delete $(fp plugin list --status=inactive --field=name)
 	 *     Deleted 'tinymce-templates' plugin.
 	 *     Success: Deleted 1 of 1 plugins.
 	 *
 	 *     # Delete all plugins excluding specified ones
-	 *     $ wp plugin delete --all --exclude=hello-dolly,jetpack
+	 *     $ fp plugin delete --all --exclude=hello-dolly,jetpack
 	 *     Deleted 'akismet' plugin.
 	 *     Deleted 'tinymce-templates' plugin.
 	 *     Success: Deleted 2 of 2 plugins.
@@ -1428,10 +1428,10 @@ class Plugin_Command extends CommandWithUpgrade {
 
 		foreach ( $this->fetcher->get_many( $args ) as $plugin ) {
 			if ( $this->delete_plugin( $plugin ) ) {
-				WP_CLI::log( "Deleted '{$plugin->name}' plugin." );
+				FP_CLI::log( "Deleted '{$plugin->name}' plugin." );
 				++$successes;
 			} else {
-				WP_CLI::warning( "The '{$plugin->name}' plugin could not be deleted." );
+				FP_CLI::warning( "The '{$plugin->name}' plugin could not be deleted." );
 				++$errors;
 			}
 		}
@@ -1510,17 +1510,17 @@ class Plugin_Command extends CommandWithUpgrade {
 	 * * tested_up_to
 	 * * requires
 	 * * requires_php
-	 * * wporg_status
-	 * * wporg_last_updated
+	 * * fporg_status
+	 * * fporg_last_updated
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     # List active plugins on the site.
-	 *     $ wp plugin list --status=active --format=json
-	 *     [{"name":"dynamic-hostname","status":"active","update":"none","version":"0.4.2","update_version":"","auto_update":"off"},{"name":"tinymce-templates","status":"active","update":"none","version":"4.8.1","update_version":"","auto_update":"off"},{"name":"wp-multibyte-patch","status":"active","update":"none","version":"2.9","update_version":"","auto_update":"off"},{"name":"wp-total-hacks","status":"active","update":"none","version":"4.7.2","update_version":"","auto_update":"off"}]
+	 *     $ fp plugin list --status=active --format=json
+	 *     [{"name":"dynamic-hostname","status":"active","update":"none","version":"0.4.2","update_version":"","auto_update":"off"},{"name":"tinymce-templates","status":"active","update":"none","version":"4.8.1","update_version":"","auto_update":"off"},{"name":"fp-multibyte-patch","status":"active","update":"none","version":"2.9","update_version":"","auto_update":"off"},{"name":"fp-total-hacks","status":"active","update":"none","version":"4.7.2","update_version":"","auto_update":"off"}]
 	 *
 	 *     # List plugins on each site in a network.
-	 *     $ wp site list --field=url | xargs -I % wp plugin list --url=%
+	 *     $ fp site list --field=url | xargs -I % fp plugin list --url=%
 	 *     +---------+----------------+-----------+---------+-----------------+------------+
 	 *     | name    | status         | update    | version | update_version | auto_update |
 	 *     +---------+----------------+-----------+---------+----------------+-------------+
@@ -1534,19 +1534,19 @@ class Plugin_Command extends CommandWithUpgrade {
 	 *     | hello   | inactive       | available | 1.6     | 1.7.2          | off         |
 	 *     +---------+----------------+-----------+---------+----------------+-------------+
 	 *
-	 *     # Check whether plugins are still active on WordPress.org
-	 *     $ wp plugin list --fields=name,wporg_status,wporg_last_updated
+	 *     # Check whether plugins are still active on FinPress.org
+	 *     $ fp plugin list --fields=name,fporg_status,fporg_last_updated
 	 *     +--------------------+--------------+--------------------+
-	 *     | name               | wporg_status | wporg_last_updated |
+	 *     | name               | fporg_status | fporg_last_updated |
 	 *     +--------------------+--------------+--------------------+
 	 *     | akismet            | active       | 2023-12-11         |
 	 *     | user-switching     | active       | 2023-11-17         |
-	 *     | wordpress-importer | active       | 2023-04-28         |
+	 *     | finpress-importer | active       | 2023-04-28         |
 	 *     | local              |              |                    |
 	 *     +--------------------+--------------+--------------------+
 	 *
 	 *     # List recently active plugins on the site.
-	 *     $ wp plugin list --recently-active --field=name --format=json
+	 *     $ fp plugin list --recently-active --field=name --format=json
 	 *     ["akismet","bbpress","buddypress"]
 	 *
 	 * @subcommand list
@@ -1559,17 +1559,17 @@ class Plugin_Command extends CommandWithUpgrade {
 
 		if ( ! empty( $fields ) ) {
 			$fields                            = explode( ',', $fields );
-			$this->check_wporg['status']       = in_array( 'wporg_status', $fields, true );
-			$this->check_wporg['last_updated'] = in_array( 'wporg_last_updated', $fields, true );
+			$this->check_fporg['status']       = in_array( 'fporg_status', $fields, true );
+			$this->check_fporg['last_updated'] = in_array( 'fporg_last_updated', $fields, true );
 
 			$this->check_headers['tested_up_to'] = in_array( 'tested_up_to', $fields, true );
 		}
 
 		$field = Utils\get_flag_value( $assoc_args, 'field' );
-		if ( 'wporg_status' === $field ) {
-			$this->check_wporg['status'] = true;
-		} elseif ( 'wporg_last_updated' === $field ) {
-			$this->check_wporg['last_updated'] = true;
+		if ( 'fporg_status' === $field ) {
+			$this->check_fporg['status'] = true;
+		} elseif ( 'fporg_last_updated' === $field ) {
+			$this->check_fporg['last_updated'] = true;
 		}
 
 		$this->check_headers['tested_up_to'] = 'tested_up_to' === $field || $this->check_headers['tested_up_to'];
@@ -1592,12 +1592,12 @@ class Plugin_Command extends CommandWithUpgrade {
 
 		if ( ( 'activate' === $action ) ? $check : ! $check ) {
 			if ( $network_wide ) {
-				WP_CLI::log( "Plugin '{$name}' network {$action}d." );
+				FP_CLI::log( "Plugin '{$name}' network {$action}d." );
 			} else {
-				WP_CLI::log( "Plugin '{$name}' {$action}d." );
+				FP_CLI::log( "Plugin '{$name}' {$action}d." );
 			}
 		} else {
-			WP_CLI::warning( "Could not {$action} the '{$name}' plugin." );
+			FP_CLI::warning( "Could not {$action} the '{$name}' plugin." );
 		}
 	}
 
@@ -1620,7 +1620,7 @@ class Plugin_Command extends CommandWithUpgrade {
 		$template_path = "{$command_root}/templates/{$template}";
 
 		if ( ! file_exists( $template_path ) ) {
-			WP_CLI::error( "Couldn't find {$template}" );
+			FP_CLI::error( "Couldn't find {$template}" );
 		}
 
 		return $template_path;
@@ -1646,7 +1646,7 @@ class Plugin_Command extends CommandWithUpgrade {
 	 * @return bool Whether plugin was deleted
 	 */
 	private function delete_plugin( $plugin ) {
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		// phpcs:ignore FinPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		do_action( 'delete_plugin', $plugin->file );
 
 		$plugin_dir = dirname( $plugin->file );
@@ -1654,7 +1654,7 @@ class Plugin_Command extends CommandWithUpgrade {
 			$plugin_dir = $plugin->file;
 		}
 
-		$path = path_join( WP_PLUGIN_DIR, $plugin_dir );
+		$path = path_join( FP_PLUGIN_DIR, $plugin_dir );
 
 		if ( Utils\is_windows() ) {
 			// Handles plugins that are not in own folders
@@ -1669,9 +1669,9 @@ class Plugin_Command extends CommandWithUpgrade {
 			$command = 'rm -rf ';
 		}
 
-		$result = ! WP_CLI::launch( $command . escapeshellarg( $path ), false );
+		$result = ! FP_CLI::launch( $command . escapeshellarg( $path ), false );
 
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		// phpcs:ignore FinPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		do_action( 'deleted_plugin', $plugin->file, $result );
 
 		return $result;

@@ -1,19 +1,19 @@
-Feature: Install WordPress plugins
+Feature: Install FinPress plugins
 
   Background:
     Given an empty cache
 
   Scenario: Branch names should be removed from Github projects
-    Given a WP install
+    Given a FP install
 
-    When I run `wp plugin install https://github.com/wp-cli-test/generic-example-plugin/archive/refs/heads/master.zip --activate`
+    When I run `fp plugin install https://github.com/fp-cli-test/generic-example-plugin/archive/refs/heads/master.zip --activate`
     Then STDOUT should contain:
       """
       Downloading install
       """
     And STDOUT should contain:
       """
-      package from https://github.com/wp-cli-test/generic-example-plugin/archive/refs/heads/master.zip
+      package from https://github.com/fp-cli-test/generic-example-plugin/archive/refs/heads/master.zip
       """
     And STDOUT should contain:
       """
@@ -23,10 +23,10 @@ Feature: Install WordPress plugins
       """
       Plugin installed successfully.
       """
-    And the wp-content/plugins/generic-example-plugin directory should exist
-    And the wp-content/plugins/generic-example-plugin-master directory should not exist
+    And the fp-content/plugins/generic-example-plugin directory should exist
+    And the fp-content/plugins/generic-example-plugin-master directory should not exist
 
-    When I try `wp plugin install https://github.com/wp-cli-test/generic-example-plugin/archive/refs/heads/master.zip`
+    When I try `fp plugin install https://github.com/fp-cli-test/generic-example-plugin/archive/refs/heads/master.zip`
     Then STDERR should contain:
       """
       Warning: Destination folder already exists
@@ -35,33 +35,33 @@ Feature: Install WordPress plugins
       """
       Error: No plugins installed.
       """
-    And the wp-content/plugins/generic-example-plugin directory should exist
-    And the wp-content/plugins/generic-example-plugin-master directory should not exist
+    And the fp-content/plugins/generic-example-plugin directory should exist
+    And the fp-content/plugins/generic-example-plugin-master directory should not exist
     And the return code should be 1
 
-    When I run `wp plugin install https://github.com/wp-cli-test/generic-example-plugin/archive/refs/heads/master.zip --force`
+    When I run `fp plugin install https://github.com/fp-cli-test/generic-example-plugin/archive/refs/heads/master.zip --force`
     Then STDOUT should contain:
       """
       Plugin updated successfully.
       """
-    And the wp-content/plugins/generic-example-plugin directory should exist
-    And the wp-content/plugins/generic-example-plugin-master directory should not exist
+    And the fp-content/plugins/generic-example-plugin directory should exist
+    And the fp-content/plugins/generic-example-plugin-master directory should not exist
 
     # However if the plugin slug ('modern-framework') does not match the project name then it's downloaded to wrong directory.
-    When I run `wp plugin install https://github.com/Miller-Media/modern-wordpress/archive/master.zip`
+    When I run `fp plugin install https://github.com/Miller-Media/modern-finpress/archive/master.zip`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
       """
-    And STDOUT should match /Renamed Github-based project from 'modern-(?:wordpress|framework)-master' to 'modern-wordpress'/
+    And STDOUT should match /Renamed Github-based project from 'modern-(?:finpress|framework)-master' to 'modern-finpress'/
     # Wrong directory.
-    And the wp-content/plugins/modern-wordpress directory should exist
-    And the wp-content/plugins/modern-framework directory should not exist
+    And the fp-content/plugins/modern-finpress directory should exist
+    And the fp-content/plugins/modern-framework directory should not exist
 
   Scenario: Don't attempt to rename ZIPs uploaded to GitHub's releases page
-    Given a WP install
+    Given a FP install
 
-    When I run `wp plugin install https://github.com/wp-cli-test/generic-example-plugin/releases/download/v0.1.0/generic-example-plugin.0.1.0.zip`
+    When I run `fp plugin install https://github.com/fp-cli-test/generic-example-plugin/releases/download/v0.1.0/generic-example-plugin.0.1.0.zip`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
@@ -70,12 +70,12 @@ Feature: Install WordPress plugins
       """
       Renamed Github-based project from 'generic-example-plugin-0.1.0' to 'generic-example-plugin'.
       """
-    And the wp-content/plugins/generic-example-plugin directory should exist
+    And the fp-content/plugins/generic-example-plugin directory should exist
 
   Scenario: Don't attempt to rename ZIPs coming from a GitHub raw source
-    Given a WP install
+    Given a FP install
 
-    When I run `wp plugin install https://github.com/Miller-Media/modern-wordpress/raw/master/builds/modern-framework-stable.zip`
+    When I run `fp plugin install https://github.com/Miller-Media/modern-finpress/raw/master/builds/modern-framework-stable.zip`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
@@ -84,21 +84,21 @@ Feature: Install WordPress plugins
       """
       Renamed Github-based project from 'modern-framework-stable' to 'modern-framework'.
       """
-    And the wp-content/plugins/modern-framework directory should exist
+    And the fp-content/plugins/modern-framework directory should exist
 
-  Scenario: Installing respects WP_PROXY_HOST and WP_PROXY_PORT
-    Given a WP install
+  Scenario: Installing respects FP_PROXY_HOST and FP_PROXY_PORT
+    Given a FP install
     And a invalid-proxy-details.php file:
       """
       <?php
-      define( 'WP_PROXY_HOST', 'https://wp-cli.org' );
-      define( 'WP_PROXY_PORT', '443' );
+      define( 'FP_PROXY_HOST', 'https://fp-cli.org' );
+      define( 'FP_PROXY_PORT', '443' );
       """
 
-    When I try `wp --require=invalid-proxy-details.php plugin install debug-bar`
+    When I try `fp --require=invalid-proxy-details.php plugin install debug-bar`
     Then STDERR should contain:
       """
-      Warning: debug-bar: An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration.
+      Warning: debug-bar: An unexpected error occurred. Something may be wrong with FinPress.org or this server&#8217;s configuration.
       """
     And STDERR should contain:
       """
@@ -107,16 +107,16 @@ Feature: Install WordPress plugins
     And STDOUT should be empty
     And the return code should be 1
 
-    When I run `wp plugin install debug-bar`
+    When I run `fp plugin install debug-bar`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
       """
 
   Scenario: Return code is 1 when one or more plugin installations fail
-    Given a WP install
+    Given a FP install
 
-    When I try `wp plugin install site-secrets site-secrets-not-a-plugin`
+    When I try `fp plugin install site-secrets site-secrets-not-a-plugin`
     Then STDERR should contain:
       """
       Warning:
@@ -139,7 +139,7 @@ Feature: Install WordPress plugins
       """
     And the return code should be 1
 
-    When I try `wp plugin install site-secrets`
+    When I try `fp plugin install site-secrets`
     Then STDOUT should be:
       """
       Success: Plugin already installed.
@@ -150,7 +150,7 @@ Feature: Install WordPress plugins
       """
     And the return code should be 0
 
-    When I try `wp plugin install site-secrets-not-a-plugin`
+    When I try `fp plugin install site-secrets-not-a-plugin`
     Then STDERR should contain:
       """
       Warning:
@@ -166,18 +166,18 @@ Feature: Install WordPress plugins
     And the return code should be 1
 
   Scenario: Paths aren't backslashed when destination folder already exists
-    Given a WP install
+    Given a FP install
 
     When I run `pwd`
     Then save STDOUT as {WORKING_DIR}
 
-    When I run `rm wp-content/plugins/akismet/akismet.php`
+    When I run `rm fp-content/plugins/akismet/akismet.php`
     Then the return code should be 0
 
-    When I try `wp plugin install akismet --ignore-requirements`
+    When I try `fp plugin install akismet --ignore-requirements`
     Then STDERR should contain:
       """
-      Warning: Destination folder already exists. "{WORKING_DIR}/wp-content/plugins/akismet/"
+      Warning: Destination folder already exists. "{WORKING_DIR}/fp-content/plugins/akismet/"
       """
     And STDERR should contain:
       """
@@ -186,26 +186,26 @@ Feature: Install WordPress plugins
     And the return code should be 1
 
   Scenario: For Github archive URLs use the Github project name as the plugin directory
-    Given a WP install
+    Given a FP install
 
-    When I run `wp plugin install https://github.com/wp-cli-test/generic-example-plugin/archive/v0.1.0.zip`
+    When I run `fp plugin install https://github.com/fp-cli-test/generic-example-plugin/archive/v0.1.0.zip`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
       """
     And STDOUT should contain:
       """
-      package from https://github.com/wp-cli-test/generic-example-plugin/archive/v0.1.0.zip
+      package from https://github.com/fp-cli-test/generic-example-plugin/archive/v0.1.0.zip
       """
     And STDOUT should contain:
       """
       Renamed Github-based project from 'generic-example-plugin-0.1.0' to 'generic-example-plugin'.
       """
-    And the wp-content/plugins/generic-example-plugin directory should exist
-    And the wp-content/plugins/generic-example-plugi directory should not exist
-    And the wp-content/plugins/generic-example-plugin-0.1.0 directory should not exist
+    And the fp-content/plugins/generic-example-plugin directory should exist
+    And the fp-content/plugins/generic-example-plugi directory should not exist
+    And the fp-content/plugins/generic-example-plugin-0.1.0 directory should not exist
 
-    When I run `wp plugin install https://github.com/Automattic/sensei/archive/version/1.9.19.zip`
+    When I run `fp plugin install https://github.com/Automattic/sensei/archive/version/1.9.19.zip`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
@@ -218,17 +218,17 @@ Feature: Install WordPress plugins
       """
       Renamed Github-based project from 'sensei-version-1.9.19' to 'sensei'.
       """
-    And the wp-content/plugins/sensei directory should exist
-    And the wp-content/plugins/archive directory should not exist
-    And the wp-content/plugins/sensei-version-1.9.19 directory should not exist
+    And the fp-content/plugins/sensei directory should exist
+    And the fp-content/plugins/archive directory should not exist
+    And the fp-content/plugins/sensei-version-1.9.19 directory should not exist
 
   Scenario: Verify installed plugin activation
-    Given a WP install
+    Given a FP install
 
-    When I run `wp plugin install site-secrets`
+    When I run `fp plugin install site-secrets`
     Then STDOUT should not be empty
 
-    When I try `wp plugin install site-secrets --activate`
+    When I try `fp plugin install site-secrets --activate`
     Then STDERR should contain:
       """
       Warning: site-secrets: Plugin already installed.
@@ -242,16 +242,16 @@ Feature: Install WordPress plugins
       """
 
   @require-php-7
-  Scenario: Can't install plugin that requires a newer version of WordPress
-    Given a WP install
+  Scenario: Can't install plugin that requires a newer version of FinPress
+    Given a FP install
 
-    When I run `wp core download --version=6.4 --force`
-    And I run `rm -r wp-content/themes/*`
+    When I run `fp core download --version=6.4 --force`
+    And I run `rm -r fp-content/themes/*`
 
-    And I try `wp plugin install wp-super-cache`
+    And I try `fp plugin install fp-super-cache`
     Then STDERR should contain:
       """
-      Warning: wp-super-cache: This plugin does not work with your version of WordPress
+      Warning: fp-super-cache: This plugin does not work with your version of FinPress
       """
 
     And STDERR should contain:
@@ -259,11 +259,11 @@ Feature: Install WordPress plugins
       Error: No plugins installed.
       """
 
-  @less-than-php-7.4 @require-wp-6.6
+  @less-than-php-7.4 @require-fp-6.6
   Scenario: Can't install plugin that requires a newer version of PHP
-    Given a WP install
+    Given a FP install
 
-    And I try `wp plugin install contact-form-7`
+    And I try `fp plugin install contact-form-7`
     Then STDERR should contain:
       """
       Warning: contact-form-7: This plugin does not work with your version of PHP

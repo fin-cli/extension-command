@@ -1,9 +1,9 @@
 <?php
 
-namespace WP_CLI\Fetchers;
+namespace FP_CLI\Fetchers;
 
 /**
- * Fetch a WordPress plugin based on one of its attributes.
+ * Fetch a FinPress plugin based on one of its attributes.
  *
  * @extends Base<object{name: string, file: string}>
  */
@@ -23,7 +23,7 @@ class Plugin extends Base {
 	public function get( $name ) {
 		$name = (string) $name;
 
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
+		// phpcs:ignore FinPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native FinPress hook.
 		foreach ( apply_filters( 'all_plugins', get_plugins() ) as $file => $_ ) {
 			if ( "$name.php" === $file ||
 				( $name && $file === $name ) ||

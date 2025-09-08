@@ -1,9 +1,9 @@
-Feature: List recently active WordPress plugins
+Feature: List recently active FinPress plugins
 
   Scenario: Verify plugin installation, activation, deactivation and confirm listing recently active plugins list is correct
-    Given a WP install
+    Given a FP install
 
-    When I run `wp plugin install site-secrets debug-bar p2-by-email --activate`
+    When I run `fp plugin install site-secrets debug-bar p2-by-email --activate`
     Then STDOUT should contain:
       """
       Plugin 'site-secrets' activated.
@@ -17,19 +17,19 @@ Feature: List recently active WordPress plugins
       Plugin 'p2-by-email' activated.
       """
 
-    When I run `wp plugin list --recently-active --field=name --format=json`
+    When I run `fp plugin list --recently-active --field=name --format=json`
     Then STDOUT should be:
       """
       []
       """
 
-    When I run `wp plugin activate akismet`
+    When I run `fp plugin activate akismet`
     Then STDOUT should contain:
       """
       Plugin 'akismet' activated.
       """
 
-    When I run `wp plugin deactivate site-secrets debug-bar`
+    When I run `fp plugin deactivate site-secrets debug-bar`
     Then STDOUT should contain:
       """
       Plugin 'site-secrets' deactivated.
@@ -37,15 +37,15 @@ Feature: List recently active WordPress plugins
       Success: Deactivated 2 of 2 plugins.
       """
 
-    When I run `wp plugin list --recently-active --field=name`
+    When I run `fp plugin list --recently-active --field=name`
     Then STDOUT should be a table containing rows:
       | debug-bar    |
       | site-secrets |
 
   Scenario: Use recently active plugin to activate plugins
-    Given a WP install
+    Given a FP install
 
-    When I run `wp plugin install site-secrets debug-bar --activate`
+    When I run `fp plugin install site-secrets debug-bar --activate`
     Then STDOUT should contain:
       """
       Plugin 'site-secrets' activated.
@@ -55,7 +55,7 @@ Feature: List recently active WordPress plugins
       Plugin 'debug-bar' activated.
       """
 
-    When I run `wp plugin deactivate site-secrets debug-bar`
+    When I run `fp plugin deactivate site-secrets debug-bar`
     Then STDOUT should be:
       """
       Plugin 'site-secrets' deactivated.
@@ -63,7 +63,7 @@ Feature: List recently active WordPress plugins
       Success: Deactivated 2 of 2 plugins.
       """
 
-    When I run `wp plugin activate $(wp plugin list --recently-active --field=name)`
+    When I run `fp plugin activate $(fp plugin list --recently-active --field=name)`
     Then STDOUT should contain:
       """
       Plugin 'debug-bar' activated.
@@ -74,9 +74,9 @@ Feature: List recently active WordPress plugins
       """
 
   Scenario: For a MU site, verify plugin installation, activation, deactivation and confirm listing recently active plugins list is correct
-    Given a WP multisite install
+    Given a FP multisite install
 
-    When I run `wp plugin install site-secrets debug-bar p2-by-email --activate-network`
+    When I run `fp plugin install site-secrets debug-bar p2-by-email --activate-network`
     Then STDOUT should contain:
       """
       Plugin 'site-secrets' network activated.
@@ -90,18 +90,18 @@ Feature: List recently active WordPress plugins
       Plugin 'p2-by-email' network activated.
       """
 
-    When I run `wp plugin activate akismet --network`
+    When I run `fp plugin activate akismet --network`
     Then STDOUT should contain:
       """
       Plugin 'akismet' network activated.
       """
 
-    When I run `wp plugin list --recently-active --field=name --format=json`
+    When I run `fp plugin list --recently-active --field=name --format=json`
     Then STDOUT should be:
       """
       []
       """
-    When I run `wp plugin deactivate site-secrets debug-bar --network`
+    When I run `fp plugin deactivate site-secrets debug-bar --network`
     Then STDOUT should be:
       """
       Plugin 'site-secrets' network deactivated.
@@ -109,15 +109,15 @@ Feature: List recently active WordPress plugins
       Success: Network deactivated 2 of 2 plugins.
       """
 
-    When I run `wp plugin list --recently-active --field=name`
+    When I run `fp plugin list --recently-active --field=name`
     Then STDOUT should be a table containing rows:
       | debug-bar    |
       | site-secrets |
 
   Scenario: For a MU site, use recently active plugin to activate plugins
-    Given a WP multisite install
+    Given a FP multisite install
 
-    When I run `wp plugin install site-secrets debug-bar --activate-network`
+    When I run `fp plugin install site-secrets debug-bar --activate-network`
     Then STDOUT should contain:
       """
       Plugin 'site-secrets' network activated.
@@ -127,7 +127,7 @@ Feature: List recently active WordPress plugins
       Plugin 'debug-bar' network activated.
       """
 
-    When I run `wp plugin deactivate site-secrets debug-bar --network`
+    When I run `fp plugin deactivate site-secrets debug-bar --network`
     Then STDOUT should be:
       """
       Plugin 'site-secrets' network deactivated.
@@ -135,7 +135,7 @@ Feature: List recently active WordPress plugins
       Success: Network deactivated 2 of 2 plugins.
       """
 
-    When I run `wp plugin activate $(wp plugin list --recently-active --field=name) --network`
+    When I run `fp plugin activate $(fp plugin list --recently-active --field=name) --network`
     Then STDOUT should contain:
       """
       Plugin 'site-secrets' network activated.

@@ -1,12 +1,12 @@
 <?php
 
-namespace WP_CLI;
+namespace FP_CLI;
 
-use WP_CLI;
+use FP_CLI;
 use Theme_AutoUpdates_Command;
 
 /**
- * @template T of \WP_Theme
+ * @template T of \FP_Theme
  */
 trait ParseThemeNameInput {
 
@@ -22,18 +22,18 @@ trait ParseThemeNameInput {
 	protected function check_optional_args_and_all( $args, $all, $verb = 'install' ) {
 		if ( $all ) {
 			$args = array_map(
-				'\WP_CLI\Utils\get_theme_name',
+				'\FP_CLI\Utils\get_theme_name',
 				array_keys( $this->get_all_themes() )
 			);
 		}
 
 		if ( empty( $args ) ) {
 			if ( ! $all ) {
-				WP_CLI::error( 'Please specify one or more themes, or use --all.' );
+				FP_CLI::error( 'Please specify one or more themes, or use --all.' );
 			}
 
 			$past_tense_verb = Utils\past_tense_verb( $verb );
-			WP_CLI::success( "No themes {$past_tense_verb}." ); // Don't error if --all given for BC.
+			FP_CLI::success( "No themes {$past_tense_verb}." ); // Don't error if --all given for BC.
 		}
 
 		return $args;
@@ -43,15 +43,15 @@ trait ParseThemeNameInput {
 	 * Gets all available themes.
 	 *
 	 * Uses the same filter core uses in themes.php to determine which themes
-	 * should be available to manage through the WP_Themes_List_Table class.
+	 * should be available to manage through the FP_Themes_List_Table class.
 	 *
 	 * @return array
 	 */
 	private function get_all_themes() {
-		global $wp_version;
-		// Extract the major WordPress version (e.g., "6.3") from the full version string
-		list($wp_core_version) = explode( '-', $wp_version );
-		$wp_core_version       = implode( '.', array_slice( explode( '.', $wp_core_version ), 0, 2 ) );
+		global $fp_version;
+		// Extract the major FinPress version (e.g., "6.3") from the full version string
+		list($fp_core_version) = explode( '-', $fp_version );
+		$fp_core_version       = implode( '.', array_slice( explode( '.', $fp_core_version ), 0, 2 ) );
 
 		$items              = array();
 		$theme_version_info = array();
@@ -89,18 +89,18 @@ trait ParseThemeNameInput {
 			$auto_updates = [];
 		}
 
-		foreach ( wp_get_themes() as $key => $theme ) {
+		foreach ( fp_get_themes() as $key => $theme ) {
 			$stylesheet  = $theme->get_stylesheet();
 			$update_info = ( isset( $all_update_info->response[ $stylesheet ] ) && null !== $all_update_info->response[ $theme->get_stylesheet() ] ) ? (array) $all_update_info->response[ $theme->get_stylesheet() ] : null;
 
-			// Unlike plugin update responses, the wordpress.org API does not seem to check and filter themes that don't meet
-			// WordPress version requirements into a separate no_updates array
-			// Also unlike plugin update responses, the wordpress.org API seems to always include requires AND requires_php
+			// Unlike plugin update responses, the finpress.org API does not seem to check and filter themes that don't meet
+			// FinPress version requirements into a separate no_updates array
+			// Also unlike plugin update responses, the finpress.org API seems to always include requires AND requires_php
 			$requires     = isset( $update_info ) && isset( $update_info['requires'] ) ? $update_info['requires'] : null;
 			$requires_php = isset( $update_info ) && isset( $update_info['requires_php'] ) ? $update_info['requires_php'] : null;
 
 			$compatible_php = empty( $requires_php ) || version_compare( PHP_VERSION, $requires_php, '>=' );
-			$compatible_wp  = empty( $requires ) || version_compare( $wp_version, $requires, '>=' );
+			$compatible_fp  = empty( $requires ) || version_compare( $fp_version, $requires, '>=' );
 
 			if ( ! $compatible_php ) {
 				$update = 'unavailable';
@@ -110,13 +110,13 @@ trait ParseThemeNameInput {
 					$requires_php,
 					PHP_VERSION
 				);
-			} elseif ( ! $compatible_wp ) {
+			} elseif ( ! $compatible_fp ) {
 				$update = 'unavailable';
 
 				$update_unavailable_reason = sprintf(
-					'This update requires WordPress version %s, but the version installed is %s.',
+					'This update requires FinPress version %s, but the version installed is %s.',
 					$requires,
-					$wp_version
+					$fp_version
 				);
 			} else {
 				$update = $update_info ? 'available' : 'none';
@@ -124,7 +124,7 @@ trait ParseThemeNameInput {
 
 			// For display consistency, get these values from the current plugin file if they aren't in this response
 			if ( null === $requires ) {
-				$requires = ! empty( $theme->get( 'RequiresWP' ) ) ? $theme->get( 'RequiresWP' ) : '';
+				$requires = ! empty( $theme->get( 'RequiresFP' ) ) ? $theme->get( 'RequiresFP' ) : '';
 			}
 
 			if ( null === $requires_php ) {
@@ -170,7 +170,7 @@ trait ParseThemeNameInput {
 	}
 
 	/**
-	 * Check if current version of the theme is higher than the one available at WP.org.
+	 * Check if current version of the theme is higher than the one available at FP.org.
 	 *
 	 * @param string $slug Theme slug.
 	 * @param string $version Theme current version.
@@ -179,12 +179,12 @@ trait ParseThemeNameInput {
 	 */
 	protected function is_theme_version_valid( $slug, $version ) {
 		/**
-		 * @var \WP_Error|object{name: string, slug: string, version: string, download_link: string} $theme_info
+		 * @var \FP_Error|object{name: string, slug: string, version: string, download_link: string} $theme_info
 		 */
 		$theme_info = themes_api( 'theme_information', array( 'slug' => $slug ) );
 
-		// Return empty string for themes not on WP.org.
-		if ( is_wp_error( $theme_info ) ) {
+		// Return empty string for themes not on FP.org.
+		if ( is_fp_error( $theme_info ) ) {
 			return '';
 		}
 
@@ -214,7 +214,7 @@ trait ParseThemeNameInput {
 	/**
 	 * Check whether a given theme is the active theme.
 	 *
-	 * @param \WP_Theme $theme Theme to check.
+	 * @param \FP_Theme $theme Theme to check.
 	 *
 	 * @return bool Whether the provided theme is the active theme.
 	 */
@@ -225,7 +225,7 @@ trait ParseThemeNameInput {
 	/**
 	 * Check whether a given theme is the active theme parent.
 	 *
-	 * @param \WP_Theme $theme Theme to check.
+	 * @param \FP_Theme $theme Theme to check.
 	 *
 	 * @return bool Whether the provided theme is the active theme.
 	 */

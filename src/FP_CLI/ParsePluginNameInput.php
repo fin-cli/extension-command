@@ -1,8 +1,8 @@
 <?php
 
-namespace WP_CLI;
+namespace FP_CLI;
 
-use WP_CLI;
+use FP_CLI;
 
 trait ParsePluginNameInput {
 
@@ -19,7 +19,7 @@ trait ParsePluginNameInput {
 	protected function check_optional_args_and_all( $args, $all, $verb = 'install', $exclude = null ) {
 		if ( $all ) {
 			$args = array_map(
-				'\WP_CLI\Utils\get_plugin_name',
+				'\FP_CLI\Utils\get_plugin_name',
 				array_keys( $this->get_all_plugins() )
 			);
 		}
@@ -36,11 +36,11 @@ trait ParsePluginNameInput {
 
 		if ( empty( $args ) ) {
 			if ( ! $all ) {
-				WP_CLI::error( 'Please specify one or more plugins, or use --all.' );
+				FP_CLI::error( 'Please specify one or more plugins, or use --all.' );
 			}
 
 			$past_tense_verb = Utils\past_tense_verb( $verb );
-			WP_CLI::success( "No plugins {$past_tense_verb}." ); // Don't error if --all given for BC.
+			FP_CLI::success( "No plugins {$past_tense_verb}." ); // Don't error if --all given for BC.
 		}
 
 		return $args;
@@ -50,12 +50,12 @@ trait ParsePluginNameInput {
 	 * Gets all available plugins.
 	 *
 	 * Uses the same filter core uses in plugins.php to determine which plugins
-	 * should be available to manage through the WP_Plugins_List_Table class.
+	 * should be available to manage through the FP_Plugins_List_Table class.
 	 *
 	 * @return array
 	 */
 	private function get_all_plugins() {
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
+		// phpcs:ignore FinPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native FinPress hook.
 		return apply_filters( 'all_plugins', get_plugins() );
 	}
 }

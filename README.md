@@ -1,9 +1,9 @@
-wp-cli/extension-command
+fp-cli/extension-command
 ========================
 
 Manages plugins and themes, including installs, activations, and updates.
 
-[![Testing](https://github.com/wp-cli/extension-command/actions/workflows/testing.yml/badge.svg)](https://github.com/wp-cli/extension-command/actions/workflows/testing.yml)
+[![Testing](https://github.com/fp-cli/extension-command/actions/workflows/testing.yml/badge.svg)](https://github.com/fp-cli/extension-command/actions/workflows/testing.yml)
 
 Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contributing) | [Support](#support)
 
@@ -11,38 +11,38 @@ Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contr
 
 This package implements the following commands:
 
-### wp plugin
+### fp plugin
 
 Manages plugins, including installs, activations, and updates.
 
 ~~~
-wp plugin
+fp plugin
 ~~~
 
-See the WordPress [Plugin Handbook](https://developer.wordpress.org/plugins/) developer resource for more information on plugins.
+See the FinPress [Plugin Handbook](https://developer.finpress.org/plugins/) developer resource for more information on plugins.
 
 **EXAMPLES**
 
     # Activate plugin
-    $ wp plugin activate hello
+    $ fp plugin activate hello
     Plugin 'hello' activated.
     Success: Activated 1 of 1 plugins.
 
     # Deactivate plugin
-    $ wp plugin deactivate hello
+    $ fp plugin deactivate hello
     Plugin 'hello' deactivated.
     Success: Deactivated 1 of 1 plugins.
 
     # Delete plugin
-    $ wp plugin delete hello
+    $ fp plugin delete hello
     Deleted 'hello' plugin.
     Success: Deleted 1 of 1 plugins.
 
-    # Install the latest version from wordpress.org and activate
-    $ wp plugin install bbpress --activate
+    # Install the latest version from finpress.org and activate
+    $ fp plugin install bbpress --activate
     Installing bbPress (2.5.9)
-    Downloading install package from https://downloads.wordpress.org/plugin/bbpress.2.5.9.zip...
-    Using cached file '/home/vagrant/.wp-cli/cache/plugin/bbpress-2.5.9.zip'...
+    Downloading install package from https://downloads.finpress.org/plugin/bbpress.2.5.9.zip...
+    Using cached file '/home/vagrant/.fp-cli/cache/plugin/bbpress-2.5.9.zip'...
     Unpacking the package...
     Installing the plugin...
     Plugin installed successfully.
@@ -52,12 +52,12 @@ See the WordPress [Plugin Handbook](https://developer.wordpress.org/plugins/) de
 
 
 
-### wp plugin activate
+### fp plugin activate
 
 Activates one or more plugins.
 
 ~~~
-wp plugin activate [<plugin>...] [--all] [--exclude=<name>] [--network]
+fp plugin activate [<plugin>...] [--all] [--exclude=<name>] [--network]
 ~~~
 
 **OPTIONS**
@@ -77,35 +77,35 @@ wp plugin activate [<plugin>...] [--all] [--exclude=<name>] [--network]
 **EXAMPLES**
 
     # Activate plugin
-    $ wp plugin activate hello
+    $ fp plugin activate hello
     Plugin 'hello' activated.
     Success: Activated 1 of 1 plugins.
 
     # Activate plugin in entire multisite network
-    $ wp plugin activate hello --network
+    $ fp plugin activate hello --network
     Plugin 'hello' network activated.
     Success: Network activated 1 of 1 plugins.
 
     # Activate plugins that were recently active.
-    $ wp plugin activate $(wp plugin list --recently-active --field=name)
+    $ fp plugin activate $(fp plugin list --recently-active --field=name)
     Plugin 'bbpress' activated.
     Plugin 'buddypress' activated.
     Success: Activated 2 of 2 plugins.
 
     # Activate plugins that were recently active on a multisite.
-    $ wp plugin activate $(wp plugin list --recently-active --field=name) --network
+    $ fp plugin activate $(fp plugin list --recently-active --field=name) --network
     Plugin 'bbpress' network activated.
     Plugin 'buddypress' network activated.
     Success: Activated 2 of 2 plugins.
 
 
 
-### wp plugin deactivate
+### fp plugin deactivate
 
 Deactivates one or more plugins.
 
 ~~~
-wp plugin deactivate [<plugin>...] [--uninstall] [--all] [--exclude=<name>] [--network]
+fp plugin deactivate [<plugin>...] [--uninstall] [--all] [--exclude=<name>] [--network]
 ~~~
 
 **OPTIONS**
@@ -128,24 +128,24 @@ wp plugin deactivate [<plugin>...] [--uninstall] [--all] [--exclude=<name>] [--n
 **EXAMPLES**
 
     # Deactivate plugin
-    $ wp plugin deactivate hello
+    $ fp plugin deactivate hello
     Plugin 'hello' deactivated.
     Success: Deactivated 1 of 1 plugins.
 
     # Deactivate all plugins with exclusion
-    $ wp plugin deactivate --all --exclude=hello,wordpress-seo
+    $ fp plugin deactivate --all --exclude=hello,finpress-seo
     Plugin 'contact-form-7' deactivated.
     Plugin 'ninja-forms' deactivated.
     Success: Deactivated 2 of 2 plugins.
 
 
 
-### wp plugin delete
+### fp plugin delete
 
 Deletes plugin files without deactivating or uninstalling.
 
 ~~~
-wp plugin delete [<plugin>...] [--all] [--exclude=<name>]
+fp plugin delete [<plugin>...] [--all] [--exclude=<name>]
 ~~~
 
 **OPTIONS**
@@ -162,29 +162,29 @@ wp plugin delete [<plugin>...] [--all] [--exclude=<name>]
 **EXAMPLES**
 
     # Delete plugin
-    $ wp plugin delete hello
+    $ fp plugin delete hello
     Deleted 'hello' plugin.
     Success: Deleted 1 of 1 plugins.
 
     # Delete inactive plugins
-    $ wp plugin delete $(wp plugin list --status=inactive --field=name)
+    $ fp plugin delete $(fp plugin list --status=inactive --field=name)
     Deleted 'tinymce-templates' plugin.
     Success: Deleted 1 of 1 plugins.
 
     # Delete all plugins excluding specified ones
-    $ wp plugin delete --all --exclude=hello-dolly,jetpack
+    $ fp plugin delete --all --exclude=hello-dolly,jetpack
     Deleted 'akismet' plugin.
     Deleted 'tinymce-templates' plugin.
     Success: Deleted 2 of 2 plugins.
 
 
 
-### wp plugin get
+### fp plugin get
 
 Gets details about an installed plugin.
 
 ~~~
-wp plugin get <plugin> [--field=<field>] [--fields=<fields>] [--format=<format>]
+fp plugin get <plugin> [--field=<field>] [--fields=<fields>] [--format=<format>]
 ~~~
 
 **OPTIONS**
@@ -222,24 +222,24 @@ These fields will be displayed by default for the plugin:
 
 These fields are optionally available:
 
-* requires_wp
+* requires_fp
 * requires_php
 * requires_plugins
 
 **EXAMPLES**
 
     # Get plugin details.
-    $ wp plugin get bbpress --format=json
-    {"name":"bbpress","title":"bbPress","author":"The bbPress Contributors","version":"2.6.9","description":"bbPress is forum software with a twist from the creators of WordPress.","status":"active"}
+    $ fp plugin get bbpress --format=json
+    {"name":"bbpress","title":"bbPress","author":"The bbPress Contributors","version":"2.6.9","description":"bbPress is forum software with a twist from the creators of FinPress.","status":"active"}
 
 
 
-### wp plugin install
+### fp plugin install
 
 Installs one or more plugins.
 
 ~~~
-wp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-requirements] [--activate] [--activate-network] [--insecure]
+fp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-requirements] [--activate] [--activate-network] [--insecure]
 ~~~
 
 **OPTIONS**
@@ -248,7 +248,7 @@ wp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-
 		One or more plugins to install. Accepts a plugin slug, the path to a local zip file, or a URL to a remote zip file.
 
 	[--version=<version>]
-		If set, get that particular version from wordpress.org, instead of the
+		If set, get that particular version from finpress.org, instead of the
 		stable version.
 
 	[--force]
@@ -256,7 +256,7 @@ wp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-
 		for confirmation.
 
 	[--ignore-requirements]
-		If set, the command will install the plugin while ignoring any WordPress or PHP version requirements
+		If set, the command will install the plugin while ignoring any FinPress or PHP version requirements
 		specified by the plugin authors.
 
 	[--activate]
@@ -270,11 +270,11 @@ wp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-
 
 **EXAMPLES**
 
-    # Install the latest version from wordpress.org and activate
-    $ wp plugin install bbpress --activate
+    # Install the latest version from finpress.org and activate
+    $ fp plugin install bbpress --activate
     Installing bbPress (2.5.9)
-    Downloading install package from https://downloads.wordpress.org/plugin/bbpress.2.5.9.zip...
-    Using cached file '/home/vagrant/.wp-cli/cache/plugin/bbpress-2.5.9.zip'...
+    Downloading install package from https://downloads.finpress.org/plugin/bbpress.2.5.9.zip...
+    Using cached file '/home/vagrant/.fp-cli/cache/plugin/bbpress-2.5.9.zip'...
     Unpacking the package...
     Installing the plugin...
     Plugin installed successfully.
@@ -282,24 +282,24 @@ wp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-
     Plugin 'bbpress' activated.
     Success: Installed 1 of 1 plugins.
 
-    # Install the development version from wordpress.org
-    $ wp plugin install bbpress --version=dev
+    # Install the development version from finpress.org
+    $ fp plugin install bbpress --version=dev
     Installing bbPress (Development Version)
-    Downloading install package from https://downloads.wordpress.org/plugin/bbpress.zip...
+    Downloading install package from https://downloads.finpress.org/plugin/bbpress.zip...
     Unpacking the package...
     Installing the plugin...
     Plugin installed successfully.
     Success: Installed 1 of 1 plugins.
 
     # Install from a local zip file
-    $ wp plugin install ../my-plugin.zip
+    $ fp plugin install ../my-plugin.zip
     Unpacking the package...
     Installing the plugin...
     Plugin installed successfully.
     Success: Installed 1 of 1 plugins.
 
     # Install from a remote zip file
-    $ wp plugin install http://s3.amazonaws.com/bucketname/my-plugin.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
+    $ fp plugin install http://s3.amazonaws.com/bucketname/my-plugin.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
     Downloading install package from http://s3.amazonaws.com/bucketname/my-plugin.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
     Unpacking the package...
     Installing the plugin...
@@ -307,18 +307,18 @@ wp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-
     Success: Installed 1 of 1 plugins.
 
     # Update from a remote zip file
-    $ wp plugin install https://github.com/envato/wp-envato-market/archive/master.zip --force
-    Downloading install package from https://github.com/envato/wp-envato-market/archive/master.zip
+    $ fp plugin install https://github.com/envato/fp-envato-market/archive/master.zip --force
+    Downloading install package from https://github.com/envato/fp-envato-market/archive/master.zip
     Unpacking the package...
     Installing the plugin...
-    Renamed Github-based project from 'wp-envato-market-master' to 'wp-envato-market'.
+    Renamed Github-based project from 'fp-envato-market-master' to 'fp-envato-market'.
     Plugin updated successfully
     Success: Installed 1 of 1 plugins.
 
     # Forcefully re-install all installed plugins
-    $ wp plugin install $(wp plugin list --field=name) --force
+    $ fp plugin install $(fp plugin list --field=name) --force
     Installing Akismet (3.1.11)
-    Downloading install package from https://downloads.wordpress.org/plugin/akismet.3.1.11.zip...
+    Downloading install package from https://downloads.finpress.org/plugin/akismet.3.1.11.zip...
     Unpacking the package...
     Installing the plugin...
     Removing the old version of the plugin...
@@ -327,12 +327,12 @@ wp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-
 
 
 
-### wp plugin is-installed
+### fp plugin is-installed
 
 Checks if a given plugin is installed.
 
 ~~~
-wp plugin is-installed <plugin>
+fp plugin is-installed <plugin>
 ~~~
 
 Returns exit code 0 when installed, 1 when uninstalled.
@@ -345,18 +345,18 @@ Returns exit code 0 when installed, 1 when uninstalled.
 **EXAMPLES**
 
     # Check whether plugin is installed; exit status 0 if installed, otherwise 1
-    $ wp plugin is-installed hello
+    $ fp plugin is-installed hello
     $ echo $?
     1
 
 
 
-### wp plugin list
+### fp plugin list
 
 Gets a list of plugins.
 
 ~~~
-wp plugin list [--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>] [--status=<status>] [--skip-update-check] [--recently-active]
+fp plugin list [--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>] [--status=<status>] [--skip-update-check] [--recently-active]
 ~~~
 
 Displays a list of the plugins installed on the site with activation
@@ -426,17 +426,17 @@ These fields are optionally available:
 * tested_up_to
 * requires
 * requires_php
-* wporg_status
-* wporg_last_updated
+* fporg_status
+* fporg_last_updated
 
 **EXAMPLES**
 
     # List active plugins on the site.
-    $ wp plugin list --status=active --format=json
-    [{"name":"dynamic-hostname","status":"active","update":"none","version":"0.4.2","update_version":"","auto_update":"off"},{"name":"tinymce-templates","status":"active","update":"none","version":"4.8.1","update_version":"","auto_update":"off"},{"name":"wp-multibyte-patch","status":"active","update":"none","version":"2.9","update_version":"","auto_update":"off"},{"name":"wp-total-hacks","status":"active","update":"none","version":"4.7.2","update_version":"","auto_update":"off"}]
+    $ fp plugin list --status=active --format=json
+    [{"name":"dynamic-hostname","status":"active","update":"none","version":"0.4.2","update_version":"","auto_update":"off"},{"name":"tinymce-templates","status":"active","update":"none","version":"4.8.1","update_version":"","auto_update":"off"},{"name":"fp-multibyte-patch","status":"active","update":"none","version":"2.9","update_version":"","auto_update":"off"},{"name":"fp-total-hacks","status":"active","update":"none","version":"4.7.2","update_version":"","auto_update":"off"}]
 
     # List plugins on each site in a network.
-    $ wp site list --field=url | xargs -I % wp plugin list --url=%
+    $ fp site list --field=url | xargs -I % fp plugin list --url=%
     +---------+----------------+-----------+---------+-----------------+------------+
     | name    | status         | update    | version | update_version | auto_update |
     +---------+----------------+-----------+---------+----------------+-------------+
@@ -450,29 +450,29 @@ These fields are optionally available:
     | hello   | inactive       | available | 1.6     | 1.7.2          | off         |
     +---------+----------------+-----------+---------+----------------+-------------+
 
-    # Check whether plugins are still active on WordPress.org
-    $ wp plugin list --fields=name,wporg_status,wporg_last_updated
+    # Check whether plugins are still active on FinPress.org
+    $ fp plugin list --fields=name,fporg_status,fporg_last_updated
     +--------------------+--------------+--------------------+
-    | name               | wporg_status | wporg_last_updated |
+    | name               | fporg_status | fporg_last_updated |
     +--------------------+--------------+--------------------+
     | akismet            | active       | 2023-12-11         |
     | user-switching     | active       | 2023-11-17         |
-    | wordpress-importer | active       | 2023-04-28         |
+    | finpress-importer | active       | 2023-04-28         |
     | local              |              |                    |
     +--------------------+--------------+--------------------+
 
     # List recently active plugins on the site.
-    $ wp plugin list --recently-active --field=name --format=json
+    $ fp plugin list --recently-active --field=name --format=json
     ["akismet","bbpress","buddypress"]
 
 
 
-### wp plugin path
+### fp plugin path
 
 Gets the path to a plugin or to the plugin directory.
 
 ~~~
-wp plugin path [<plugin>] [--dir]
+fp plugin path [<plugin>] [--dir]
 ~~~
 
 **OPTIONS**
@@ -487,20 +487,20 @@ wp plugin path [<plugin>] [--dir]
 
 **EXAMPLES**
 
-    $ cd $(wp plugin path) && pwd
-    /var/www/wordpress/wp-content/plugins
+    $ cd $(fp plugin path) && pwd
+    /var/www/finpress/fp-content/plugins
 
 
 
-### wp plugin search
+### fp plugin search
 
-Searches the WordPress.org plugin directory.
+Searches the FinPress.org plugin directory.
 
 ~~~
-wp plugin search <search> [--page=<page>] [--per-page=<per-page>] [--field=<field>] [--fields=<fields>] [--format=<format>]
+fp plugin search <search> [--page=<page>] [--per-page=<per-page>] [--field=<field>] [--fields=<fields>] [--format=<format>]
 ~~~
 
-Displays plugins in the WordPress.org plugin directory matching a given
+Displays plugins in the FinPress.org plugin directory matching a given
 search query.
 
 **OPTIONS**
@@ -544,7 +544,7 @@ search query.
     **sections**: Plugin Readme Sections: description, installation, FAQ, screenshots, other notes, and changelog
     **downloaded**: Plugin Download Count
     **last_updated**: Plugin's Last Update
-    **added**: Plugin's Date Added to wordpress.org Repository
+    **added**: Plugin's Date Added to finpress.org Repository
     **tags**: Plugin's Tags
     **versions**: Plugin's Available Versions with D/L Link
     **donate_link**: Plugin's Donation Link
@@ -552,7 +552,7 @@ search query.
     **icons**: Plugin's Icon Image Link
     **active_installs**: Plugin's Number of Active Installs
     **contributors**: Plugin's List of Contributors
-    **url**: Plugin's URL on wordpress.org
+    **url**: Plugin's URL on finpress.org
 
 	[--format=<format>]
 		Render output in a particular format.
@@ -568,11 +568,11 @@ search query.
 
 **EXAMPLES**
 
-    $ wp plugin search dsgnwrks --per-page=20 --format=json
+    $ fp plugin search dsgnwrks --per-page=20 --format=json
     Success: Showing 3 of 3 plugins.
     [{"name":"DsgnWrks Instagram Importer Debug","slug":"dsgnwrks-instagram-importer-debug","rating":0},{"name":"DsgnWrks Instagram Importer","slug":"dsgnwrks-instagram-importer","rating":84},{"name":"DsgnWrks Twitter Importer","slug":"dsgnwrks-twitter-importer","rating":80}]
 
-    $ wp plugin search dsgnwrks --fields=name,version,slug,rating,num_ratings
+    $ fp plugin search dsgnwrks --fields=name,version,slug,rating,num_ratings
     Success: Showing 3 of 3 plugins.
     +-----------------------------------+---------+-----------------------------------+--------+-------------+
     | name                              | version | slug                              | rating | num_ratings |
@@ -584,12 +584,12 @@ search query.
 
 
 
-### wp plugin status
+### fp plugin status
 
 Reveals the status of one or all plugins.
 
 ~~~
-wp plugin status [<plugin>]
+fp plugin status [<plugin>]
 ~~~
 
 **OPTIONS**
@@ -600,7 +600,7 @@ wp plugin status [<plugin>]
 **EXAMPLES**
 
     # Displays status of all plugins
-    $ wp plugin status
+    $ fp plugin status
     5 installed plugins:
       I akismet                3.1.11
       I easy-digital-downloads 2.5.16
@@ -610,22 +610,22 @@ wp plugin status [<plugin>]
     Legend: I = Inactive, A = Active, M = Must Use
 
     # Displays status of a plugin
-    $ wp plugin status theme-check
+    $ fp plugin status theme-check
     Plugin theme-check details:
         Name: Theme Check
         Status: Active
         Version: 20160523.1
         Author: Otto42, pross
-        Description: A simple and easy way to test your theme for all the latest WordPress standards and practices. A great theme development tool!
+        Description: A simple and easy way to test your theme for all the latest FinPress standards and practices. A great theme development tool!
 
 
 
-### wp plugin toggle
+### fp plugin toggle
 
 Toggles a plugin's activation state.
 
 ~~~
-wp plugin toggle <plugin>... [--network]
+fp plugin toggle <plugin>... [--network]
 ~~~
 
 If the plugin is active, then it will be deactivated. If the plugin is
@@ -642,23 +642,23 @@ inactive, then it will be activated.
 **EXAMPLES**
 
     # Akismet is currently activated
-    $ wp plugin toggle akismet
+    $ fp plugin toggle akismet
     Plugin 'akismet' deactivated.
     Success: Toggled 1 of 1 plugins.
 
     # Akismet is currently deactivated
-    $ wp plugin toggle akismet
+    $ fp plugin toggle akismet
     Plugin 'akismet' activated.
     Success: Toggled 1 of 1 plugins.
 
 
 
-### wp plugin uninstall
+### fp plugin uninstall
 
 Uninstalls one or more plugins.
 
 ~~~
-wp plugin uninstall [<plugin>...] [--deactivate] [--skip-delete] [--all] [--exclude=<name>]
+fp plugin uninstall [<plugin>...] [--deactivate] [--skip-delete] [--all] [--exclude=<name>]
 ~~~
 
 **OPTIONS**
@@ -681,24 +681,24 @@ wp plugin uninstall [<plugin>...] [--deactivate] [--skip-delete] [--all] [--excl
 
 **EXAMPLES**
 
-    $ wp plugin uninstall hello
+    $ fp plugin uninstall hello
     Uninstalled and deleted 'hello' plugin.
     Success: Uninstalled 1 of 1 plugins.
 
     # Uninstall all plugins excluding specified ones
-    $ wp plugin uninstall --all --exclude=hello-dolly,jetpack
+    $ fp plugin uninstall --all --exclude=hello-dolly,jetpack
     Uninstalled and deleted 'akismet' plugin.
     Uninstalled and deleted 'tinymce-templates' plugin.
     Success: Uninstalled 2 of 2 plugins.
 
 
 
-### wp plugin update
+### fp plugin update
 
 Updates one or more plugins.
 
 ~~~
-wp plugin update [<plugin>...] [--all] [--exclude=<name>] [--minor] [--patch] [--format=<format>] [--version=<version>] [--dry-run] [--insecure]
+fp plugin update [<plugin>...] [--all] [--exclude=<name>] [--minor] [--patch] [--format=<format>] [--version=<version>] [--dry-run] [--insecure]
 ~~~
 
 **OPTIONS**
@@ -740,23 +740,23 @@ wp plugin update [<plugin>...] [--all] [--exclude=<name>] [--minor] [--patch] [-
 
 **EXAMPLES**
 
-    $ wp plugin update bbpress --version=dev
+    $ fp plugin update bbpress --version=dev
     Installing bbPress (Development Version)
-    Downloading install package from https://downloads.wordpress.org/plugin/bbpress.zip...
+    Downloading install package from https://downloads.finpress.org/plugin/bbpress.zip...
     Unpacking the package...
     Installing the plugin...
     Removing the old version of the plugin...
     Plugin updated successfully.
     Success: Updated 1 of 2 plugins.
 
-    $ wp plugin update --all
+    $ fp plugin update --all
     Enabling Maintenance mode...
-    Downloading update from https://downloads.wordpress.org/plugin/akismet.3.1.11.zip...
+    Downloading update from https://downloads.finpress.org/plugin/akismet.3.1.11.zip...
     Unpacking the update...
     Installing the latest version...
     Removing the old version of the plugin...
     Plugin updated successfully.
-    Downloading update from https://downloads.wordpress.org/plugin/nginx-champuru.3.2.0.zip...
+    Downloading update from https://downloads.finpress.org/plugin/nginx-champuru.3.2.0.zip...
     Unpacking the update...
     Installing the latest version...
     Removing the old version of the plugin...
@@ -770,9 +770,9 @@ wp plugin update [<plugin>...] [--all] [--exclude=<name>] [--minor] [--patch] [-
     +------------------------+-------------+-------------+---------+
     Success: Updated 2 of 2 plugins.
 
-    $ wp plugin update --all --exclude=akismet
+    $ fp plugin update --all --exclude=akismet
     Enabling Maintenance mode...
-    Downloading update from https://downloads.wordpress.org/plugin/nginx-champuru.3.2.0.zip...
+    Downloading update from https://downloads.finpress.org/plugin/nginx-champuru.3.2.0.zip...
     Unpacking the update...
     Installing the latest version...
     Removing the old version of the plugin...
@@ -786,22 +786,22 @@ wp plugin update [<plugin>...] [--all] [--exclude=<name>] [--minor] [--patch] [-
 
 
 
-### wp theme
+### fp theme
 
 Manages themes, including installs, activations, and updates.
 
 ~~~
-wp theme
+fp theme
 ~~~
 
-See the WordPress [Theme Handbook](https://developer.wordpress.org/themes/) developer resource for more information on themes.
+See the FinPress [Theme Handbook](https://developer.finpress.org/themes/) developer resource for more information on themes.
 
 **EXAMPLES**
 
-    # Install the latest version of a theme from wordpress.org and activate
-    $ wp theme install twentysixteen --activate
+    # Install the latest version of a theme from finpress.org and activate
+    $ fp theme install twentysixteen --activate
     Installing Twenty Sixteen (1.2)
-    Downloading install package from http://downloads.wordpress.org/theme/twentysixteen.1.2.zip...
+    Downloading install package from http://downloads.finpress.org/theme/twentysixteen.1.2.zip...
     Unpacking the package...
     Installing the theme...
     Theme installed successfully.
@@ -810,7 +810,7 @@ See the WordPress [Theme Handbook](https://developer.wordpress.org/themes/) deve
     Success: Installed 1 of 1 themes.
 
     # Get details of an installed theme
-    $ wp theme get twentysixteen --fields=name,title,version
+    $ fp theme get twentysixteen --fields=name,title,version
     +---------+----------------+
     | Field   | Value          |
     +---------+----------------+
@@ -820,21 +820,21 @@ See the WordPress [Theme Handbook](https://developer.wordpress.org/themes/) deve
     +---------+----------------+
 
     # Get status of theme
-    $ wp theme status twentysixteen
+    $ fp theme status twentysixteen
     Theme twentysixteen details:
          Name: Twenty Sixteen
          Status: Active
          Version: 1.2
-         Author: the WordPress team
+         Author: the FinPress team
 
 
 
-### wp theme activate
+### fp theme activate
 
 Activates a theme.
 
 ~~~
-wp theme activate <theme>
+fp theme activate <theme>
 ~~~
 
 **OPTIONS**
@@ -844,17 +844,17 @@ wp theme activate <theme>
 
 **EXAMPLES**
 
-    $ wp theme activate twentysixteen
+    $ fp theme activate twentysixteen
     Success: Switched to 'Twenty Sixteen' theme.
 
 
 
-### wp theme delete
+### fp theme delete
 
 Deletes one or more themes.
 
 ~~~
-wp theme delete [<theme>...] [--all] [--force]
+fp theme delete [<theme>...] [--all] [--force]
 ~~~
 
 Removes the theme or themes from the filesystem.
@@ -872,22 +872,22 @@ Removes the theme or themes from the filesystem.
 
 **EXAMPLES**
 
-    $ wp theme delete twentytwelve
+    $ fp theme delete twentytwelve
     Deleted 'twentytwelve' theme.
     Success: Deleted 1 of 1 themes.
 
 
 
-### wp theme disable
+### fp theme disable
 
-Disables a theme on a WordPress multisite install.
+Disables a theme on a FinPress multisite install.
 
 ~~~
-wp theme disable <theme> [--network]
+fp theme disable <theme> [--network]
 ~~~
 
 Removes ability for a theme to be activated from the dashboard of a site
-on a WordPress multisite install.
+on a FinPress multisite install.
 
 **OPTIONS**
 
@@ -902,24 +902,24 @@ on a WordPress multisite install.
 **EXAMPLES**
 
     # Disable theme
-    $ wp theme disable twentysixteen
+    $ fp theme disable twentysixteen
     Success: Disabled the 'Twenty Sixteen' theme.
 
     # Disable theme in network level
-    $ wp theme disable twentysixteen --network
+    $ fp theme disable twentysixteen --network
     Success: Network disabled the 'Twenty Sixteen' theme.
 
 
 
-### wp theme enable
+### fp theme enable
 
-Enables a theme on a WordPress multisite install.
+Enables a theme on a FinPress multisite install.
 
 ~~~
-wp theme enable <theme> [--network] [--activate]
+fp theme enable <theme> [--network] [--activate]
 ~~~
 
-Permits theme to be activated from the dashboard of a site on a WordPress
+Permits theme to be activated from the dashboard of a site on a FinPress
 multisite install.
 
 **OPTIONS**
@@ -937,26 +937,26 @@ multisite install.
 **EXAMPLES**
 
     # Enable theme
-    $ wp theme enable twentysixteen
+    $ fp theme enable twentysixteen
     Success: Enabled the 'Twenty Sixteen' theme.
 
     # Network enable theme
-    $ wp theme enable twentysixteen --network
+    $ fp theme enable twentysixteen --network
     Success: Network enabled the 'Twenty Sixteen' theme.
 
     # Network enable and activate theme for current site
-    $ wp theme enable twentysixteen --activate
+    $ fp theme enable twentysixteen --activate
     Success: Enabled the 'Twenty Sixteen' theme.
     Success: Switched to 'Twenty Sixteen' theme.
 
 
 
-### wp theme get
+### fp theme get
 
 Gets details about a theme.
 
 ~~~
-wp theme get <theme> [--field=<field>] [--fields=<fields>] [--format=<format>]
+fp theme get <theme> [--field=<field>] [--fields=<fields>] [--format=<format>]
 ~~~
 
 **OPTIONS**
@@ -983,7 +983,7 @@ wp theme get <theme> [--field=<field>] [--fields=<fields>] [--format=<format>]
 
 **EXAMPLES**
 
-    $ wp theme get twentysixteen --fields=name,title,version
+    $ fp theme get twentysixteen --fields=name,title,version
     +---------+----------------+
     | Field   | Value          |
     +---------+----------------+
@@ -994,12 +994,12 @@ wp theme get <theme> [--field=<field>] [--fields=<fields>] [--format=<format>]
 
 
 
-### wp theme install
+### fp theme install
 
 Installs one or more themes.
 
 ~~~
-wp theme install <theme|zip|url>... [--version=<version>] [--force] [--ignore-requirements] [--activate] [--insecure]
+fp theme install <theme|zip|url>... [--version=<version>] [--force] [--ignore-requirements] [--activate] [--insecure]
 ~~~
 
 **OPTIONS**
@@ -1008,7 +1008,7 @@ wp theme install <theme|zip|url>... [--version=<version>] [--force] [--ignore-re
 		One or more themes to install. Accepts a theme slug, the path to a local zip file, or a URL to a remote zip file.
 
 	[--version=<version>]
-		If set, get that particular version from wordpress.org, instead of the
+		If set, get that particular version from finpress.org, instead of the
 		stable version.
 
 	[--force]
@@ -1016,7 +1016,7 @@ wp theme install <theme|zip|url>... [--version=<version>] [--force] [--ignore-re
 		for confirmation.
 
 	[--ignore-requirements]
-		If set, the command will install the theme while ignoring any WordPress or PHP version requirements
+		If set, the command will install the theme while ignoring any FinPress or PHP version requirements
 		specified by the theme authors.
 
 	[--activate]
@@ -1027,10 +1027,10 @@ wp theme install <theme|zip|url>... [--version=<version>] [--force] [--ignore-re
 
 **EXAMPLES**
 
-    # Install the latest version from wordpress.org and activate
-    $ wp theme install twentysixteen --activate
+    # Install the latest version from finpress.org and activate
+    $ fp theme install twentysixteen --activate
     Installing Twenty Sixteen (1.2)
-    Downloading install package from http://downloads.wordpress.org/theme/twentysixteen.1.2.zip...
+    Downloading install package from http://downloads.finpress.org/theme/twentysixteen.1.2.zip...
     Unpacking the package...
     Installing the theme...
     Theme installed successfully.
@@ -1039,19 +1039,19 @@ wp theme install <theme|zip|url>... [--version=<version>] [--force] [--ignore-re
     Success: Installed 1 of 1 themes.
 
     # Install from a local zip file
-    $ wp theme install ../my-theme.zip
+    $ fp theme install ../my-theme.zip
 
     # Install from a remote zip file
-    $ wp theme install http://s3.amazonaws.com/bucketname/my-theme.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
+    $ fp theme install http://s3.amazonaws.com/bucketname/my-theme.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
 
 
 
-### wp theme is-installed
+### fp theme is-installed
 
 Checks if a given theme is installed.
 
 ~~~
-wp theme is-installed <theme>
+fp theme is-installed <theme>
 ~~~
 
 Returns exit code 0 when installed, 1 when uninstalled.
@@ -1064,18 +1064,18 @@ Returns exit code 0 when installed, 1 when uninstalled.
 **EXAMPLES**
 
     # Check whether theme is installed; exit status 0 if installed, otherwise 1
-    $ wp theme is-installed hello
+    $ fp theme is-installed hello
     $ echo $?
     1
 
 
 
-### wp theme list
+### fp theme list
 
 Gets a list of themes.
 
 ~~~
-wp theme list [--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>] [--status=<status>] [--skip-update-check]
+fp theme list [--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>] [--status=<status>] [--skip-update-check]
 ~~~
 
 **OPTIONS**
@@ -1134,45 +1134,45 @@ These fields are optionally available:
 **EXAMPLES**
 
     # List inactive themes.
-    $ wp theme list --status=inactive --format=csv
+    $ fp theme list --status=inactive --format=csv
     name,status,update,version,update_version,auto_update
     twentyfourteen,inactive,none,3.8,,off
     twentysixteen,inactive,available,3.0,3.1,off
 
 
 
-### wp theme mod
+### fp theme mod
 
 Sets, gets, and removes theme mods.
 
 ~~~
-wp theme mod
+fp theme mod
 ~~~
 
 **EXAMPLES**
 
     # Set the 'background_color' theme mod to '000000'.
-    $ wp theme mod set background_color 000000
+    $ fp theme mod set background_color 000000
     Success: Theme mod background_color set to 000000.
 
     # Get single theme mod in JSON format.
-    $ wp theme mod get background_color --format=json
+    $ fp theme mod get background_color --format=json
     [{"key":"background_color","value":"dd3333"}]
 
     # Remove all theme mods.
-    $ wp theme mod remove --all
+    $ fp theme mod remove --all
     Success: Theme mods removed.
 
 
 
 
 
-### wp theme mod get
+### fp theme mod get
 
 Gets one or more theme mods.
 
 ~~~
-wp theme mod get [<mod>...] [--field=<field>] [--all] [--format=<format>]
+fp theme mod get [<mod>...] [--field=<field>] [--all] [--format=<format>]
 ~~~
 
 **OPTIONS**
@@ -1200,7 +1200,7 @@ wp theme mod get [<mod>...] [--field=<field>] [--all] [--format=<format>]
 **EXAMPLES**
 
     # Get all theme mods.
-    $ wp theme mod get --all
+    $ fp theme mod get --all
     +------------------+---------+
     | key              | value   |
     +------------------+---------+
@@ -1210,15 +1210,15 @@ wp theme mod get [<mod>...] [--field=<field>] [--all] [--format=<format>]
     +------------------+---------+
 
     # Get single theme mod in JSON format.
-    $ wp theme mod get background_color --format=json
+    $ fp theme mod get background_color --format=json
     [{"key":"background_color","value":"dd3333"}]
 
     # Get value of a single theme mod.
-    $ wp theme mod get background_color --field=value
+    $ fp theme mod get background_color --field=value
     dd3333
 
     # Get multiple theme mods.
-    $ wp theme mod get background_color header_textcolor
+    $ fp theme mod get background_color header_textcolor
     +------------------+--------+
     | key              | value  |
     +------------------+--------+
@@ -1228,12 +1228,12 @@ wp theme mod get [<mod>...] [--field=<field>] [--all] [--format=<format>]
 
 
 
-### wp theme mod set
+### fp theme mod set
 
 Sets the value of a theme mod.
 
 ~~~
-wp theme mod set <mod> <value>
+fp theme mod set <mod> <value>
 ~~~
 
 **OPTIONS**
@@ -1247,17 +1247,17 @@ wp theme mod set <mod> <value>
 **EXAMPLES**
 
     # Set theme mod
-    $ wp theme mod set background_color 000000
+    $ fp theme mod set background_color 000000
     Success: Theme mod background_color set to 000000.
 
 
 
-### wp theme mod remove
+### fp theme mod remove
 
 Removes one or more theme mods.
 
 ~~~
-wp theme mod remove [<mod>...] [--all]
+fp theme mod remove [<mod>...] [--all]
 ~~~
 
 **OPTIONS**
@@ -1271,25 +1271,25 @@ wp theme mod remove [<mod>...] [--all]
 **EXAMPLES**
 
     # Remove all theme mods.
-    $ wp theme mod remove --all
+    $ fp theme mod remove --all
     Success: Theme mods removed.
 
     # Remove single theme mod.
-    $ wp theme mod remove background_color
+    $ fp theme mod remove background_color
     Success: 1 mod removed.
 
     # Remove multiple theme mods.
-    $ wp theme mod remove background_color header_textcolor
+    $ fp theme mod remove background_color header_textcolor
     Success: 2 mods removed.
 
 
 
-### wp theme path
+### fp theme path
 
 Gets the path to a theme or to the theme directory.
 
 ~~~
-wp theme path [<theme>] [--dir]
+fp theme path [<theme>] [--dir]
 ~~~
 
 **OPTIONS**
@@ -1305,23 +1305,23 @@ wp theme path [<theme>] [--dir]
 **EXAMPLES**
 
     # Get theme path
-    $ wp theme path
-    /var/www/example.com/public_html/wp-content/themes
+    $ fp theme path
+    /var/www/example.com/public_html/fp-content/themes
 
     # Change directory to theme path
-    $ cd $(wp theme path)
+    $ cd $(fp theme path)
 
 
 
-### wp theme search
+### fp theme search
 
-Searches the WordPress.org theme directory.
+Searches the FinPress.org theme directory.
 
 ~~~
-wp theme search <search> [--page=<page>] [--per-page=<per-page>] [--field=<field>] [--fields=<fields>] [--format=<format>]
+fp theme search <search> [--page=<page>] [--per-page=<per-page>] [--field=<field>] [--fields=<fields>] [--format=<format>]
 ~~~
 
-Displays themes in the WordPress.org theme directory matching a given
+Displays themes in the FinPress.org theme directory matching a given
 search query.
 
 **OPTIONS**
@@ -1354,7 +1354,7 @@ search query.
     **num_ratings**: Number of Theme Ratings
     **homepage**: Theme Author's Homepage
     **description**: Theme Description
-    **url**: Theme's URL on wordpress.org
+    **url**: Theme's URL on finpress.org
 
 	[--format=<format>]
 		Render output in a particular format.
@@ -1370,7 +1370,7 @@ search query.
 
 **EXAMPLES**
 
-    $ wp theme search photo --per-page=6
+    $ fp theme search photo --per-page=6
     Success: Showing 6 of 203 themes.
     +----------------------+----------------------+--------+
     | name                 | slug                 | rating |
@@ -1385,12 +1385,12 @@ search query.
 
 
 
-### wp theme status
+### fp theme status
 
 Reveals the status of one or all themes.
 
 ~~~
-wp theme status [<theme>]
+fp theme status [<theme>]
 ~~~
 
 **OPTIONS**
@@ -1400,21 +1400,21 @@ wp theme status [<theme>]
 
 **EXAMPLES**
 
-    $ wp theme status twentysixteen
+    $ fp theme status twentysixteen
     Theme twentysixteen details:
          Name: Twenty Sixteen
          Status: Inactive
          Version: 1.2
-         Author: the WordPress team
+         Author: the FinPress team
 
 
 
-### wp theme update
+### fp theme update
 
 Updates one or more themes.
 
 ~~~
-wp theme update [<theme>...] [--all] [--exclude=<theme-names>] [--minor] [--patch] [--format=<format>] [--version=<version>] [--dry-run] [--insecure]
+fp theme update [<theme>...] [--all] [--exclude=<theme-names>] [--minor] [--patch] [--format=<format>] [--version=<version>] [--dry-run] [--insecure]
 ~~~
 
 **OPTIONS**
@@ -1457,13 +1457,13 @@ wp theme update [<theme>...] [--all] [--exclude=<theme-names>] [--minor] [--patc
 **EXAMPLES**
 
     # Update multiple themes
-    $ wp theme update twentyfifteen twentysixteen
-    Downloading update from https://downloads.wordpress.org/theme/twentyfifteen.1.5.zip...
+    $ fp theme update twentyfifteen twentysixteen
+    Downloading update from https://downloads.finpress.org/theme/twentyfifteen.1.5.zip...
     Unpacking the update...
     Installing the latest version...
     Removing the old version of the theme...
     Theme updated successfully.
-    Downloading update from https://downloads.wordpress.org/theme/twentysixteen.1.2.zip...
+    Downloading update from https://downloads.finpress.org/theme/twentysixteen.1.2.zip...
     Unpacking the update...
     Installing the latest version...
     Removing the old version of the theme...
@@ -1477,13 +1477,13 @@ wp theme update [<theme>...] [--all] [--exclude=<theme-names>] [--minor] [--patc
     Success: Updated 2 of 2 themes.
 
     # Exclude themes updates when bulk updating the themes
-    $ wp theme update --all --exclude=twentyfifteen
-    Downloading update from https://downloads.wordpress.org/theme/astra.1.0.5.1.zip...
+    $ fp theme update --all --exclude=twentyfifteen
+    Downloading update from https://downloads.finpress.org/theme/astra.1.0.5.1.zip...
     Unpacking the update...
     Installing the latest version...
     Removing the old version of the theme...
     Theme updated successfully.
-    Downloading update from https://downloads.wordpress.org/theme/twentyseventeen.1.2.zip...
+    Downloading update from https://downloads.finpress.org/theme/twentyseventeen.1.2.zip...
     Unpacking the update...
     Installing the latest version...
     Removing the old version of the theme...
@@ -1497,16 +1497,16 @@ wp theme update [<theme>...] [--all] [--exclude=<theme-names>] [--minor] [--patc
     Success: Updated 2 of 2 themes.
 
     # Update all themes
-    $ wp theme update --all
+    $ fp theme update --all
 
 
 
-### wp theme mod list
+### fp theme mod list
 
 Gets a list of theme mods.
 
 ~~~
-wp theme mod list [--field=<field>] [--format=<format>]
+fp theme mod list [--field=<field>] [--format=<format>]
 ~~~
 
 **OPTIONS**
@@ -1528,7 +1528,7 @@ wp theme mod list [--field=<field>] [--format=<format>]
 **EXAMPLES**
 
     # Gets a list of theme mods.
-    $ wp theme mod list
+    $ fp theme mod list
     +------------------+---------+
     | key              | value   |
     +------------------+---------+
@@ -1539,11 +1539,11 @@ wp theme mod list [--field=<field>] [--format=<format>]
 
 ## Installing
 
-This package is included with WP-CLI itself, no additional installation necessary.
+This package is included with FP-CLI itself, no additional installation necessary.
 
-To install the latest version of this package over what's included in WP-CLI, run:
+To install the latest version of this package over what's included in FP-CLI, run:
 
-    wp package install git@github.com:wp-cli/extension-command.git
+    fp package install git@github.com:fp-cli/extension-command.git
 
 ## Contributing
 
@@ -1551,25 +1551,25 @@ We appreciate you taking the initiative to contribute to this project.
 
 Contributing isn’t limited to just code. We encourage you to contribute in the way that best fits your abilities, by writing tutorials, giving a demo at your local meetup, helping other users with their support questions, or revising our documentation.
 
-For a more thorough introduction, [check out WP-CLI's guide to contributing](https://make.wordpress.org/cli/handbook/contributing/). This package follows those policy and guidelines.
+For a more thorough introduction, [check out FP-CLI's guide to contributing](https://make.finpress.org/cli/handbook/contributing/). This package follows those policy and guidelines.
 
 ### Reporting a bug
 
 Think you’ve found a bug? We’d love for you to help us get it fixed.
 
-Before you create a new issue, you should [search existing issues](https://github.com/wp-cli/extension-command/issues?q=label%3Abug%20) to see if there’s an existing resolution to it, or if it’s already been fixed in a newer version.
+Before you create a new issue, you should [search existing issues](https://github.com/fp-cli/extension-command/issues?q=label%3Abug%20) to see if there’s an existing resolution to it, or if it’s already been fixed in a newer version.
 
-Once you’ve done a bit of searching and discovered there isn’t an open or fixed issue for your bug, please [create a new issue](https://github.com/wp-cli/extension-command/issues/new). Include as much detail as you can, and clear steps to reproduce if possible. For more guidance, [review our bug report documentation](https://make.wordpress.org/cli/handbook/bug-reports/).
+Once you’ve done a bit of searching and discovered there isn’t an open or fixed issue for your bug, please [create a new issue](https://github.com/fp-cli/extension-command/issues/new). Include as much detail as you can, and clear steps to reproduce if possible. For more guidance, [review our bug report documentation](https://make.finpress.org/cli/handbook/bug-reports/).
 
 ### Creating a pull request
 
-Want to contribute a new feature? Please first [open a new issue](https://github.com/wp-cli/extension-command/issues/new) to discuss whether the feature is a good fit for the project.
+Want to contribute a new feature? Please first [open a new issue](https://github.com/fp-cli/extension-command/issues/new) to discuss whether the feature is a good fit for the project.
 
-Once you've decided to commit the time to seeing your pull request through, [please follow our guidelines for creating a pull request](https://make.wordpress.org/cli/handbook/pull-requests/) to make sure it's a pleasant experience. See "[Setting up](https://make.wordpress.org/cli/handbook/pull-requests/#setting-up)" for details specific to working on this package locally.
+Once you've decided to commit the time to seeing your pull request through, [please follow our guidelines for creating a pull request](https://make.finpress.org/cli/handbook/pull-requests/) to make sure it's a pleasant experience. See "[Setting up](https://make.finpress.org/cli/handbook/pull-requests/#setting-up)" for details specific to working on this package locally.
 
 ## Support
 
-GitHub issues aren't for general support questions, but there are other venues you can try: https://wp-cli.org/#support
+GitHub issues aren't for general support questions, but there are other venues you can try: https://fp-cli.org/#support
 
 
-*This README.md is generated dynamically from the project's codebase using `wp scaffold package-readme` ([doc](https://github.com/wp-cli/scaffold-package-command#wp-scaffold-package-readme)). To suggest changes, please submit a pull request against the corresponding part of the codebase.*
+*This README.md is generated dynamically from the project's codebase using `fp scaffold package-readme` ([doc](https://github.com/fp-cli/scaffold-package-command#fp-scaffold-package-readme)). To suggest changes, please submit a pull request against the corresponding part of the codebase.*
