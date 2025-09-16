@@ -1,15 +1,15 @@
 <?php
 
-namespace FP_CLI;
+namespace FIN_CLI;
 
 use Composer\Semver\VersionParser;
 use Composer\Semver\Comparator;
 use Exception;
-use FP_CLI;
-use FP_CLI\Fetchers;
-use FP_CLI\Loggers;
-use FP_CLI\Utils;
-use FP_Error;
+use FIN_CLI;
+use FIN_CLI\Fetchers;
+use FIN_CLI\Loggers;
+use FIN_CLI\Utils;
+use FIN_Error;
 
 /**
  * @phpstan-import-type ThemeInformation from \Theme_Command
@@ -17,7 +17,7 @@ use FP_Error;
  *
  * @template T
  */
-abstract class CommandWithUpgrade extends \FP_CLI_Command {
+abstract class CommandWithUpgrade extends \FIN_CLI_Command {
 
 	protected $fetcher;
 	protected $item_type;
@@ -68,7 +68,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 	}
 
 	/**
-	 * @return class-string<\FP_Upgrader>
+	 * @return class-string<\FIN_Upgrader>
 	 */
 	abstract protected function get_upgrader_class( $force );
 
@@ -120,7 +120,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 
 		$n = count( $items );
 
-		FP_CLI::log(
+		FIN_CLI::log(
 			sprintf( '%d installed %s:', $n, Utils\pluralize( $this->item_type, absint( $n ) ) )
 		);
 
@@ -139,10 +139,10 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 				$line .= ' ' . $details['version'];
 			}
 
-			FP_CLI::line( FP_CLI::colorize( $line ) );
+			FIN_CLI::line( FIN_CLI::colorize( $line ) );
 		}
 
-		FP_CLI::line();
+		FIN_CLI::line();
 
 		$this->show_legend( $items );
 	}
@@ -162,7 +162,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 	}
 
 	private function show_legend( $items ) {
-		$statuses = array_unique( fp_list_pluck( $items, 'status' ) );
+		$statuses = array_unique( fin_list_pluck( $items, 'status' ) );
 
 		$legend_line = array();
 
@@ -174,11 +174,11 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 				$this->map['long'][ $status ]
 			);
 		}
-		if ( in_array( 'available', fp_list_pluck( $items, 'update' ), true ) ) {
+		if ( in_array( 'available', fin_list_pluck( $items, 'update' ), true ) ) {
 			$legend_line[] = '%yU = Update Available%n';
 		}
 
-		FP_CLI::line( 'Legend: ' . FP_CLI::colorize( implode( ', ', $legend_line ) ) );
+		FIN_CLI::line( 'Legend: ' . FIN_CLI::colorize( implode( ', ', $legend_line ) ) );
 	}
 
 	public function install( $args, $assoc_args ) {
@@ -187,7 +187,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 		foreach ( $args as $slug ) {
 
 			if ( empty( $slug ) ) {
-				FP_CLI::warning( 'Ignoring ambiguous empty slug value.' );
+				FIN_CLI::warning( 'Ignoring ambiguous empty slug value.' );
 				continue;
 			}
 
@@ -201,8 +201,8 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 				if ( $github_repo ) {
 					$version = $this->get_the_latest_github_version( $github_repo );
 
-					if ( is_fp_error( $version ) ) {
-						FP_CLI::error( $version->get_error_message() );
+					if ( is_fin_error( $version ) ) {
+						FIN_CLI::error( $version->get_error_message() );
 					}
 
 					/**
@@ -210,7 +210,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 					 */
 					$slug = $version['url'];
 
-					FP_CLI::log( 'Latest release resolved to ' . $version['name'] );
+					FIN_CLI::log( 'Latest release resolved to ' . $version['name'] );
 				}
 			}
 
@@ -244,12 +244,12 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 						}
 						$new_path = substr_replace( $source, $slug_dir, (int) strrpos( $source, $source_dir ), strlen( $source_dir ) );
 
-						if ( $GLOBALS['fp_filesystem']->move( $source, $new_path ) ) {
-							FP_CLI::log( sprintf( "Renamed Github-based project from '%s' to '%s'.", $source_dir, $slug_dir ) );
+						if ( $GLOBALS['fin_filesystem']->move( $source, $new_path ) ) {
+							FIN_CLI::log( sprintf( "Renamed Github-based project from '%s' to '%s'.", $source_dir, $slug_dir ) );
 							return $new_path;
 						}
 
-						return new FP_Error( 'fpcli_install_github', "Couldn't move Github-based project to appropriate directory." );
+						return new FIN_Error( 'fincli_install_github', "Couldn't move Github-based project to appropriate directory." );
 					};
 					add_filter( 'upgrader_source_selection', $filter, 10 );
 				}
@@ -273,14 +273,14 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 
 				if ( is_null( $result ) ) {
 					++$errors;
-				} elseif ( is_fp_error( $result ) ) {
+				} elseif ( is_fin_error( $result ) ) {
 					$key = $result->get_error_code();
 					if ( in_array( $key, [ 'plugins_api_failed', 'themes_api_failed' ], true )
 						&& ! empty( $result->error_data[ $key ] ) && in_array( $result->error_data[ $key ], [ 'N;', 'b:0;' ], true ) ) {
-						FP_CLI::warning( "Couldn't find '$slug' in the FinPress.org {$this->item_type} directory." );
+						FIN_CLI::warning( "Couldn't find '$slug' in the FinPress.org {$this->item_type} directory." );
 						++$errors;
 					} else {
-						FP_CLI::warning( "$slug: " . $result->get_error_message() );
+						FIN_CLI::warning( "$slug: " . $result->get_error_message() );
 						if ( 'already_installed' !== $key ) {
 							++$errors;
 						}
@@ -297,19 +297,19 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 			$allow_activation = $result;
 
 			// Allow installation for installed extension.
-			if ( is_fp_error( $result ) && 'already_installed' === $result->get_error_code() ) {
+			if ( is_fin_error( $result ) && 'already_installed' === $result->get_error_code() ) {
 				$allow_activation = true;
 			}
 
 			if ( true === $allow_activation && count( $extension ) > 0 ) {
 				$this->chained_command = true;
 				if ( Utils\get_flag_value( $assoc_args, 'activate-network' ) ) {
-					FP_CLI::log( "Network-activating '$slug'..." );
+					FIN_CLI::log( "Network-activating '$slug'..." );
 					$this->activate( array( $slug ), array( 'network' => true ) );
 				}
 
 				if ( Utils\get_flag_value( $assoc_args, 'activate' ) ) {
-					FP_CLI::log( "Activating '$slug'..." );
+					FIN_CLI::log( "Activating '$slug'..." );
 					$this->activate( array( $slug ) );
 				}
 				$this->chained_command = false;
@@ -353,15 +353,15 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 			$response->version       = $version;
 
 			// Check if the requested version exists.
-			$response      = fp_remote_head( $response->download_link );
-			$response_code = fp_remote_retrieve_response_code( $response );
+			$response      = fin_remote_head( $response->download_link );
+			$response_code = fin_remote_retrieve_response_code( $response );
 			if ( 200 !== (int) $response_code ) {
-				if ( is_fp_error( $response ) ) {
+				if ( is_fin_error( $response ) ) {
 					$error_msg = $response->get_error_message();
 				} else {
 					$error_msg = sprintf( 'HTTP code %d', $response_code );
 				}
-				FP_CLI::error(
+				FIN_CLI::error(
 					sprintf(
 						"Can't find the requested %s's version %s in the FinPress.org %s repository (%s).",
 						$download_type,
@@ -385,16 +385,16 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 		call_user_func( $this->upgrade_refresh );
 
 		if ( ! empty( $assoc_args['format'] ) && in_array( $assoc_args['format'], [ 'json', 'csv' ], true ) ) {
-			$logger = new Loggers\Quiet( FP_CLI::get_runner()->in_color() );
-			FP_CLI::set_logger( $logger );
+			$logger = new Loggers\Quiet( FIN_CLI::get_runner()->in_color() );
+			FIN_CLI::set_logger( $logger );
 		}
 
 		if ( ! Utils\get_flag_value( $assoc_args, 'all' ) && empty( $args ) ) {
-			FP_CLI::error( "Please specify one or more {$this->item_type}s, or use --all." );
+			FIN_CLI::error( "Please specify one or more {$this->item_type}s, or use --all." );
 		}
 
 		if ( Utils\get_flag_value( $assoc_args, 'minor' ) && Utils\get_flag_value( $assoc_args, 'patch' ) ) {
-			FP_CLI::error( '--minor and --patch cannot be used together.' );
+			FIN_CLI::error( '--minor and --patch cannot be used together.' );
 		}
 
 		$items = $this->get_item_list();
@@ -441,7 +441,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 					}
 					unset( $items_to_update[ $plugin->file ] );
 				} elseif ( 'theme' === $this->item_type ) {
-					$theme = fp_get_theme( $item );
+					$theme = fin_get_theme( $item );
 					if ( $theme->exists() ) {
 						unset( $items_to_update[ $theme->get_stylesheet() ] );
 					}
@@ -452,12 +452,12 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 		// Check for items to update and remove extensions that have version higher than expected.
 		foreach ( $items_to_update as $item_key => $item_info ) {
 			if ( static::INVALID_VERSION_MESSAGE === $item_info['update'] ) {
-				FP_CLI::warning( "{$item_info['name']}: " . static::INVALID_VERSION_MESSAGE . '.' );
+				FIN_CLI::warning( "{$item_info['name']}: " . static::INVALID_VERSION_MESSAGE . '.' );
 				++$skipped;
 				unset( $items_to_update[ $item_key ] );
 			}
 			if ( 'unavailable' === $item_info['update'] ) {
-				FP_CLI::warning( "{$item_info['name']}: {$item_info['update_unavailable_reason']}" );
+				FIN_CLI::warning( "{$item_info['name']}: {$item_info['update_unavailable_reason']}" );
 				++$skipped;
 				unset( $items_to_update[ $item_key ] );
 			}
@@ -465,10 +465,10 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 
 		if ( Utils\get_flag_value( $assoc_args, 'dry-run' ) ) {
 			if ( empty( $items_to_update ) ) {
-				FP_CLI::log( "No {$this->item_type} updates available." );
+				FIN_CLI::log( "No {$this->item_type} updates available." );
 
 				if ( null !== $exclude ) {
-					FP_CLI::log( "Skipped updates for: $exclude" );
+					FIN_CLI::log( "Skipped updates for: $exclude" );
 				}
 
 				return;
@@ -477,17 +477,17 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 			if ( ! empty( $assoc_args['format'] ) && in_array( $assoc_args['format'], [ 'json', 'csv' ], true ) ) {
 				Utils\format_items( $assoc_args['format'], $items_to_update, [ 'name', 'status', 'version', 'update_version' ] );
 			} elseif ( ! empty( $assoc_args['format'] ) && 'summary' === $assoc_args['format'] ) {
-				FP_CLI::log( "Available {$this->item_type} updates:" );
+				FIN_CLI::log( "Available {$this->item_type} updates:" );
 				foreach ( $items_to_update as $item_to_update => $info ) {
-					FP_CLI::log( "{$info['title']} update from version {$info['version']} to version {$info['update_version']}" );
+					FIN_CLI::log( "{$info['title']} update from version {$info['version']} to version {$info['update_version']}" );
 				}
 			} else {
-				FP_CLI::log( "Available {$this->item_type} updates:" );
+				FIN_CLI::log( "Available {$this->item_type} updates:" );
 				Utils\format_items( 'table', $items_to_update, [ 'name', 'status', 'version', 'update_version' ] );
 			}
 
 			if ( null !== $exclude ) {
-				FP_CLI::log( "Skipped updates for: $exclude" );
+				FIN_CLI::log( "Skipped updates for: $exclude" );
 			}
 
 			return;
@@ -497,7 +497,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 
 		// Only attempt to update if there is something to update.
 		if ( ! empty( $items_to_update ) ) {
-			$cache_manager = FP_CLI::get_http_cache_manager();
+			$cache_manager = FIN_CLI::get_http_cache_manager();
 			foreach ( $items_to_update as $item ) {
 				$cache_manager->whitelist_package( $item['update_package'], $this->item_type, $item['name'], $item['update_version'] );
 			}
@@ -521,7 +521,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 				return $transient;
 			};
 			add_filter( 'site_transient_' . $this->upgrade_transient, $transient_filter, 999 );
-			$result = $upgrader->bulk_upgrade( fp_list_pluck( $items_to_update, 'update_id' ) );
+			$result = $upgrader->bulk_upgrade( fin_list_pluck( $items_to_update, 'update_id' ) );
 			remove_filter( 'site_transient_' . $this->upgrade_transient, $transient_filter, 999 );
 		}
 
@@ -535,7 +535,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 			array_filter(
 				$result,
 				static function ( $result ) {
-					return $result && ! is_fp_error( $result );
+					return $result && ! is_fin_error( $result );
 				}
 			)
 		);
@@ -544,7 +544,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 			if ( ! empty( $assoc_args['format'] ) && 'summary' === $assoc_args['format'] ) {
 				foreach ( $items_to_update as $item_to_update => $info ) {
 					$message = null !== $result[ $info['update_id'] ] ? 'updated successfully' : 'did not update';
-					FP_CLI::log( "{$info['title']} {$message} from version {$info['version']} to version {$info['update_version']}" );
+					FIN_CLI::log( "{$info['title']} {$message} from version {$info['version']} to version {$info['update_version']}" );
 				}
 			} else {
 				$status = array();
@@ -553,9 +553,9 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 						'name'        => $info['name'],
 						'old_version' => $info['version'],
 						'new_version' => $info['update_version'],
-						'status'      => ( null !== $result[ $info['update_id'] ] && ! is_fp_error( $result[ $info['update_id'] ] ) ) ? 'Updated' : 'Error',
+						'status'      => ( null !== $result[ $info['update_id'] ] && ! is_fin_error( $result[ $info['update_id'] ] ) ) ? 'Updated' : 'Error',
 					];
-					if ( null === $result[ $info['update_id'] ] || is_fp_error( $result[ $info['update_id'] ] ) ) {
+					if ( null === $result[ $info['update_id'] ] || is_fin_error( $result[ $info['update_id'] ] ) ) {
 						++$errors;
 					}
 				}
@@ -576,7 +576,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 		}
 		Utils\report_batch_operation_results( $this->item_type, 'update', $total_updated, $num_updated, $errors, $skipped );
 		if ( null !== $exclude ) {
-			FP_CLI::log( "Skipped updates for: $exclude" );
+			FIN_CLI::log( "Skipped updates for: $exclude" );
 		}
 	}
 
@@ -601,7 +601,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 		}
 
 		if ( ! is_array( $all_items ) ) {
-			FP_CLI::error( "No {$this->item_type}s found." );
+			FIN_CLI::error( "No {$this->item_type}s found." );
 		}
 
 		foreach ( $all_items as $key => &$item ) {
@@ -732,13 +732,13 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 	 * @return array
 	 */
 	private function get_minor_or_patch_updates( $items, $type, $insecure, $require_stable, $item_type ) {
-		$fp_org_api = new WpOrgApi( [ 'insecure' => $insecure ] );
+		$fin_org_api = new WpOrgApi( [ 'insecure' => $insecure ] );
 		foreach ( $items as $i => $item ) {
 			try {
 				/**
 				 * @var callable $callback
 				 */
-				$callback = [ $fp_org_api, "get_{$item_type}_info" ];
+				$callback = [ $fin_org_api, "get_{$item_type}_info" ];
 				$data     = call_user_func(
 					$callback,
 					$item['name'],
@@ -837,17 +837,17 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 		}
 
 		/**
-		 * @var \FP_Error|object{info: object{page: int, pages: int, results: int}} $api
+		 * @var \FIN_Error|object{info: object{page: int, pages: int, results: int}} $api
 		 */
 
-		if ( is_fp_error( $api ) ) {
-			FP_CLI::error( $api->get_error_message() . __( ' Try again' ) );
+		if ( is_fin_error( $api ) ) {
+			FIN_CLI::error( $api->get_error_message() . __( ' Try again' ) );
 		}
 
 		$plural = $this->item_type . 's';
 
 		if ( ! isset( $api->$plural ) ) {
-			FP_CLI::error( __( 'API error. Try Again.' ) );
+			FIN_CLI::error( __( 'API error. Try Again.' ) );
 		}
 
 		$items = $api->$plural;
@@ -864,31 +864,31 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 			 * @var string $count
 			 */
 			$count = Utils\get_flag_value( (array) $api->info, 'results', 'unknown' );
-			FP_CLI::success( sprintf( 'Showing %s of %s %s.', count( $items ), $count, $plural ) );
+			FIN_CLI::success( sprintf( 'Showing %s of %s %s.', count( $items ), $count, $plural ) );
 		}
 
 		$formatter->display_items( $items );
 	}
 
 	protected function get_formatter( &$assoc_args ) {
-		return new \FP_CLI\Formatter( $assoc_args, $this->obj_fields, $this->item_type );
+		return new \FIN_CLI\Formatter( $assoc_args, $this->obj_fields, $this->item_type );
 	}
 
 	/**
-	 * Error handler to ignore failures on accessing SSL "https://api.finpress.org/themes/update-check/1.1/" in `fp_update_themes()`
-	 * and "https://api.finpress.org/plugins/update-check/1.1/" in `fp_update_plugins()` which seem to occur intermittently.
+	 * Error handler to ignore failures on accessing SSL "https://api.finpress.org/themes/update-check/1.1/" in `fin_update_themes()`
+	 * and "https://api.finpress.org/plugins/update-check/1.1/" in `fin_update_plugins()` which seem to occur intermittently.
 	 */
 	public static function error_handler( $errno, $errstr, $errfile, $errline, $errcontext = null ) {
 		// If ignoring E_USER_WARNING | E_USER_NOTICE, default.
 		if ( ! ( error_reporting() & $errno ) ) {
 			return false;
 		}
-		// If not in "fp-includes/update.php", default.
-		$update_php = 'fp-includes/update.php';
+		// If not in "fin-includes/update.php", default.
+		$update_php = 'fin-includes/update.php';
 		if ( 0 !== substr_compare( $errfile, $update_php, -strlen( $update_php ) ) ) {
 			return false;
 		}
-		// Else assume it's in `fp_update_themes()` or `fp_update_plugins()` and just ignore it.
+		// Else assume it's in `fin_update_themes()` or `fin_update_plugins()` and just ignore it.
 		return true;
 	}
 
@@ -900,15 +900,15 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 	protected static function maybe_cache( $url, $item_type ) {
 		$matches = [];
 
-		// cache release URLs like `https://github.com/fp-cli-test/generic-example-plugin/releases/download/v0.1.0/generic-example-plugin.0.1.0.zip`
+		// cache release URLs like `https://github.com/fin-cli-test/generic-example-plugin/releases/download/v0.1.0/generic-example-plugin.0.1.0.zip`
 		if ( preg_match( '#github\.com/[^/]+/([^/]+)/releases/download/v?([^/]+)/.+\.zip#', $url, $matches ) ) {
-			FP_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[2] );
-			// cache archive URLs like `https://github.com/fp-cli-test/generic-example-plugin/archive/v0.1.0.zip`
+			FIN_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[2] );
+			// cache archive URLs like `https://github.com/fin-cli-test/generic-example-plugin/archive/v0.1.0.zip`
 		} elseif ( preg_match( '#github\.com/[^/]+/([^/]+)/archive/(version/|)v?([^/]+)\.zip#', $url, $matches ) ) {
-			FP_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[3] );
+			FIN_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[3] );
 			// cache release URLs like `https://api.github.com/repos/danielbachhuber/one-time-login/zipball/v0.4.0`
 		} elseif ( preg_match( '#api\.github\.com/repos/[^/]+/([^/]+)/zipball/v?([^/]+)#', $url, $matches ) ) {
-			FP_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[2] );
+			FIN_CLI::get_http_cache_manager()->whitelist_package( $url, $item_type, $matches[1], $matches[2] );
 		}
 	}
 
@@ -917,7 +917,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 	 *
 	 * @param string $repo_slug
 	 *
-	 * @return array{ name: string, url: string }|\FP_Error
+	 * @return array{ name: string, url: string }|\FIN_Error
 	 */
 	protected function get_the_latest_github_version( $repo_slug ) {
 		$api_url = sprintf( $this->github_releases_api_endpoint, $repo_slug );
@@ -925,35 +925,35 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 
 		$request_arguments = $token ? [ 'headers' => 'Authorization: Bearer ' . getenv( 'GITHUB_TOKEN' ) ] : [];
 
-		$response = \fp_remote_get( $api_url, $request_arguments );
+		$response = \fin_remote_get( $api_url, $request_arguments );
 
-		if ( \is_fp_error( $response ) ) {
+		if ( \is_fin_error( $response ) ) {
 			return $response;
 		}
 
-		$body         = \fp_remote_retrieve_body( $response );
+		$body         = \fin_remote_retrieve_body( $response );
 		$decoded_body = json_decode( $body );
 
-		// FP_Http::FORBIDDEN doesn't exist in FinPress 3.7
-		if ( 403 === fp_remote_retrieve_response_code( $response ) ) {
-			return new \FP_Error(
+		// FIN_Http::FORBIDDEN doesn't exist in FinPress 3.7
+		if ( 403 === fin_remote_retrieve_response_code( $response ) ) {
+			return new \FIN_Error(
 				403,
 				$this->build_rate_limiting_error_message( $decoded_body )
 			);
 		}
 
-		if ( 404 === fp_remote_retrieve_response_code( $response ) ) {
+		if ( 404 === fin_remote_retrieve_response_code( $response ) ) {
 			/**
 			 * @var object{status: string, message: string} $decoded_body
 			 */
-			return new \FP_Error(
+			return new \FIN_Error(
 				$decoded_body->status,
 				$decoded_body->message
 			);
 		}
 
 		if ( null === $decoded_body ) {
-			return new \FP_Error( 500, 'Empty response received from GitHub.com API' );
+			return new \FIN_Error( 500, 'Empty response received from GitHub.com API' );
 		}
 
 		/**
@@ -961,7 +961,7 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 		 */
 
 		if ( ! isset( $decoded_body[0] ) ) {
-			return new \FP_Error( '400', 'The given Github repository does not have any releases' );
+			return new \FIN_Error( '400', 'The given Github repository does not have any releases' );
 		}
 
 		$latest_release = $decoded_body[0];
@@ -1001,13 +1001,13 @@ abstract class CommandWithUpgrade extends \FP_CLI_Command {
 	}
 
 	/**
-	 * Build the error message we display in FP-CLI for the API Rate limiting error response.
+	 * Build the error message we display in FIN-CLI for the API Rate limiting error response.
 	 *
 	 * @param $decoded_body
 	 *
 	 * @return string
 	 */
 	private function build_rate_limiting_error_message( $decoded_body ) {
-		return $decoded_body->message . PHP_EOL . $decoded_body->documentation_url . PHP_EOL . 'In order to pass the token to FP-CLI, you need to use the GITHUB_TOKEN environment variable.';
+		return $decoded_body->message . PHP_EOL . $decoded_body->documentation_url . PHP_EOL . 'In order to pass the token to FIN-CLI, you need to use the GITHUB_TOKEN environment variable.';
 	}
 }

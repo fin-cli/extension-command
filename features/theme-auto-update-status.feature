@@ -1,41 +1,41 @@
 Feature: Show the status of auto-updates for FinPress themes
 
   Background:
-    Given a FP install
-    And I run `fp theme delete --all --force`
-    And I run `fp theme install twentysixteen`
-    And I run `fp theme install twentyseventeen`
-    And I run `fp theme install twentynineteen`
+    Given a FIN install
+    And I run `fin theme delete --all --force`
+    And I run `fin theme install twentysixteen`
+    And I run `fin theme install twentyseventeen`
+    And I run `fin theme install twentynineteen`
 
-  @require-fp-5.5
+  @require-fin-5.5
   Scenario: Show an error if required params are missing
-    When I try `fp theme auto-updates status`
+    When I try `fin theme auto-updates status`
     Then STDOUT should be empty
     And STDERR should contain:
       """
       Error: Please specify one or more themes, or use --all.
       """
 
-  @require-fp-5.5
+  @require-fin-5.5
   Scenario: Show the status of auto-updates of a single theme
-    When I run `fp theme auto-updates status twentysixteen`
+    When I run `fin theme auto-updates status twentysixteen`
     Then STDOUT should be a table containing rows:
       | name            | status   |
       | twentysixteen   | disabled |
     And the return code should be 0
 
-  @require-fp-5.5
+  @require-fin-5.5
   Scenario: Show the status of auto-updates multiple themes
-    When I run `fp theme auto-updates status twentyseventeen twentysixteen`
+    When I run `fin theme auto-updates status twentyseventeen twentysixteen`
     Then STDOUT should be a table containing rows:
       | name            | status   |
       | twentyseventeen | disabled |
       | twentysixteen   | disabled |
     And the return code should be 0
 
-  @require-fp-5.5
+  @require-fin-5.5
   Scenario: Show the status of auto-updates all installed themes
-    When I run `fp theme auto-updates status --all`
+    When I run `fin theme auto-updates status --all`
     Then STDOUT should be a table containing rows:
       | name            | status   |
       | twentynineteen  | disabled |
@@ -43,8 +43,8 @@ Feature: Show the status of auto-updates for FinPress themes
       | twentysixteen   | disabled |
     And the return code should be 0
 
-    When I run `fp theme auto-updates enable --all`
-    And I run `fp theme auto-updates status --all`
+    When I run `fin theme auto-updates enable --all`
+    And I run `fin theme auto-updates status --all`
     Then STDOUT should be a table containing rows:
       | name            | status   |
       | twentynineteen  | enabled  |
@@ -52,11 +52,11 @@ Feature: Show the status of auto-updates for FinPress themes
       | twentysixteen   | enabled  |
     And the return code should be 0
 
-  @require-fp-5.5
+  @require-fin-5.5
   Scenario: The status can be filtered to only show enabled or disabled themes
-    Given I run `fp theme auto-updates enable twentysixteen`
+    Given I run `fin theme auto-updates enable twentysixteen`
 
-    When I run `fp theme auto-updates status --all`
+    When I run `fin theme auto-updates status --all`
     Then STDOUT should be a table containing rows:
       | name            | status   |
       | twentynineteen  | disabled |
@@ -64,53 +64,53 @@ Feature: Show the status of auto-updates for FinPress themes
       | twentysixteen   | enabled  |
     And the return code should be 0
 
-    When I run `fp theme auto-updates status --all --enabled-only`
+    When I run `fin theme auto-updates status --all --enabled-only`
     Then STDOUT should be a table containing rows:
       | name            | status   |
       | twentysixteen   | enabled  |
     And the return code should be 0
 
-    When I run `fp theme auto-updates status --all --disabled-only`
+    When I run `fin theme auto-updates status --all --disabled-only`
     Then STDOUT should be a table containing rows:
       | name            | status   |
       | twentynineteen  | disabled |
       | twentyseventeen | disabled |
     And the return code should be 0
 
-    When I try `fp theme auto-updates status --all --enabled-only --disabled-only`
+    When I try `fin theme auto-updates status --all --enabled-only --disabled-only`
     Then STDOUT should be empty
     And STDERR should contain:
       """
       Error: --enabled-only and --disabled-only are mutually exclusive and cannot be used at the same time.
       """
 
-  @require-fp-5.5
+  @require-fin-5.5
   Scenario: The fields can be shown individually
-    Given I run `fp theme auto-updates enable twentysixteen`
+    Given I run `fin theme auto-updates enable twentysixteen`
 
-    When I run `fp theme auto-updates status --all --disabled-only --field=name`
+    When I run `fin theme auto-updates status --all --disabled-only --field=name`
     Then STDOUT should be:
       """
       twentynineteen
       twentyseventeen
       """
 
-    When I run `fp theme auto-updates status twentysixteen --field=status`
+    When I run `fin theme auto-updates status twentysixteen --field=status`
     Then STDOUT should be:
       """
       enabled
       """
 
-  @require-fp-5.5
+  @require-fin-5.5
   Scenario: Formatting options work
 
-    When I run `fp theme auto-updates status --all --format=json`
+    When I run `fin theme auto-updates status --all --format=json`
     Then STDOUT should be:
       """
       [{"name":"twentynineteen","status":"disabled"},{"name":"twentyseventeen","status":"disabled"},{"name":"twentysixteen","status":"disabled"}]
       """
 
-    When I run `fp theme auto-updates status --all --format=csv`
+    When I run `fin theme auto-updates status --all --format=csv`
     Then STDOUT should be:
       """
       name,status

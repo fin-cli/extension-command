@@ -1,8 +1,8 @@
 Feature: Install FinPress plugins from GitHub
 
   Scenario: Verify that providing a plugin releases/latest GitHub URL will get the latest ZIP
-    Given a FP install
-    When I run `fp plugin install https://github.com/danielbachhuber/one-time-login/releases/latest`
+    Given a FIN install
+    When I run `fin plugin install https://github.com/danielbachhuber/one-time-login/releases/latest`
     Then STDOUT should contain:
       """
       Latest release resolved to Version

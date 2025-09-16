@@ -1,8 +1,8 @@
 {
-    "name": "fp-cli/extension-command",
-    "type": "fp-cli-package",
+    "name": "fin-cli/extension-command",
+    "type": "fin-cli-package",
     "description": "Manages plugins and themes, including installs, activations, and updates.",
-    "homepage": "https://github.com/fp-cli/extension-command",
+    "homepage": "https://github.com/fin-cli/extension-command",
     "license": "MIT",
     "authors": [
         {
@@ -18,14 +18,14 @@
     ],
     "require": {
         "composer/semver": "^1.4 || ^2 || ^3",
-        "fp-cli/fp-cli": "^2.13"
+        "fin-cli/fin-cli": "^2.13"
     },
     "require-dev": {
-        "fp-cli/cache-command": "^2.0",
-        "fp-cli/entity-command": "^1.3 || ^2",
-        "fp-cli/language-command": "^2.0",
-        "fp-cli/scaffold-command": "^1.2 || ^2",
-        "fp-cli/fp-cli-tests": "^5"
+        "fin-cli/cache-command": "^2.0",
+        "fin-cli/entity-command": "^1.3 || ^2",
+        "fin-cli/language-command": "^2.0",
+        "fin-cli/scaffold-command": "^1.2 || ^2",
+        "fin-cli/fin-cli-tests": "^5"
     },
     "config": {
         "process-timeout": 7200,
@@ -105,6 +105,6 @@
         ]
     },
     "support": {
-        "issues": "https://github.com/fp-cli/extension-command/issues"
+        "issues": "https://github.com/fin-cli/extension-command/issues"
     }
 }

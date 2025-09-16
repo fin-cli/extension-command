@@ -3,92 +3,92 @@ Feature: Manage FinPress themes and plugins
   Background:
     Given an empty cache
 
-  @require-fp-4.5
+  @require-fin-4.5
   Scenario Outline: Installing, upgrading and deleting a theme or plugin
-    Given a FP install
+    Given a FIN install
     # Akismet ships with FinPress but does not work with older versions we test
-    And I run `fp plugin delete akismet`
-    And I run `fp <type> path`
+    And I run `fin plugin delete akismet`
+    And I run `fin <type> path`
     And save STDOUT as {CONTENT_DIR}
 
-    When I try `fp <type> is-installed <item>`
+    When I try `fin <type> is-installed <item>`
     Then the return code should be 1
     And STDERR should be empty
     And STDOUT should be empty
 
-    When I try `fp <type> is-active <item>`
+    When I try `fin <type> is-active <item>`
     Then the return code should be 1
     And STDERR should be empty
     And STDOUT should be empty
 
-    When I try `fp <type> get <item>`
+    When I try `fin <type> get <item>`
     Then the return code should be 1
     And STDERR should not be empty
     And STDOUT should be empty
 
     # Install an out of date <item> from FinPress.org repository
-    When I run `fp <type> install <item> --version=<version>`
+    When I run `fin <type> install <item> --version=<version>`
     Then STDOUT should contain:
       """
       <type_name> installed successfully
       """
     And the {SUITE_CACHE_DIR}/<type>/<item>-<version>.zip file should exist
 
-    When I run `fp <type> is-installed <item>`
+    When I run `fin <type> is-installed <item>`
     Then the return code should be 0
 
-    When I run `fp <type> get <item>`
+    When I run `fin <type> get <item>`
     Then STDOUT should be a table containing rows:
       | Field | Value         |
       | title  | <item_title> |
 
-    When I run `fp <type> get <item> --field=title`
+    When I run `fin <type> get <item> --field=title`
     Then STDOUT should contain:
       """
       <item_title>
       """
 
-    When I run `fp <type> get <item> --field=title --format=json`
+    When I run `fin <type> get <item> --field=title --format=json`
     Then STDOUT should contain:
       """
       "<item_title>"
       """
 
-    When I run `fp <type> list --name=<item> --field=update_version`
+    When I run `fin <type> list --name=<item> --field=update_version`
     Then STDOUT should not be empty
     And save STDOUT as {UPDATE_VERSION}
 
-    When I run `fp <type> list`
+    When I run `fin <type> list`
     Then STDOUT should be a table containing rows:
       | name   | status   | update    | version   | update_version   | auto_update |
       | <item> | inactive | available | <version> | {UPDATE_VERSION} | off         |
 
-    When I run `fp <type> list --field=name`
+    When I run `fin <type> list --field=name`
     Then STDOUT should contain:
       """
       <item>
       """
 
-    When I run `fp <type> list --field=name --format=json`
+    When I run `fin <type> list --field=name --format=json`
     Then STDOUT should be a JSON array containing:
       """
       ["<item>"]
       """
 
-    When I run `fp <type> status`
+    When I run `fin <type> status`
     Then STDOUT should contain:
       """
       U = Update Available
       """
 
-    When I run `fp <type> status <item>`
+    When I run `fin <type> status <item>`
     Then STDOUT should contain:
       """
           Status: Inactive
           Version: <version> (Update available)
       """
 
-    When I run `fp <type> update <item>`
+    When I run `fin <type> update <item>`
     And save STDOUT 'Downloading update from .*\/<item>\.%s\.zip' as {NEW_VERSION}
     And STDOUT should not be empty
     Then STDOUT should not contain:
@@ -98,43 +98,43 @@ Feature: Manage FinPress themes and plugins
     And the {SUITE_CACHE_DIR}/<type>/<item>-{NEW_VERSION}.zip file should exist
 
     # This can throw warnings about versions being higher than expected.
-    When I try `fp <type> update --all 2>&1`
+    When I try `fin <type> update --all 2>&1`
     Then STDOUT should contain:
       """
       updated
       """
 
-    When I run `fp <type> status <item>`
+    When I run `fin <type> status <item>`
     Then STDOUT should not contain:
       """
       (Update available)
       """
 
-    When I run `fp <type> delete <item>`
+    When I run `fin <type> delete <item>`
     Then STDOUT should contain:
       """
       Deleted '<item>' <type>.
       """
 
-    When I try `fp <type> status <item>`
+    When I try `fin <type> status <item>`
     Then the return code should be 1
     And STDERR should not be empty
     And STDOUT should be empty
 
     # Install and update <item> from cache
-    When I run `fp <type> install <item> --version=<version>`
+    When I run `fin <type> install <item> --version=<version>`
     Then STDOUT should contain:
       """
       Using cached file '{SUITE_CACHE_DIR}/<type>/<item>-<version>.zip'...
       """
 
-    When I run `fp <type> update <item>`
+    When I run `fin <type> update <item>`
     Then STDOUT should contain:
       """
       Using cached file '{SUITE_CACHE_DIR}/<type>/<item>-{NEW_VERSION}.zip'...
       """
 
-    When I run `fp <type> delete <item>`
+    When I run `fin <type> delete <item>`
     Then STDOUT should contain:
       """
       Deleted '<item>' <type>.
@@ -142,14 +142,14 @@ Feature: Manage FinPress themes and plugins
     And the <file_to_check> file should not exist
 
     # Install <item> from a local zip file
-    When I run `fp <type> install {SUITE_CACHE_DIR}/<type>/<item>-<version>.zip`
+    When I run `fin <type> install {SUITE_CACHE_DIR}/<type>/<item>-<version>.zip`
     Then STDOUT should contain:
       """
       <type_name> installed successfully.
       """
     And the <file_to_check> file should exist
 
-    When I run `fp <type> delete <item>`
+    When I run `fin <type> delete <item>`
     Then STDOUT should contain:
       """
       Deleted '<item>' <type>.
@@ -157,14 +157,14 @@ Feature: Manage FinPress themes and plugins
     And the <file_to_check> file should not exist
 
     # Install <item> from a remote zip file (standard URL with no GET parameters)
-    When I run `fp <type> install <zip_file>`
+    When I run `fin <type> install <zip_file>`
     Then STDOUT should contain:
       """
       <type_name> installed successfully.
       """
     And the <file_to_check> file should exist
 
-    When I run `fp <type> delete <item>`
+    When I run `fin <type> delete <item>`
     Then STDOUT should contain:
       """
       Deleted '<item>' <type>.
@@ -172,27 +172,27 @@ Feature: Manage FinPress themes and plugins
     And the <file_to_check> file should not exist
 
     # Install <item> from a remote zip file (complex URL with GET parameters)
-    When I run `fp <type> install '<zip_file>?AWSAccessKeyId=123&Expires=456&Signature=abcdef'`
+    When I run `fin <type> install '<zip_file>?AWSAccessKeyId=123&Expires=456&Signature=abcdef'`
     Then STDOUT should contain:
       """
       <type_name> installed successfully.
       """
     And the <file_to_check> file should exist
 
-    When I run `fp <type> delete <item>`
+    When I run `fin <type> delete <item>`
     Then STDOUT should contain:
       """
       Deleted '<item>' <type>.
       """
     And the <file_to_check> file should not exist
 
-    When I run `fp <type> list --fields=name`
+    When I run `fin <type> list --fields=name`
     Then STDOUT should not contain:
       """
       <item>
       """
 
-    When I try `fp <type> install an-impossible-slug-because-abc3fr`
+    When I try `fin <type> install an-impossible-slug-because-abc3fr`
     Then STDERR should contain:
       """
       Warning:
@@ -213,12 +213,12 @@ Feature: Manage FinPress themes and plugins
       | theme  | Theme     | moina                   | Moina                   | 1.1.2   | https://finpress.org/themes/download/moina.1.1.2.zip                  | {CONTENT_DIR}/moina/style.css                                     |
       | plugin | Plugin    | category-checklist-tree | Category Checklist Tree | 1.2     | https://downloads.finpress.org/plugin/category-checklist-tree.1.2.zip | {CONTENT_DIR}/category-checklist-tree/category-checklist-tree.php |
 
-  @require-fp-4.5
+  @require-fin-4.5
   Scenario Outline: Caches certain GitHub URLs
-    Given a FP install
-    And I run `fp plugin delete --all`
+    Given a FIN install
+    And I run `fin plugin delete --all`
 
-    When I run `fp plugin install <zip_file>`
+    When I run `fin plugin install <zip_file>`
     Then STDOUT should contain:
       """
       Plugin installed successfully
@@ -228,8 +228,8 @@ Feature: Manage FinPress themes and plugins
       Using cached file '{SUITE_CACHE_DIR}/plugin/<item>-<version>
       """
 
-    When I run `fp plugin delete --all`
-    And I run `fp plugin install <zip_file>`
+    When I run `fin plugin delete --all`
+    And I run `fin plugin install <zip_file>`
     Then STDOUT should contain:
       """
       Plugin installed successfully
@@ -243,4 +243,4 @@ Feature: Manage FinPress themes and plugins
       | item                   | version | zip_file                                                                                          |
       | one-time-login         | 0.4.0   | https://github.com/danielbachhuber/one-time-login/releases/latest                                 |
       | preferred-languages    | 1.8.0   | https://github.com/swissspidy/preferred-languages/releases/download/1.8.0/preferred-languages.zip |
-      | generic-example-plugin | 0.1.1   | https://github.com/fp-cli-test/generic-example-plugin/archive/v0.1.1.zip                          |
+      | generic-example-plugin | 0.1.1   | https://github.com/fin-cli-test/generic-example-plugin/archive/v0.1.1.zip                          |

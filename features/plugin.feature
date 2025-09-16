@@ -1,34 +1,34 @@
 Feature: Manage FinPress plugins
 
   Scenario: Create, activate and check plugin status
-    Given a FP install
-    And I run `fp plugin path`
+    Given a FIN install
+    And I run `fin plugin path`
     And save STDOUT as {PLUGIN_DIR}
 
-    When I run `fp plugin scaffold --skip-tests plugin1`
+    When I run `fin plugin scaffold --skip-tests plugin1`
     Then STDOUT should not be empty
     And the {PLUGIN_DIR}/plugin1/plugin1.php file should exist
     And the {PLUGIN_DIR}/zombieland/phpunit.xml.dist file should not exist
 
-    When I run `fp plugin path plugin1`
+    When I run `fin plugin path plugin1`
     Then STDOUT should be:
       """
       {PLUGIN_DIR}/plugin1/plugin1.php
       """
 
-    When I run `fp plugin path plugin1 --dir`
+    When I run `fin plugin path plugin1 --dir`
     Then STDOUT should be:
       """
       {PLUGIN_DIR}/plugin1
       """
 
-    When I run `fp plugin scaffold Zombieland`
+    When I run `fin plugin scaffold Zombieland`
     Then STDOUT should not be empty
     And the {PLUGIN_DIR}/Zombieland/Zombieland.php file should exist
     And the {PLUGIN_DIR}/Zombieland/phpunit.xml.dist file should exist
 
     # Ensure case sensitivity
-    When I try `fp plugin status zombieLand`
+    When I try `fin plugin status zombieLand`
     Then STDERR should contain:
       """
       The 'zombieLand' plugin could not be found.
@@ -38,7 +38,7 @@ Feature: Manage FinPress plugins
 
     # Check that the inner-plugin is not picked up
     When I run `mv {PLUGIN_DIR}/plugin1 {PLUGIN_DIR}/Zombieland/`
-    And I run `fp plugin status Zombieland`
+    And I run `fin plugin status Zombieland`
     Then STDOUT should contain:
       """
       Plugin Zombieland details:
@@ -49,24 +49,24 @@ Feature: Manage FinPress plugins
           Description: PLUGIN DESCRIPTION HERE
       """
 
-    When I run `fp plugin activate Zombieland`
+    When I run `fin plugin activate Zombieland`
     Then STDOUT should not be empty
 
-    When I run `fp plugin status Zombieland`
+    When I run `fin plugin status Zombieland`
     Then STDOUT should contain:
       """
           Status: Active
       """
 
-    When I run `fp plugin status`
+    When I run `fin plugin status`
     Then STDOUT should not be empty
 
-    When I run `fp plugin list --fields=name,status,update,version,update_version,auto_update`
+    When I run `fin plugin list --fields=name,status,update,version,update_version,auto_update`
     Then STDOUT should be a table containing rows:
       | name       | status | update | version | update_version | auto_update |
       | Zombieland | active | none   | 0.1.0   |                | off         |
 
-    When I try `fp plugin uninstall Zombieland`
+    When I try `fin plugin uninstall Zombieland`
     Then STDERR should be:
       """
       Warning: The 'Zombieland' plugin is active.
@@ -74,16 +74,16 @@ Feature: Manage FinPress plugins
       """
     And the return code should be 1
 
-    When I run `fp plugin deactivate Zombieland`
+    When I run `fin plugin deactivate Zombieland`
     Then STDOUT should not be empty
 
-    When I run `fp option get recently_activated`
+    When I run `fin option get recently_activated`
     Then STDOUT should contain:
       """
       Zombieland/Zombieland.php
       """
 
-    When I run `fp plugin uninstall Zombieland`
+    When I run `fin plugin uninstall Zombieland`
     Then STDOUT should be:
       """
       Uninstalled and deleted 'Zombieland' plugin.
@@ -107,35 +107,35 @@ Feature: Manage FinPress plugins
     And STDOUT should be empty
     And the return code should be 1
 
-  # FinPress Importer currently requires at least FP 5.2.
-  @require-fp-5.2
+  # FinPress Importer currently requires at least FIN 5.2.
+  @require-fin-5.2
   Scenario: Install a plugin, activate, then force install an older version of the plugin
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin install finpress-importer --version=0.5 --force`
+    When I run `fin plugin install finpress-importer --version=0.5 --force`
     Then STDOUT should not be empty
 
-    When I run `fp plugin list --name=finpress-importer --field=update_version`
+    When I run `fin plugin list --name=finpress-importer --field=update_version`
     Then STDOUT should not be empty
     And save STDOUT as {UPDATE_VERSION}
 
-    When I run `fp plugin list --fields=name,status,update,version,update_version`
+    When I run `fin plugin list --fields=name,status,update,version,update_version`
     Then STDOUT should be a table containing rows:
       | name               | status   | update    | version | update_version   |
       | finpress-importer | inactive | available | 0.5     | {UPDATE_VERSION} |
 
-    When I run `fp plugin activate finpress-importer`
+    When I run `fin plugin activate finpress-importer`
     Then STDOUT should not be empty
 
-    When I run `fp plugin install finpress-importer --version=0.5 --force`
+    When I run `fin plugin install finpress-importer --version=0.5 --force`
     Then STDOUT should not be empty
 
-    When I run `fp plugin list`
+    When I run `fin plugin list`
     Then STDOUT should be a table containing rows:
       | name               | status   | update    | version | update_version   | auto_update |
       | finpress-importer | active   | available | 0.5     | {UPDATE_VERSION} | off         |
 
-    When I try `fp plugin update`
+    When I try `fin plugin update`
     Then STDERR should be:
       """
       Error: Please specify one or more plugins, or use --all.
@@ -143,13 +143,13 @@ Feature: Manage FinPress plugins
     And STDOUT should be empty
     And the return code should be 1
 
-    When I run `fp plugin update --all --format=summary | grep 'updated successfully from'`
+    When I run `fin plugin update --all --format=summary | grep 'updated successfully from'`
     Then STDOUT should contain:
       """
       FinPress Importer updated successfully from version 0.5 to version
       """
 
-    When I try `fp plugin update xxx yyy`
+    When I try `fin plugin update xxx yyy`
     Then STDERR should contain:
       """
       Warning: The 'xxx' plugin could not be found.
@@ -164,10 +164,10 @@ Feature: Manage FinPress plugins
       """
     And the return code should be 1
 
-    When I run `fp plugin install finpress-importer --version=0.5 --force`
+    When I run `fin plugin install finpress-importer --version=0.5 --force`
     Then STDOUT should not be empty
 
-    When I try `fp plugin update xxx finpress-importer yyy`
+    When I try `fin plugin update xxx finpress-importer yyy`
     Then STDERR should contain:
       """
       Warning: The 'xxx' plugin could not be found.
@@ -183,65 +183,65 @@ Feature: Manage FinPress plugins
     And the return code should be 1
 
   Scenario: Activate a network-only plugin on single site
-    Given a FP install
-    And a fp-content/plugins/network-only.php file:
+    Given a FIN install
+    And a fin-content/plugins/network-only.php file:
       """
       <?php
       // Plugin Name: Example Plugin
       // Network: true
       """
 
-    When I run `fp plugin activate network-only`
+    When I run `fin plugin activate network-only`
     Then STDOUT should be:
       """
       Plugin 'network-only' activated.
       Success: Activated 1 of 1 plugins.
       """
 
-    When I run `fp plugin status network-only`
+    When I run `fin plugin status network-only`
     Then STDOUT should contain:
       """
           Status: Active
       """
 
   Scenario: Activate a network-only plugin on multisite
-    Given a FP multisite install
-    And a fp-content/plugins/network-only.php file:
+    Given a FIN multisite install
+    And a fin-content/plugins/network-only.php file:
       """
       <?php
       // Plugin Name: Example Plugin
       // Network: true
       """
 
-    When I run `fp plugin activate network-only`
+    When I run `fin plugin activate network-only`
     Then STDOUT should be:
       """
       Plugin 'network-only' network activated.
       Success: Activated 1 of 1 plugins.
       """
 
-    When I run `fp plugin status network-only`
+    When I run `fin plugin status network-only`
     Then STDOUT should contain:
       """
           Status: Network Active
       """
 
   Scenario: Network activate a plugin
-    Given a FP multisite install
+    Given a FIN multisite install
 
-    When I run `fp plugin activate akismet`
+    When I run `fin plugin activate akismet`
     Then STDOUT should be:
       """
       Plugin 'akismet' activated.
       Success: Activated 1 of 1 plugins.
       """
 
-    When I run `fp plugin list --fields=name,status,file`
+    When I run `fin plugin list --fields=name,status,file`
     Then STDOUT should be a table containing rows:
       | name            | status           | file                |
       | akismet         | active           | akismet/akismet.php |
 
-    When I try `fp plugin activate akismet`
+    When I try `fin plugin activate akismet`
     Then STDERR should contain:
       """
       Warning: Plugin 'akismet' is already active.
@@ -252,14 +252,14 @@ Feature: Manage FinPress plugins
       """
     And the return code should be 0
 
-    When I run `fp plugin activate akismet --network`
+    When I run `fin plugin activate akismet --network`
     Then STDOUT should be:
       """
       Plugin 'akismet' network activated.
       Success: Network activated 1 of 1 plugins.
       """
 
-    When I try `fp plugin activate akismet --network`
+    When I try `fin plugin activate akismet --network`
     Then STDERR should be:
       """
       Warning: Plugin 'akismet' is already network active.
@@ -270,7 +270,7 @@ Feature: Manage FinPress plugins
       """
     And the return code should be 0
 
-    When I try `fp plugin deactivate akismet`
+    When I try `fin plugin deactivate akismet`
     Then STDERR should be:
       """
       Warning: Plugin 'akismet' is network active and must be deactivated with --network flag.
@@ -279,7 +279,7 @@ Feature: Manage FinPress plugins
     And STDOUT should be empty
     And the return code should be 1
 
-    When I run `fp plugin deactivate akismet --network`
+    When I run `fin plugin deactivate akismet --network`
     Then STDOUT should be:
       """
       Plugin 'akismet' network deactivated.
@@ -287,7 +287,7 @@ Feature: Manage FinPress plugins
       """
     And the return code should be 0
 
-    When I try `fp plugin deactivate akismet`
+    When I try `fin plugin deactivate akismet`
     Then STDERR should be:
       """
       Warning: Plugin 'akismet' isn't active.
@@ -299,123 +299,123 @@ Feature: Manage FinPress plugins
     And the return code should be 0
 
   Scenario: List plugins
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin activate --all`
+    When I run `fin plugin activate --all`
     Then STDOUT should not be empty
 
-    When I run `fp plugin list --status=inactive --field=name`
+    When I run `fin plugin list --status=inactive --field=name`
     Then STDOUT should be empty
 
-    When I run `fp plugin list --status=active --fields=name,status,file`
+    When I run `fin plugin list --status=active --fields=name,status,file`
     Then STDOUT should be a table containing rows:
       | name       | status   | file                |
       | akismet    | active   | akismet/akismet.php |
 
-    When I run `fp plugin list --status=active --field=author`
+    When I run `fin plugin list --status=active --field=author`
     Then STDOUT should contain:
       """
       Automattic
       """
 
-    When I run `fp eval 'echo get_site_transient("update_plugins")->last_checked;'`
+    When I run `fin eval 'echo get_site_transient("update_plugins")->last_checked;'`
     Then save STDOUT as {LAST_UPDATED}
 
-    When I run `fp plugin list --skip-update-check`
+    When I run `fin plugin list --skip-update-check`
     Then STDOUT should not be empty
 
-    When I run `fp eval 'echo get_site_transient("update_plugins")->last_checked;'`
+    When I run `fin eval 'echo get_site_transient("update_plugins")->last_checked;'`
     Then STDOUT should be:
       """
       {LAST_UPDATED}
       """
 
-    When I run `fp plugin list`
+    When I run `fin plugin list`
     Then STDOUT should not be empty
 
-    When I run `fp eval 'echo get_site_transient("update_plugins")->last_checked;'`
+    When I run `fin eval 'echo get_site_transient("update_plugins")->last_checked;'`
     Then STDOUT should not contain:
       """
       {LAST_UPDATED}
       """
 
   Scenario: List plugin by multiple statuses
-    Given a FP multisite install
-    And a fp-content/plugins/network-only.php file:
+    Given a FIN multisite install
+    And a fin-content/plugins/network-only.php file:
       """
       <?php
       // Plugin Name: Example Plugin
       // Network: true
       """
 
-    When I run `fp plugin activate akismet`
+    When I run `fin plugin activate akismet`
     Then STDOUT should not be empty
 
-    When I run `fp plugin install finpress-importer --ignore-requirements`
+    When I run `fin plugin install finpress-importer --ignore-requirements`
     Then STDOUT should not be empty
 
-    When I run `fp plugin activate network-only`
+    When I run `fin plugin activate network-only`
     Then STDOUT should not be empty
 
-    When I run `fp plugin list --status=active-network,inactive --fields=name,status,file`
+    When I run `fin plugin list --status=active-network,inactive --fields=name,status,file`
     Then STDOUT should be a table containing rows:
       | name               | status         | file                                      |
       | network-only       | active-network | network-only.php                          |
       | finpress-importer | inactive       | finpress-importer/finpress-importer.php |
 
-    When I run `fp plugin list --status=active,inactive --fields=name,status,file`
+    When I run `fin plugin list --status=active,inactive --fields=name,status,file`
     Then STDOUT should be a table containing rows:
       | name               | status   | file                                      |
       | akismet            | active   | akismet/akismet.php                       |
       | finpress-importer | inactive | finpress-importer/finpress-importer.php |
 
-  @require-fp-5.2
-  Scenario: Flag `--skip-update-check` skips update check when running `fp plugin list`
-    Given a FP install
+  @require-fin-5.2
+  Scenario: Flag `--skip-update-check` skips update check when running `fin plugin list`
+    Given a FIN install
 
-    When I run `fp plugin install finpress-importer --version=0.2`
+    When I run `fin plugin install finpress-importer --version=0.2`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
       """
 
-    When I run `fp plugin list --fields=name,status,update --status=inactive`
+    When I run `fin plugin list --fields=name,status,update --status=inactive`
     Then STDOUT should be a table containing rows:
       | name               | status   | update    |
       | finpress-importer | inactive | available |
 
-    When I run `fp transient delete update_plugins --network`
+    When I run `fin transient delete update_plugins --network`
     Then STDOUT should be:
       """
       Success: Transient deleted.
       """
 
-    When I run `fp plugin list --fields=name,status,update --status=inactive --skip-update-check`
+    When I run `fin plugin list --fields=name,status,update --status=inactive --skip-update-check`
     Then STDOUT should be a table containing rows:
       | name               | status   | update   |
       | finpress-importer | inactive | none     |
 
-  # FinPress Importer requires FP 5.2.
-  @require-fp-5.2
+  # FinPress Importer requires FIN 5.2.
+  @require-fin-5.2
   Scenario: Install a plugin when directory doesn't yet exist
-    Given a FP install
+    Given a FIN install
 
-    When I run `rm -rf fp-content/plugins`
-    And I run `if test -d fp-content/plugins; then echo "fail"; fi`
+    When I run `rm -rf fin-content/plugins`
+    And I run `if test -d fin-content/plugins; then echo "fail"; fi`
     Then STDOUT should be empty
 
-    When I run `fp plugin install finpress-importer --activate`
+    When I run `fin plugin install finpress-importer --activate`
     Then STDOUT should not be empty
 
-    When I run `fp plugin list --status=active --fields=name,status,file`
+    When I run `fin plugin list --status=active --fields=name,status,file`
     Then STDOUT should be a table containing rows:
       | name               | status   | file                                      |
       | finpress-importer | active   | finpress-importer/finpress-importer.php |
 
   Scenario: Plugin name with HTML entities
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin install debug-bar-list-dependencies`
+    When I run `fin plugin install debug-bar-list-dependencies`
     Then STDOUT should contain:
       """
       Installing Debug Bar List Script & Style Dependencies
@@ -424,10 +424,10 @@ Feature: Manage FinPress plugins
   # Not running for SQLite because it involves another must-use plugin and a drop-in.
   @require-mysql
   Scenario: Enable and disable all plugins
-    Given a FP install
-    And I run `fp plugin install https://github.com/fp-cli/sample-plugin/archive/refs/heads/master.zip`
+    Given a FIN install
+    And I run `fin plugin install https://github.com/fin-cli/sample-plugin/archive/refs/heads/master.zip`
 
-    When I run `fp plugin activate --all`
+    When I run `fin plugin activate --all`
     Then STDOUT should contain:
       """
       Plugin 'akismet' activated.
@@ -441,13 +441,13 @@ Feature: Manage FinPress plugins
       Success: Activated 3 of 3 plugins.
       """
 
-    When I run `fp plugin activate --all`
+    When I run `fin plugin activate --all`
     Then STDOUT should be:
       """
       Success: Plugins already activated.
       """
 
-    When I run `fp plugin list --field=status`
+    When I run `fin plugin list --field=status`
     Then STDOUT should be:
       """
       active
@@ -457,7 +457,7 @@ Feature: Manage FinPress plugins
       must-use
       """
 
-    When I run `fp plugin deactivate --all`
+    When I run `fin plugin deactivate --all`
     Then STDOUT should contain:
       """
       Plugin 'akismet' deactivated.
@@ -471,13 +471,13 @@ Feature: Manage FinPress plugins
       Success: Deactivated 3 of 3 plugins.
       """
 
-    When I run `fp plugin deactivate --all`
+    When I run `fin plugin deactivate --all`
     Then STDOUT should be:
       """
       Success: Plugins already deactivated.
       """
 
-    When I run `fp plugin list --field=status`
+    When I run `fin plugin list --field=status`
     Then STDOUT should be:
       """
       inactive
@@ -487,16 +487,16 @@ Feature: Manage FinPress plugins
       must-use
       """
 
-  # FinPress Importer requires FP 5.2.
-  @require-fp-5.2
+  # FinPress Importer requires FIN 5.2.
+  @require-fin-5.2
   Scenario: Deactivate and uninstall a plugin, part one
-    Given a FP install
+    Given a FIN install
     And these installed and active plugins:
       """
       finpress-importer
       """
 
-    When I run `fp plugin deactivate finpress-importer --uninstall`
+    When I run `fin plugin deactivate finpress-importer --uninstall`
     Then STDOUT should be:
       """
       Plugin 'finpress-importer' deactivated.
@@ -505,7 +505,7 @@ Feature: Manage FinPress plugins
       Success: Deactivated 1 of 1 plugins.
       """
 
-    When I try `fp plugin get finpress-importer`
+    When I try `fin plugin get finpress-importer`
     Then STDERR should be:
       """
       Error: The 'finpress-importer' plugin could not be found.
@@ -513,16 +513,16 @@ Feature: Manage FinPress plugins
     And STDOUT should be empty
     And the return code should be 1
 
-  # FinPress Importer requires FP 5.2.
-  @require-fp-5.2
+  # FinPress Importer requires FIN 5.2.
+  @require-fin-5.2
   Scenario: Deactivate and uninstall a plugin, part two
-    Given a FP install
+    Given a FIN install
     And these installed and active plugins:
       """
       finpress-importer
       """
 
-    When I run `fp plugin uninstall finpress-importer --deactivate`
+    When I run `fin plugin uninstall finpress-importer --deactivate`
     Then STDOUT should be:
       """
       Deactivating 'finpress-importer'...
@@ -531,7 +531,7 @@ Feature: Manage FinPress plugins
       Success: Uninstalled 1 of 1 plugins.
       """
 
-    When I try `fp plugin get finpress-importer`
+    When I try `fin plugin get finpress-importer`
     Then STDERR should be:
       """
       Error: The 'finpress-importer' plugin could not be found.
@@ -540,12 +540,12 @@ Feature: Manage FinPress plugins
     And the return code should be 1
 
   Scenario: Uninstall a plugin without deleting
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin install akismet --version=2.5.7 --force`
+    When I run `fin plugin install akismet --version=2.5.7 --force`
     Then STDOUT should not be empty
 
-    When I run `fp plugin uninstall akismet --skip-delete`
+    When I run `fin plugin uninstall akismet --skip-delete`
     Then STDOUT should be:
       """
       Ran uninstall procedure for 'akismet' plugin without deleting.
@@ -553,8 +553,8 @@ Feature: Manage FinPress plugins
       """
 
   Scenario: Two plugins, one directory
-    Given a FP install
-    And a fp-content/plugins/handbook/handbook.php file:
+    Given a FIN install
+    And a fin-content/plugins/handbook/handbook.php file:
       """
       <?php
       /**
@@ -563,7 +563,7 @@ Feature: Manage FinPress plugins
        * Author: Nacin
        */
       """
-    And a fp-content/plugins/handbook/functionality-for-pages.php file:
+    And a fin-content/plugins/handbook/functionality-for-pages.php file:
       """
       <?php
       /**
@@ -573,39 +573,39 @@ Feature: Manage FinPress plugins
        */
       """
 
-    When I run `fp plugin list --fields=name,status,file`
+    When I run `fin plugin list --fields=name,status,file`
     Then STDOUT should be a table containing rows:
       | name                             | status   | file                                 |
       | handbook/handbook                | inactive | handbook/handbook.php                |
       | handbook/functionality-for-pages | inactive | handbook/functionality-for-pages.php |
 
-    When I run `fp plugin activate handbook/functionality-for-pages`
+    When I run `fin plugin activate handbook/functionality-for-pages`
     Then STDOUT should not be empty
 
-    When I run `fp plugin list --fields=name,status,file`
+    When I run `fin plugin list --fields=name,status,file`
     Then STDOUT should be a table containing rows:
       | name                             | status   | file                                 |
       | handbook/handbook                | inactive | handbook/handbook.php                |
       | handbook/functionality-for-pages | active   | handbook/functionality-for-pages.php |
 
   Scenario: Install a plugin, then update to a specific version of that plugin
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin install akismet --version=2.5.7 --force`
+    When I run `fin plugin install akismet --version=2.5.7 --force`
     Then STDOUT should not be empty
 
-    When I run `fp plugin update akismet --version=2.6.0`
+    When I run `fin plugin update akismet --version=2.6.0`
     Then STDOUT should not be empty
 
-    When I run `fp plugin list --fields=name,version,file`
+    When I run `fin plugin list --fields=name,version,file`
     Then STDOUT should be a table containing rows:
       | name       | version   | file                |
       | akismet    | 2.6.0     | akismet/akismet.php |
 
   Scenario: Ignore empty slugs
-    Given a FP install
+    Given a FIN install
 
-    When I try `fp plugin install ''`
+    When I try `fin plugin install ''`
     Then STDERR should contain:
       """
       Warning: Ignoring ambiguous empty slug value.
@@ -617,21 +617,21 @@ Feature: Manage FinPress plugins
     And the return code should be 0
 
   # Akismet currently requires FinPress 5.8, so there's a warning because of it.
-  @require-fp-5.8
+  @require-fin-5.8
   Scenario: Plugin hidden by "all_plugins" filter
-    Given a FP install
+    Given a FIN install
     And these installed and active plugins:
       """
       hello-dolly
       site-secrets
       """
-    And a fp-content/mu-plugins/hide-us-plugin.php file:
+    And a fin-content/mu-plugins/hide-us-plugin.php file:
       """
       <?php
       /**
        * Plugin Name: Hide Site Secrets on Production
        * Description: Hides the Site Secrets plugin on production sites
-       * Author: FP-CLI tests
+       * Author: FIN-CLI tests
        */
 
        add_filter( 'all_plugins', function( $all_plugins ) {
@@ -640,42 +640,42 @@ Feature: Manage FinPress plugins
        } );
       """
 
-    When I run `fp plugin list --fields=name`
+    When I run `fin plugin list --fields=name`
     Then STDOUT should not contain:
       """
       site-secrets
       """
 
   Scenario: Show dropins plugin list
-    Given a FP install
-    And a fp-content/db-error.php file:
+    Given a FIN install
+    And a fin-content/db-error.php file:
       """
       <?php
       """
 
-    When I run `fp plugin list --status=active`
+    When I run `fin plugin list --status=active`
     Then STDOUT should not contain:
       """
       db-error.php
       """
 
-    When I run `fp plugin list --status=dropin --fields=name,title,description,file`
+    When I run `fin plugin list --status=dropin --fields=name,title,description,file`
     Then STDOUT should be a table containing rows:
       | name         | title | description                    | file         |
       | db-error.php |       | Custom database error message. | db-error.php |
 
-  @require-fp-4.0
+  @require-fin-4.0
   Scenario: Validate installed plugin's version.
-    Given a FP installation
-    And I run `fp plugin uninstall --all`
-    And I run `fp plugin install hello-dolly --force`
-    And a fp-content/mu-plugins/test-plugin-update.php file:
+    Given a FIN installation
+    And I run `fin plugin uninstall --all`
+    And I run `fin plugin install hello-dolly --force`
+    And a fin-content/mu-plugins/test-plugin-update.php file:
       """
       <?php
       /**
        * Plugin Name: Test Plugin Update
        * Description: Fakes installed plugin's data to verify plugin version mismatch
-       * Author: FP-CLI tests
+       * Author: FIN-CLI tests
        */
 
       add_filter( 'site_transient_update_plugins', function( $value ) {
@@ -691,25 +691,25 @@ Feature: Manage FinPress plugins
       ?>
       """
 
-    When I run `fp plugin list --name=hello-dolly  --field=version`
+    When I run `fin plugin list --name=hello-dolly  --field=version`
     Then save STDOUT as {PLUGIN_VERSION}
 
-    When I run `fp plugin list --name=hello-dolly  --field=update_version`
+    When I run `fin plugin list --name=hello-dolly  --field=update_version`
     Then save STDOUT as {UPDATE_VERSION}
 
-    When I run `fp plugin list`
+    When I run `fin plugin list`
     Then STDOUT should be a table containing rows:
       | name               | status   | update                       | version          | update_version   | auto_update |
       | hello-dolly        | inactive | version higher than expected | {PLUGIN_VERSION} | {UPDATE_VERSION} | off         |
 
-    When I try `fp plugin update --all`
+    When I try `fin plugin update --all`
     Then STDERR should be:
       """
       Warning: hello-dolly: version higher than expected.
       Error: No plugins updated.
       """
 
-    When I try `fp plugin update hello-dolly`
+    When I try `fin plugin update hello-dolly`
     Then STDERR should be:
       """
       Warning: hello-dolly: version higher than expected.
@@ -717,15 +717,15 @@ Feature: Manage FinPress plugins
       """
 
   Scenario: Only valid status filters are accepted when listing plugins
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin list`
+    When I run `fin plugin list`
     Then STDERR should be empty
 
-    When I run `fp plugin list --status=active`
+    When I run `fin plugin list --status=active`
     Then STDERR should be empty
 
-    When I try `fp plugin list --status=invalid-status`
+    When I try `fin plugin list --status=invalid-status`
     Then STDERR should be:
       """
       Error: Parameter errors:
@@ -733,42 +733,42 @@ Feature: Manage FinPress plugins
       """
 
   Scenario: Listing mu-plugins should include name and title
-    Given a FP install
-    And a fp-content/mu-plugins/test-mu.php file:
+    Given a FIN install
+    And a fin-content/mu-plugins/test-mu.php file:
       """
       <?php
       // Plugin Name: Test mu-plugin
       // Description: Test mu-plugin description
       """
 
-    When I run `fp plugin list --fields=name,title`
+    When I run `fin plugin list --fields=name,title`
     Then STDOUT should be a table containing rows:
       | name              | title                   |
       | test-mu           | Test mu-plugin       |
 
-    When I run `fp plugin list --fields=name,title,description`
+    When I run `fin plugin list --fields=name,title,description`
     Then STDOUT should be a table containing rows:
       | name    | title             | description                                    |
       | test-mu | Test mu-plugin    | Test mu-plugin description                     |
 
-  @require-fp-5.5
+  @require-fin-5.5
   Scenario: Listing plugins should include name and auto_update
-    Given a FP install
-    And I run `fp plugin install https://github.com/fp-cli/sample-plugin/archive/refs/heads/master.zip`
-    When I run `fp plugin list --fields=name,auto_update`
+    Given a FIN install
+    And I run `fin plugin install https://github.com/fin-cli/sample-plugin/archive/refs/heads/master.zip`
+    When I run `fin plugin list --fields=name,auto_update`
     Then STDOUT should be a table containing rows:
       | name              | auto_update          |
       | sample-plugin     | off                  |
 
-    When I run `fp plugin auto-updates enable sample-plugin`
-    And I try `fp plugin list --fields=name,auto_update`
+    When I run `fin plugin auto-updates enable sample-plugin`
+    And I try `fin plugin list --fields=name,auto_update`
     Then STDOUT should be a table containing rows:
       | name              | auto_update          |
       | sample-plugin     | on                   |
 
   Scenario: Listing plugins should include tested_up_to from the 'tested up to' header
-    Given a FP install
-    And a fp-content/plugins/foo/foo.php file:
+    Given a FIN install
+    And a fin-content/plugins/foo/foo.php file:
       """
       <?php
       /**
@@ -777,7 +777,7 @@ Feature: Manage FinPress plugins
        * Author: Matt
        */
       """
-    And a fp-content/plugins/foo/readme.txt file:
+    And a fin-content/plugins/foo/readme.txt file:
       """
       === Foo ===
       Contributors: matt
@@ -790,27 +790,27 @@ Feature: Manage FinPress plugins
       License: GPLv2 or later
       License URI: https://www.gnu.org/licenses/gpl-2.0.html
       """
-    And I run `fp plugin activate foo`
+    And I run `fin plugin activate foo`
 
-    When I run `fp plugin list --fields=name,status,update,version,update_version,auto_update`
+    When I run `fin plugin list --fields=name,status,update,version,update_version,auto_update`
     Then STDOUT should be a table containing rows:
       | name       | status   | update  | version  | update_version | auto_update |
       | foo        | active   | none    |          |                | off         |
 
-    When I run `fp plugin list --fields=name,tested_up_to`
+    When I run `fin plugin list --fields=name,tested_up_to`
     Then STDOUT should be a table containing rows:
       | name            | tested_up_to     |
       | foo             | 3.4              |
 
-    When I run `fp plugin list --name=foo --field=tested_up_to`
+    When I run `fin plugin list --name=foo --field=tested_up_to`
     Then STDOUT should be:
       """
       3.4
       """
 
   Scenario: Listing plugins should include tested_up_to from the 'tested' header
-    Given a FP install
-    And a fp-content/plugins/foo/foo.php file:
+    Given a FIN install
+    And a fin-content/plugins/foo/foo.php file:
       """
       <?php
       /**
@@ -819,7 +819,7 @@ Feature: Manage FinPress plugins
        * Author: Matt
        */
       """
-    And a fp-content/plugins/foo/readme.txt file:
+    And a fin-content/plugins/foo/readme.txt file:
       """
       === Foo ===
       Tested: 5.5
@@ -832,28 +832,28 @@ Feature: Manage FinPress plugins
       License: GPLv2 or later
       License URI: https://www.gnu.org/licenses/gpl-2.0.html
       """
-    And I run `fp plugin activate foo`
+    And I run `fin plugin activate foo`
 
-    When I run `fp plugin list --fields=name,status,update,version,update_version,auto_update`
+    When I run `fin plugin list --fields=name,status,update,version,update_version,auto_update`
     Then STDOUT should be a table containing rows:
       | name       | status   | update  | version  | update_version | auto_update |
       | foo        | active   | none    |          |                | off         |
 
-    When I run `fp plugin list --fields=name,tested_up_to`
+    When I run `fin plugin list --fields=name,tested_up_to`
     Then STDOUT should be a table containing rows:
       | name            | tested_up_to     |
       | foo             | 5.5              |
 
-    When I run `fp plugin list --name=foo --field=tested_up_to`
+    When I run `fin plugin list --name=foo --field=tested_up_to`
     Then STDOUT should be:
       """
       5.5
       """
 
-  @require-fp-4.0
+  @require-fin-4.0
   Scenario: Show plugin update as unavailable if it doesn't meet FinPress requirements
-    Given a FP install
-    And a fp-content/plugins/example/example.php file:
+    Given a FIN install
+    And a fin-content/plugins/example/example.php file:
       """
       <?php
         /**
@@ -885,21 +885,21 @@ Feature: Manage FinPress plugins
       }
       """
 
-    When I run `fp plugin list`
+    When I run `fin plugin list`
     Then STDOUT should be a table containing rows:
       | name            | status   | update       | version  | update_version   | auto_update | requires   | requires_php   |
       | example         | inactive | unavailable  | 1.0.0    | 2.0.0            | off         | 100        | 7.2            |
 
-    When I try `fp plugin update example`
+    When I try `fin plugin update example`
     Then STDERR should contain:
       """
       Warning: example: This update requires FinPress version 100
       """
 
-  @require-fp-4.0
+  @require-fin-4.0
   Scenario: Show plugin update as unavailable if it has a new version but no update package provided by author
-    Given a FP install
-    And a fp-content/plugins/example/example.php file:
+    Given a FIN install
+    And a fin-content/plugins/example/example.php file:
       """
       <?php
         /**
@@ -929,22 +929,22 @@ Feature: Manage FinPress plugins
       }
       """
 
-    When I run `fp plugin list`
+    When I run `fin plugin list`
     Then STDOUT should be a table containing rows:
       | name            | status   | update       | version  | update_version   | auto_update | requires   | requires_php   |
       | example         | inactive | unavailable  | 1.0.0    | 2.0.0            | off         |            |                |
 
-    When I try `fp plugin update example`
+    When I try `fin plugin update example`
     Then STDERR should contain:
       """
       Warning: example: Update file not provided. Contact author for more details
       """
 
 
-  @require-fp-4.0
+  @require-fin-4.0
   Scenario: Show plugin update as unavailable if it doesn't meet PHP requirements
-    Given a FP install
-    And a fp-content/plugins/example/example.php file:
+    Given a FIN install
+    And a fin-content/plugins/example/example.php file:
       """
       <?php
         /**
@@ -976,12 +976,12 @@ Feature: Manage FinPress plugins
       }
       """
 
-    When I run `fp plugin list`
+    When I run `fin plugin list`
     Then STDOUT should be a table containing rows:
       | name            | status   | update       | version  | update_version   | auto_update | requires   | requires_php   |
       | example         | inactive | unavailable  | 1.0.0    | 2.0.0            | off         | 3.7        | 100            |
 
-    When I try `fp plugin update example`
+    When I try `fin plugin update example`
     Then STDERR should contain:
       """
       Warning: example: This update requires PHP version 100

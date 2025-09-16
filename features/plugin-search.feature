@@ -1,15 +1,15 @@
 Feature: Search FinPress.org plugins
 
   Scenario: Search for plugins with active_installs field
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin search foo --fields=name,slug,active_installs`
+    When I run `fin plugin search foo --fields=name,slug,active_installs`
     Then STDOUT should contain:
       """
       Success: Showing
       """
 
-    When I run `fp plugin search foo --fields=name,slug,active_installs --format=csv`
+    When I run `fin plugin search foo --fields=name,slug,active_installs --format=csv`
     Then STDOUT should not contain:
       """
       Success: Showing

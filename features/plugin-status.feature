@@ -1,14 +1,14 @@
 Feature: List the status of plugins
 
-  @require-fp-4.0
+  @require-fin-4.0
   Scenario: Status should include drop-ins
-    Given a FP install
-    And a fp-content/db-error.php file:
+    Given a FIN install
+    And a fin-content/db-error.php file:
       """
       <?php
       """
 
-    When I run `fp plugin status`
+    When I run `fin plugin status`
     Then STDOUT should contain:
       """
       D db-error.php

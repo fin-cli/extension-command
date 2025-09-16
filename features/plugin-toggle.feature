@@ -1,17 +1,17 @@
 Feature: Toggle the activation status of a plugin
 
   Background:
-    Given a FP install
+    Given a FIN install
 
   Scenario: Toggle the status of a plugin
-    When I run `fp plugin toggle akismet`
+    When I run `fin plugin toggle akismet`
     Then STDOUT should be:
       """
       Plugin 'akismet' activated.
       Success: Toggled 1 of 1 plugins.
       """
 
-    When I run `fp plugin toggle akismet`
+    When I run `fin plugin toggle akismet`
     Then STDOUT should be:
       """
       Plugin 'akismet' deactivated.
@@ -19,7 +19,7 @@ Feature: Toggle the activation status of a plugin
       """
 
   Scenario: Toggling the status of a plugin that doesn't exist
-    When I try `fp plugin toggle akismet debug-bar`
+    When I try `fin plugin toggle akismet debug-bar`
     Then STDERR should be:
       """
       Warning: The 'debug-bar' plugin could not be found.
@@ -31,7 +31,7 @@ Feature: Toggle the activation status of a plugin
       """
     And the return code should be 1
 
-    When I try `fp plugin toggle debug-bar co-authors-plus`
+    When I try `fin plugin toggle debug-bar co-authors-plus`
     Then STDERR should be:
       """
       Warning: The 'debug-bar' plugin could not be found.

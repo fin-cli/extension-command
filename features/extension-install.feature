@@ -1,10 +1,10 @@
 Feature: Manage FinPress extension installation
 
-  @require-fp-5.1.1
+  @require-fin-5.1.1
   Scenario: Installing Extensions theme or plugin
-    Given a FP install
+    Given a FIN install
 
-    When I try `fp theme install test-ext --activate`
+    When I try `fin theme install test-ext --activate`
     Then STDERR should be:
       """
       Warning: test-ext: Theme not found
@@ -12,7 +12,7 @@ Feature: Manage FinPress extension installation
       Error: No themes installed.
       """
 
-    When I try `fp plugin install test-ext --activate`
+    When I try `fin plugin install test-ext --activate`
     Then STDERR should be:
       """
       Warning: test-ext: Plugin not found.

@@ -1,8 +1,8 @@
 <?php
 
-namespace FP_CLI;
+namespace FIN_CLI;
 
-use FP_CLI;
+use FIN_CLI;
 
 trait ParsePluginNameInput {
 
@@ -19,7 +19,7 @@ trait ParsePluginNameInput {
 	protected function check_optional_args_and_all( $args, $all, $verb = 'install', $exclude = null ) {
 		if ( $all ) {
 			$args = array_map(
-				'\FP_CLI\Utils\get_plugin_name',
+				'\FIN_CLI\Utils\get_plugin_name',
 				array_keys( $this->get_all_plugins() )
 			);
 		}
@@ -36,11 +36,11 @@ trait ParsePluginNameInput {
 
 		if ( empty( $args ) ) {
 			if ( ! $all ) {
-				FP_CLI::error( 'Please specify one or more plugins, or use --all.' );
+				FIN_CLI::error( 'Please specify one or more plugins, or use --all.' );
 			}
 
 			$past_tense_verb = Utils\past_tense_verb( $verb );
-			FP_CLI::success( "No plugins {$past_tense_verb}." ); // Don't error if --all given for BC.
+			FIN_CLI::success( "No plugins {$past_tense_verb}." ); // Don't error if --all given for BC.
 		}
 
 		return $args;
@@ -50,7 +50,7 @@ trait ParsePluginNameInput {
 	 * Gets all available plugins.
 	 *
 	 * Uses the same filter core uses in plugins.php to determine which plugins
-	 * should be available to manage through the FP_Plugins_List_Table class.
+	 * should be available to manage through the FIN_Plugins_List_Table class.
 	 *
 	 * @return array
 	 */

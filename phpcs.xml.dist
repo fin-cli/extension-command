@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="FP-CLI-extension">
-	<description>Custom ruleset for FP-CLI extension-command</description>
+<ruleset name="FIN-CLI-extension">
+	<description>Custom ruleset for FIN-CLI extension-command</description>
 
 	<!--
 	#############################################################################
@@ -24,11 +24,11 @@
 
 	<!--
 	#############################################################################
-	USE THE FP_CLI_CS RULESET
+	USE THE FIN_CLI_CS RULESET
 	#############################################################################
 	-->
 
-	<rule ref="FP_CLI_CS"/>
+	<rule ref="FIN_CLI_CS"/>
 
 	<!--
 	#############################################################################
@@ -45,8 +45,8 @@
 	<rule ref="FinPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
-				<element value="FP_CLI\Extension"/><!-- Namespaces. -->
-				<element value="fpcli_extension"/><!-- Global variables and such. -->
+				<element value="FIN_CLI\Extension"/><!-- Namespaces. -->
+				<element value="fincli_extension"/><!-- Global variables and such. -->
 			</property>
 		</properties>
 	</rule>
@@ -57,10 +57,10 @@
 	</rule>
 
 	<rule ref="FinPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound">
-		<exclude-pattern>*/src/FP_CLI/Fetchers/(Plugin|Theme)\.php$</exclude-pattern>
-		<exclude-pattern>*/src/FP_CLI/CommandWithUpgrade\.php$</exclude-pattern>
-		<exclude-pattern>*/src/FP_CLI/(CommandWith|DestructivePlugin|DestructiveTheme)Upgrader\.php$</exclude-pattern>
-		<exclude-pattern>*/src/FP_CLI/Parse(Plugin|Theme)NameInput\.php$</exclude-pattern>
+		<exclude-pattern>*/src/FIN_CLI/Fetchers/(Plugin|Theme)\.php$</exclude-pattern>
+		<exclude-pattern>*/src/FIN_CLI/CommandWithUpgrade\.php$</exclude-pattern>
+		<exclude-pattern>*/src/FIN_CLI/(CommandWith|DestructivePlugin|DestructiveTheme)Upgrader\.php$</exclude-pattern>
+		<exclude-pattern>*/src/FIN_CLI/Parse(Plugin|Theme)NameInput\.php$</exclude-pattern>
 	</rule>
 
 	<!-- Exclude classes from UselessOverridingMethod sniff as the method is used for generating docs. -->

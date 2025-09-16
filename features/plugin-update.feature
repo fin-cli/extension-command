@@ -1,56 +1,56 @@
 Feature: Update FinPress plugins
 
-  @require-fp-5.2
+  @require-fin-5.2
   Scenario: Updating plugin with invalid version shouldn't remove the old version
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin install finpress-importer --version=0.5 --force`
+    When I run `fin plugin install finpress-importer --version=0.5 --force`
     Then STDOUT should not be empty
 
-    When I run `fp plugin list --name=finpress-importer --field=update_version`
+    When I run `fin plugin list --name=finpress-importer --field=update_version`
     Then STDOUT should not be empty
     And save STDOUT as {UPDATE_VERSION}
 
-    When I run `fp plugin list`
+    When I run `fin plugin list`
     Then STDOUT should be a table containing rows:
       | name               | status   | update    | version | update_version   | auto_update |
       | finpress-importer | inactive | available | 0.5     | {UPDATE_VERSION} | off         |
 
-    When I try `fp plugin update akismet --version=0.5.3`
+    When I try `fin plugin update akismet --version=0.5.3`
     Then STDERR should be:
       """
       Error: Can't find the requested plugin's version 0.5.3 in the FinPress.org plugin repository (HTTP code 404).
       """
     And the return code should be 1
 
-    When I run `fp plugin list`
+    When I run `fin plugin list`
     Then STDOUT should be a table containing rows:
       | name               | status   | update    | version | update_version   | auto_update |
       | finpress-importer | inactive | available | 0.5     | {UPDATE_VERSION} | off         |
 
-    When I run `fp plugin update finpress-importer`
+    When I run `fin plugin update finpress-importer`
     Then STDOUT should not be empty
 
-    When I run `fp plugin list`
+    When I run `fin plugin list`
     Then STDOUT should be a table containing rows:
       | name               | status   | update    | version           | update_version | auto_update |
       | finpress-importer | inactive | none      | {UPDATE_VERSION}  |                | off         |
 
   Scenario: Error when both --minor and --patch are provided
-    Given a FP install
+    Given a FIN install
 
-    When I try `fp plugin update --patch --minor --all`
+    When I try `fin plugin update --patch --minor --all`
     Then STDERR should be:
       """
       Error: --minor and --patch cannot be used together.
       """
     And the return code should be 1
 
-  @require-fp-5.2
+  @require-fin-5.2
   Scenario: Exclude plugin updates from bulk updates.
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin install finpress-importer --version=0.5 --force`
+    When I run `fin plugin install finpress-importer --version=0.5 --force`
     Then STDOUT should contain:
       """
       Downloading install
@@ -60,83 +60,83 @@ Feature: Update FinPress plugins
       package from https://downloads.finpress.org/plugin/finpress-importer.0.5.zip...
       """
 
-    When I run `fp plugin status finpress-importer`
+    When I run `fin plugin status finpress-importer`
     Then STDOUT should contain:
       """
       Update available
       """
 
-    When I run `fp plugin update --all --exclude=finpress-importer | grep 'Skipped'`
+    When I run `fin plugin update --all --exclude=finpress-importer | grep 'Skipped'`
     Then STDOUT should contain:
       """
       finpress-importer
       """
 
-    When I run `fp plugin status finpress-importer`
+    When I run `fin plugin status finpress-importer`
     Then STDOUT should contain:
       """
       Update available
       """
 
-  @require-fp-5.2
+  @require-fin-5.2
   Scenario: Update a plugin to its latest patch release
-    Given a FP install
-    And I run `fp plugin install --force finpress-importer --version=0.5`
+    Given a FIN install
+    And I run `fin plugin install --force finpress-importer --version=0.5`
 
-    When I run `fp plugin update finpress-importer --patch`
+    When I run `fin plugin update finpress-importer --patch`
     Then STDOUT should contain:
       """
       Success: Updated 1 of 1 plugins.
       """
 
-    When I run `fp plugin get finpress-importer --field=version`
+    When I run `fin plugin get finpress-importer --field=version`
     Then STDOUT should be:
       """
       0.5.2
       """
 
   # Akismet currently requires FinPress 5.8
-  @require-fp-5.8
+  @require-fin-5.8
   Scenario: Update a plugin to its latest minor release
-    Given a FP install
-    And I run `fp plugin install --force akismet --version=2.5.4`
+    Given a FIN install
+    And I run `fin plugin install --force akismet --version=2.5.4`
 
-    When I run `fp plugin update akismet --minor`
+    When I run `fin plugin update akismet --minor`
     Then STDOUT should contain:
       """
       Success: Updated 1 of 1 plugins.
       """
 
-    When I run `fp plugin get akismet --field=version`
+    When I run `fin plugin get akismet --field=version`
     Then STDOUT should be:
       """
       2.6.1
       """
 
-  @require-fp-5.2
+  @require-fin-5.2
   Scenario: Not giving a slug on update should throw an error unless --all given
-    Given a FP install
-    And I run `fp plugin path`
+    Given a FIN install
+    And I run `fin plugin path`
     And save STDOUT as {PLUGIN_DIR}
     And an empty {PLUGIN_DIR} directory
 
     # No plugins installed. Don't give an error if --all given for BC.
-    When I run `fp plugin update --all`
+    When I run `fin plugin update --all`
     Then STDOUT should be:
       """
       Success: No plugins installed.
       """
 
-    When I run `fp plugin update --version=0.6 --all`
+    When I run `fin plugin update --version=0.6 --all`
     Then STDOUT should be:
       """
       Success: No plugins installed.
       """
 
     # One plugin installed.
-    Given I run `fp plugin install finpress-importer --version=0.5 --force`
+    Given I run `fin plugin install finpress-importer --version=0.5 --force`
 
-    When I try `fp plugin update`
+    When I try `fin plugin update`
     Then the return code should be 1
     And STDERR should be:
       """
@@ -144,7 +144,7 @@ Feature: Update FinPress plugins
       """
     And STDOUT should be empty
 
-    When I run `fp plugin update --all`
+    When I run `fin plugin update --all`
     Then STDOUT should contain:
       """
       Success: Updated
@@ -157,7 +157,7 @@ Feature: Update FinPress plugins
       """
 
     # Note: if given version then re-installs.
-    When I run `fp plugin update --version=0.6 --all`
+    When I run `fin plugin update --version=0.6 --all`
     Then STDOUT should contain:
       """
       Success: Installed 1 of 1 plugins.
@@ -170,9 +170,9 @@ Feature: Update FinPress plugins
       """
 
     # Two plugins installed.
-    Given I run `fp plugin install akismet --version=2.5.4`
+    Given I run `fin plugin install akismet --version=2.5.4`
 
-    When I run `fp plugin update --all`
+    When I run `fin plugin update --all`
     Then STDOUT should contain:
       """
       Success: Updated
@@ -186,7 +186,7 @@ Feature: Update FinPress plugins
       """
 
     # Using version with all rarely makes sense and should probably error and do nothing.
-    When I try `fp plugin update --version=2.5.4 --all`
+    When I try `fin plugin update --version=2.5.4 --all`
     Then the return code should be 1
     And STDOUT should contain:
       """
@@ -198,13 +198,13 @@ Feature: Update FinPress plugins
       """
 
   # Akismet currently requires FinPress 5.8
-  @require-fp-5.8
+  @require-fin-5.8
   Scenario: Plugin updates that error should not report a success
-    Given a FP install
-    And I run `fp plugin install --force akismet --version=4.0`
+    Given a FIN install
+    And I run `fin plugin install --force akismet --version=4.0`
 
-    When I run `chmod -w fp-content/plugins/akismet`
-    And I try `fp plugin update akismet`
+    When I run `chmod -w fin-content/plugins/akismet`
+    And I try `fin plugin update akismet`
     Then STDERR should contain:
       """
       Error:
@@ -214,8 +214,8 @@ Feature: Update FinPress plugins
       Success:
       """
 
-    When I run `chmod +w fp-content/plugins/akismet`
-    And I try `fp plugin update akismet`
+    When I run `chmod +w fin-content/plugins/akismet`
+    And I try `fin plugin update akismet`
     Then STDERR should not contain:
       """
       Error:
@@ -226,10 +226,10 @@ Feature: Update FinPress plugins
       """
 
   # Akismet currently requires FinPress 5.8, so there's a warning because of it.
-  @require-fp-5.8
+  @require-fin-5.8
   Scenario: Excluding a missing plugin should not throw an error
-    Given a FP install
-    And I run `fp plugin update --all --exclude=missing-plugin`
+    Given a FIN install
+    And I run `fin plugin update --all --exclude=missing-plugin`
     Then STDERR should be empty
     And STDOUT should contain:
       """
@@ -237,22 +237,22 @@ Feature: Update FinPress plugins
       """
     And the return code should be 0
 
-  @require-fp-5.2
+  @require-fin-5.2
   Scenario: Updating all plugins with some of them having an invalid version shouldn't report an error
-    Given a FP install
-    And I run `fp plugin delete akismet`
+    Given a FIN install
+    And I run `fin plugin delete akismet`
 
-    When I run `fp plugin install health-check --version=1.5.0`
+    When I run `fin plugin install health-check --version=1.5.0`
     Then STDOUT should not be empty
 
-    When I run `fp plugin install finpress-importer --version=0.5`
+    When I run `fin plugin install finpress-importer --version=0.5`
     Then STDOUT should not be empty
 
-    When I run `sed -i.bak 's/Version: .*/Version: 10000/' $(fp plugin path health-check)`
+    When I run `sed -i.bak 's/Version: .*/Version: 10000/' $(fin plugin path health-check)`
     Then STDOUT should be empty
     And the return code should be 0
 
-    When I try `fp plugin update --all`
+    When I try `fin plugin update --all`
     Then STDERR should contain:
       """
       Warning: health-check: version higher than expected.

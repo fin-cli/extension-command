@@ -1,9 +1,9 @@
-fp-cli/extension-command
+fin-cli/extension-command
 ========================
 
 Manages plugins and themes, including installs, activations, and updates.
 
-[![Testing](https://github.com/fp-cli/extension-command/actions/workflows/testing.yml/badge.svg)](https://github.com/fp-cli/extension-command/actions/workflows/testing.yml)
+[![Testing](https://github.com/fin-cli/extension-command/actions/workflows/testing.yml/badge.svg)](https://github.com/fin-cli/extension-command/actions/workflows/testing.yml)
 
 Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contributing) | [Support](#support)
 
@@ -11,12 +11,12 @@ Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contr
 
 This package implements the following commands:
 
-### fp plugin
+### fin plugin
 
 Manages plugins, including installs, activations, and updates.
 
 ~~~
-fp plugin
+fin plugin
 ~~~
 
 See the FinPress [Plugin Handbook](https://developer.finpress.org/plugins/) developer resource for more information on plugins.
@@ -24,25 +24,25 @@ See the FinPress [Plugin Handbook](https://developer.finpress.org/plugins/) deve
 **EXAMPLES**
 
     # Activate plugin
-    $ fp plugin activate hello
+    $ fin plugin activate hello
     Plugin 'hello' activated.
     Success: Activated 1 of 1 plugins.
 
     # Deactivate plugin
-    $ fp plugin deactivate hello
+    $ fin plugin deactivate hello
     Plugin 'hello' deactivated.
     Success: Deactivated 1 of 1 plugins.
 
     # Delete plugin
-    $ fp plugin delete hello
+    $ fin plugin delete hello
     Deleted 'hello' plugin.
     Success: Deleted 1 of 1 plugins.
 
     # Install the latest version from finpress.org and activate
-    $ fp plugin install bbpress --activate
+    $ fin plugin install bbpress --activate
     Installing bbPress (2.5.9)
     Downloading install package from https://downloads.finpress.org/plugin/bbpress.2.5.9.zip...
-    Using cached file '/home/vagrant/.fp-cli/cache/plugin/bbpress-2.5.9.zip'...
+    Using cached file '/home/vagrant/.fin-cli/cache/plugin/bbpress-2.5.9.zip'...
     Unpacking the package...
     Installing the plugin...
     Plugin installed successfully.
@@ -52,12 +52,12 @@ See the FinPress [Plugin Handbook](https://developer.finpress.org/plugins/) deve
 
 
 
-### fp plugin activate
+### fin plugin activate
 
 Activates one or more plugins.
 
 ~~~
-fp plugin activate [<plugin>...] [--all] [--exclude=<name>] [--network]
+fin plugin activate [<plugin>...] [--all] [--exclude=<name>] [--network]
 ~~~
 
 **OPTIONS**
@@ -77,35 +77,35 @@ fp plugin activate [<plugin>...] [--all] [--exclude=<name>] [--network]
 **EXAMPLES**
 
     # Activate plugin
-    $ fp plugin activate hello
+    $ fin plugin activate hello
     Plugin 'hello' activated.
     Success: Activated 1 of 1 plugins.
 
     # Activate plugin in entire multisite network
-    $ fp plugin activate hello --network
+    $ fin plugin activate hello --network
     Plugin 'hello' network activated.
     Success: Network activated 1 of 1 plugins.
 
     # Activate plugins that were recently active.
-    $ fp plugin activate $(fp plugin list --recently-active --field=name)
+    $ fin plugin activate $(fin plugin list --recently-active --field=name)
     Plugin 'bbpress' activated.
     Plugin 'buddypress' activated.
     Success: Activated 2 of 2 plugins.
 
     # Activate plugins that were recently active on a multisite.
-    $ fp plugin activate $(fp plugin list --recently-active --field=name) --network
+    $ fin plugin activate $(fin plugin list --recently-active --field=name) --network
     Plugin 'bbpress' network activated.
     Plugin 'buddypress' network activated.
     Success: Activated 2 of 2 plugins.
 
 
 
-### fp plugin deactivate
+### fin plugin deactivate
 
 Deactivates one or more plugins.
 
 ~~~
-fp plugin deactivate [<plugin>...] [--uninstall] [--all] [--exclude=<name>] [--network]
+fin plugin deactivate [<plugin>...] [--uninstall] [--all] [--exclude=<name>] [--network]
 ~~~
 
 **OPTIONS**
@@ -128,24 +128,24 @@ fp plugin deactivate [<plugin>...] [--uninstall] [--all] [--exclude=<name>] [--n
 **EXAMPLES**
 
     # Deactivate plugin
-    $ fp plugin deactivate hello
+    $ fin plugin deactivate hello
     Plugin 'hello' deactivated.
     Success: Deactivated 1 of 1 plugins.
 
     # Deactivate all plugins with exclusion
-    $ fp plugin deactivate --all --exclude=hello,finpress-seo
+    $ fin plugin deactivate --all --exclude=hello,finpress-seo
     Plugin 'contact-form-7' deactivated.
     Plugin 'ninja-forms' deactivated.
     Success: Deactivated 2 of 2 plugins.
 
 
 
-### fp plugin delete
+### fin plugin delete
 
 Deletes plugin files without deactivating or uninstalling.
 
 ~~~
-fp plugin delete [<plugin>...] [--all] [--exclude=<name>]
+fin plugin delete [<plugin>...] [--all] [--exclude=<name>]
 ~~~
 
 **OPTIONS**
@@ -162,29 +162,29 @@ fp plugin delete [<plugin>...] [--all] [--exclude=<name>]
 **EXAMPLES**
 
     # Delete plugin
-    $ fp plugin delete hello
+    $ fin plugin delete hello
     Deleted 'hello' plugin.
     Success: Deleted 1 of 1 plugins.
 
     # Delete inactive plugins
-    $ fp plugin delete $(fp plugin list --status=inactive --field=name)
+    $ fin plugin delete $(fin plugin list --status=inactive --field=name)
     Deleted 'tinymce-templates' plugin.
     Success: Deleted 1 of 1 plugins.
 
     # Delete all plugins excluding specified ones
-    $ fp plugin delete --all --exclude=hello-dolly,jetpack
+    $ fin plugin delete --all --exclude=hello-dolly,jetpack
     Deleted 'akismet' plugin.
     Deleted 'tinymce-templates' plugin.
     Success: Deleted 2 of 2 plugins.
 
 
 
-### fp plugin get
+### fin plugin get
 
 Gets details about an installed plugin.
 
 ~~~
-fp plugin get <plugin> [--field=<field>] [--fields=<fields>] [--format=<format>]
+fin plugin get <plugin> [--field=<field>] [--fields=<fields>] [--format=<format>]
 ~~~
 
 **OPTIONS**
@@ -222,24 +222,24 @@ These fields will be displayed by default for the plugin:
 
 These fields are optionally available:
 
-* requires_fp
+* requires_fin
 * requires_php
 * requires_plugins
 
 **EXAMPLES**
 
     # Get plugin details.
-    $ fp plugin get bbpress --format=json
+    $ fin plugin get bbpress --format=json
     {"name":"bbpress","title":"bbPress","author":"The bbPress Contributors","version":"2.6.9","description":"bbPress is forum software with a twist from the creators of FinPress.","status":"active"}
 
 
 
-### fp plugin install
+### fin plugin install
 
 Installs one or more plugins.
 
 ~~~
-fp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-requirements] [--activate] [--activate-network] [--insecure]
+fin plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-requirements] [--activate] [--activate-network] [--insecure]
 ~~~
 
 **OPTIONS**
@@ -271,10 +271,10 @@ fp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-
 **EXAMPLES**
 
     # Install the latest version from finpress.org and activate
-    $ fp plugin install bbpress --activate
+    $ fin plugin install bbpress --activate
     Installing bbPress (2.5.9)
     Downloading install package from https://downloads.finpress.org/plugin/bbpress.2.5.9.zip...
-    Using cached file '/home/vagrant/.fp-cli/cache/plugin/bbpress-2.5.9.zip'...
+    Using cached file '/home/vagrant/.fin-cli/cache/plugin/bbpress-2.5.9.zip'...
     Unpacking the package...
     Installing the plugin...
     Plugin installed successfully.
@@ -283,7 +283,7 @@ fp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-
     Success: Installed 1 of 1 plugins.
 
     # Install the development version from finpress.org
-    $ fp plugin install bbpress --version=dev
+    $ fin plugin install bbpress --version=dev
     Installing bbPress (Development Version)
     Downloading install package from https://downloads.finpress.org/plugin/bbpress.zip...
     Unpacking the package...
@@ -292,14 +292,14 @@ fp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-
     Success: Installed 1 of 1 plugins.
 
     # Install from a local zip file
-    $ fp plugin install ../my-plugin.zip
+    $ fin plugin install ../my-plugin.zip
     Unpacking the package...
     Installing the plugin...
     Plugin installed successfully.
     Success: Installed 1 of 1 plugins.
 
     # Install from a remote zip file
-    $ fp plugin install http://s3.amazonaws.com/bucketname/my-plugin.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
+    $ fin plugin install http://s3.amazonaws.com/bucketname/my-plugin.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
     Downloading install package from http://s3.amazonaws.com/bucketname/my-plugin.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
     Unpacking the package...
     Installing the plugin...
@@ -307,16 +307,16 @@ fp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-
     Success: Installed 1 of 1 plugins.
 
     # Update from a remote zip file
-    $ fp plugin install https://github.com/envato/fp-envato-market/archive/master.zip --force
-    Downloading install package from https://github.com/envato/fp-envato-market/archive/master.zip
+    $ fin plugin install https://github.com/envato/fin-envato-market/archive/master.zip --force
+    Downloading install package from https://github.com/envato/fin-envato-market/archive/master.zip
     Unpacking the package...
     Installing the plugin...
-    Renamed Github-based project from 'fp-envato-market-master' to 'fp-envato-market'.
+    Renamed Github-based project from 'fin-envato-market-master' to 'fin-envato-market'.
     Plugin updated successfully
     Success: Installed 1 of 1 plugins.
 
     # Forcefully re-install all installed plugins
-    $ fp plugin install $(fp plugin list --field=name) --force
+    $ fin plugin install $(fin plugin list --field=name) --force
     Installing Akismet (3.1.11)
     Downloading install package from https://downloads.finpress.org/plugin/akismet.3.1.11.zip...
     Unpacking the package...
@@ -327,12 +327,12 @@ fp plugin install <plugin|zip|url>... [--version=<version>] [--force] [--ignore-
 
 
 
-### fp plugin is-installed
+### fin plugin is-installed
 
 Checks if a given plugin is installed.
 
 ~~~
-fp plugin is-installed <plugin>
+fin plugin is-installed <plugin>
 ~~~
 
 Returns exit code 0 when installed, 1 when uninstalled.
@@ -345,18 +345,18 @@ Returns exit code 0 when installed, 1 when uninstalled.
 **EXAMPLES**
 
     # Check whether plugin is installed; exit status 0 if installed, otherwise 1
-    $ fp plugin is-installed hello
+    $ fin plugin is-installed hello
     $ echo $?
     1
 
 
 
-### fp plugin list
+### fin plugin list
 
 Gets a list of plugins.
 
 ~~~
-fp plugin list [--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>] [--status=<status>] [--skip-update-check] [--recently-active]
+fin plugin list [--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>] [--status=<status>] [--skip-update-check] [--recently-active]
 ~~~
 
 Displays a list of the plugins installed on the site with activation
@@ -426,17 +426,17 @@ These fields are optionally available:
 * tested_up_to
 * requires
 * requires_php
-* fporg_status
-* fporg_last_updated
+* finorg_status
+* finorg_last_updated
 
 **EXAMPLES**
 
     # List active plugins on the site.
-    $ fp plugin list --status=active --format=json
-    [{"name":"dynamic-hostname","status":"active","update":"none","version":"0.4.2","update_version":"","auto_update":"off"},{"name":"tinymce-templates","status":"active","update":"none","version":"4.8.1","update_version":"","auto_update":"off"},{"name":"fp-multibyte-patch","status":"active","update":"none","version":"2.9","update_version":"","auto_update":"off"},{"name":"fp-total-hacks","status":"active","update":"none","version":"4.7.2","update_version":"","auto_update":"off"}]
+    $ fin plugin list --status=active --format=json
+    [{"name":"dynamic-hostname","status":"active","update":"none","version":"0.4.2","update_version":"","auto_update":"off"},{"name":"tinymce-templates","status":"active","update":"none","version":"4.8.1","update_version":"","auto_update":"off"},{"name":"fin-multibyte-patch","status":"active","update":"none","version":"2.9","update_version":"","auto_update":"off"},{"name":"fin-total-hacks","status":"active","update":"none","version":"4.7.2","update_version":"","auto_update":"off"}]
 
     # List plugins on each site in a network.
-    $ fp site list --field=url | xargs -I % fp plugin list --url=%
+    $ fin site list --field=url | xargs -I % fin plugin list --url=%
     +---------+----------------+-----------+---------+-----------------+------------+
     | name    | status         | update    | version | update_version | auto_update |
     +---------+----------------+-----------+---------+----------------+-------------+
@@ -451,9 +451,9 @@ These fields are optionally available:
     +---------+----------------+-----------+---------+----------------+-------------+
 
     # Check whether plugins are still active on FinPress.org
-    $ fp plugin list --fields=name,fporg_status,fporg_last_updated
+    $ fin plugin list --fields=name,finorg_status,finorg_last_updated
     +--------------------+--------------+--------------------+
-    | name               | fporg_status | fporg_last_updated |
+    | name               | finorg_status | finorg_last_updated |
     +--------------------+--------------+--------------------+
     | akismet            | active       | 2023-12-11         |
     | user-switching     | active       | 2023-11-17         |
@@ -462,17 +462,17 @@ These fields are optionally available:
     +--------------------+--------------+--------------------+
 
     # List recently active plugins on the site.
-    $ fp plugin list --recently-active --field=name --format=json
+    $ fin plugin list --recently-active --field=name --format=json
     ["akismet","bbpress","buddypress"]
 
 
 
-### fp plugin path
+### fin plugin path
 
 Gets the path to a plugin or to the plugin directory.
 
 ~~~
-fp plugin path [<plugin>] [--dir]
+fin plugin path [<plugin>] [--dir]
 ~~~
 
 **OPTIONS**
@@ -487,17 +487,17 @@ fp plugin path [<plugin>] [--dir]
 
 **EXAMPLES**
 
-    $ cd $(fp plugin path) && pwd
-    /var/www/finpress/fp-content/plugins
+    $ cd $(fin plugin path) && pwd
+    /var/www/finpress/fin-content/plugins
 
 
 
-### fp plugin search
+### fin plugin search
 
 Searches the FinPress.org plugin directory.
 
 ~~~
-fp plugin search <search> [--page=<page>] [--per-page=<per-page>] [--field=<field>] [--fields=<fields>] [--format=<format>]
+fin plugin search <search> [--page=<page>] [--per-page=<per-page>] [--field=<field>] [--fields=<fields>] [--format=<format>]
 ~~~
 
 Displays plugins in the FinPress.org plugin directory matching a given
@@ -568,11 +568,11 @@ search query.
 
 **EXAMPLES**
 
-    $ fp plugin search dsgnwrks --per-page=20 --format=json
+    $ fin plugin search dsgnwrks --per-page=20 --format=json
     Success: Showing 3 of 3 plugins.
     [{"name":"DsgnWrks Instagram Importer Debug","slug":"dsgnwrks-instagram-importer-debug","rating":0},{"name":"DsgnWrks Instagram Importer","slug":"dsgnwrks-instagram-importer","rating":84},{"name":"DsgnWrks Twitter Importer","slug":"dsgnwrks-twitter-importer","rating":80}]
 
-    $ fp plugin search dsgnwrks --fields=name,version,slug,rating,num_ratings
+    $ fin plugin search dsgnwrks --fields=name,version,slug,rating,num_ratings
     Success: Showing 3 of 3 plugins.
     +-----------------------------------+---------+-----------------------------------+--------+-------------+
     | name                              | version | slug                              | rating | num_ratings |
@@ -584,12 +584,12 @@ search query.
 
 
 
-### fp plugin status
+### fin plugin status
 
 Reveals the status of one or all plugins.
 
 ~~~
-fp plugin status [<plugin>]
+fin plugin status [<plugin>]
 ~~~
 
 **OPTIONS**
@@ -600,7 +600,7 @@ fp plugin status [<plugin>]
 **EXAMPLES**
 
     # Displays status of all plugins
-    $ fp plugin status
+    $ fin plugin status
     5 installed plugins:
       I akismet                3.1.11
       I easy-digital-downloads 2.5.16
@@ -610,7 +610,7 @@ fp plugin status [<plugin>]
     Legend: I = Inactive, A = Active, M = Must Use
 
     # Displays status of a plugin
-    $ fp plugin status theme-check
+    $ fin plugin status theme-check
     Plugin theme-check details:
         Name: Theme Check
         Status: Active
@@ -620,12 +620,12 @@ fp plugin status [<plugin>]
 
 
 
-### fp plugin toggle
+### fin plugin toggle
 
 Toggles a plugin's activation state.
 
 ~~~
-fp plugin toggle <plugin>... [--network]
+fin plugin toggle <plugin>... [--network]
 ~~~
 
 If the plugin is active, then it will be deactivated. If the plugin is
@@ -642,23 +642,23 @@ inactive, then it will be activated.
 **EXAMPLES**
 
     # Akismet is currently activated
-    $ fp plugin toggle akismet
+    $ fin plugin toggle akismet
     Plugin 'akismet' deactivated.
     Success: Toggled 1 of 1 plugins.
 
     # Akismet is currently deactivated
-    $ fp plugin toggle akismet
+    $ fin plugin toggle akismet
     Plugin 'akismet' activated.
     Success: Toggled 1 of 1 plugins.
 
 
 
-### fp plugin uninstall
+### fin plugin uninstall
 
 Uninstalls one or more plugins.
 
 ~~~
-fp plugin uninstall [<plugin>...] [--deactivate] [--skip-delete] [--all] [--exclude=<name>]
+fin plugin uninstall [<plugin>...] [--deactivate] [--skip-delete] [--all] [--exclude=<name>]
 ~~~
 
 **OPTIONS**
@@ -681,24 +681,24 @@ fp plugin uninstall [<plugin>...] [--deactivate] [--skip-delete] [--all] [--excl
 
 **EXAMPLES**
 
-    $ fp plugin uninstall hello
+    $ fin plugin uninstall hello
     Uninstalled and deleted 'hello' plugin.
     Success: Uninstalled 1 of 1 plugins.
 
     # Uninstall all plugins excluding specified ones
-    $ fp plugin uninstall --all --exclude=hello-dolly,jetpack
+    $ fin plugin uninstall --all --exclude=hello-dolly,jetpack
     Uninstalled and deleted 'akismet' plugin.
     Uninstalled and deleted 'tinymce-templates' plugin.
     Success: Uninstalled 2 of 2 plugins.
 
 
 
-### fp plugin update
+### fin plugin update
 
 Updates one or more plugins.
 
 ~~~
-fp plugin update [<plugin>...] [--all] [--exclude=<name>] [--minor] [--patch] [--format=<format>] [--version=<version>] [--dry-run] [--insecure]
+fin plugin update [<plugin>...] [--all] [--exclude=<name>] [--minor] [--patch] [--format=<format>] [--version=<version>] [--dry-run] [--insecure]
 ~~~
 
 **OPTIONS**
@@ -740,7 +740,7 @@ fp plugin update [<plugin>...] [--all] [--exclude=<name>] [--minor] [--patch] [-
 
 **EXAMPLES**
 
-    $ fp plugin update bbpress --version=dev
+    $ fin plugin update bbpress --version=dev
     Installing bbPress (Development Version)
     Downloading install package from https://downloads.finpress.org/plugin/bbpress.zip...
     Unpacking the package...
@@ -749,7 +749,7 @@ fp plugin update [<plugin>...] [--all] [--exclude=<name>] [--minor] [--patch] [-
     Plugin updated successfully.
     Success: Updated 1 of 2 plugins.
 
-    $ fp plugin update --all
+    $ fin plugin update --all
     Enabling Maintenance mode...
     Downloading update from https://downloads.finpress.org/plugin/akismet.3.1.11.zip...
     Unpacking the update...
@@ -770,7 +770,7 @@ fp plugin update [<plugin>...] [--all] [--exclude=<name>] [--minor] [--patch] [-
     +------------------------+-------------+-------------+---------+
     Success: Updated 2 of 2 plugins.
 
-    $ fp plugin update --all --exclude=akismet
+    $ fin plugin update --all --exclude=akismet
     Enabling Maintenance mode...
     Downloading update from https://downloads.finpress.org/plugin/nginx-champuru.3.2.0.zip...
     Unpacking the update...
@@ -786,12 +786,12 @@ fp plugin update [<plugin>...] [--all] [--exclude=<name>] [--minor] [--patch] [-
 
 
 
-### fp theme
+### fin theme
 
 Manages themes, including installs, activations, and updates.
 
 ~~~
-fp theme
+fin theme
 ~~~
 
 See the FinPress [Theme Handbook](https://developer.finpress.org/themes/) developer resource for more information on themes.
@@ -799,7 +799,7 @@ See the FinPress [Theme Handbook](https://developer.finpress.org/themes/) develo
 **EXAMPLES**
 
     # Install the latest version of a theme from finpress.org and activate
-    $ fp theme install twentysixteen --activate
+    $ fin theme install twentysixteen --activate
     Installing Twenty Sixteen (1.2)
     Downloading install package from http://downloads.finpress.org/theme/twentysixteen.1.2.zip...
     Unpacking the package...
@@ -810,7 +810,7 @@ See the FinPress [Theme Handbook](https://developer.finpress.org/themes/) develo
     Success: Installed 1 of 1 themes.
 
     # Get details of an installed theme
-    $ fp theme get twentysixteen --fields=name,title,version
+    $ fin theme get twentysixteen --fields=name,title,version
     +---------+----------------+
     | Field   | Value          |
     +---------+----------------+
@@ -820,7 +820,7 @@ See the FinPress [Theme Handbook](https://developer.finpress.org/themes/) develo
     +---------+----------------+
 
     # Get status of theme
-    $ fp theme status twentysixteen
+    $ fin theme status twentysixteen
     Theme twentysixteen details:
          Name: Twenty Sixteen
          Status: Active
@@ -829,12 +829,12 @@ See the FinPress [Theme Handbook](https://developer.finpress.org/themes/) develo
 
 
 
-### fp theme activate
+### fin theme activate
 
 Activates a theme.
 
 ~~~
-fp theme activate <theme>
+fin theme activate <theme>
 ~~~
 
 **OPTIONS**
@@ -844,17 +844,17 @@ fp theme activate <theme>
 
 **EXAMPLES**
 
-    $ fp theme activate twentysixteen
+    $ fin theme activate twentysixteen
     Success: Switched to 'Twenty Sixteen' theme.
 
 
 
-### fp theme delete
+### fin theme delete
 
 Deletes one or more themes.
 
 ~~~
-fp theme delete [<theme>...] [--all] [--force]
+fin theme delete [<theme>...] [--all] [--force]
 ~~~
 
 Removes the theme or themes from the filesystem.
@@ -872,18 +872,18 @@ Removes the theme or themes from the filesystem.
 
 **EXAMPLES**
 
-    $ fp theme delete twentytwelve
+    $ fin theme delete twentytwelve
     Deleted 'twentytwelve' theme.
     Success: Deleted 1 of 1 themes.
 
 
 
-### fp theme disable
+### fin theme disable
 
 Disables a theme on a FinPress multisite install.
 
 ~~~
-fp theme disable <theme> [--network]
+fin theme disable <theme> [--network]
 ~~~
 
 Removes ability for a theme to be activated from the dashboard of a site
@@ -902,21 +902,21 @@ on a FinPress multisite install.
 **EXAMPLES**
 
     # Disable theme
-    $ fp theme disable twentysixteen
+    $ fin theme disable twentysixteen
     Success: Disabled the 'Twenty Sixteen' theme.
 
     # Disable theme in network level
-    $ fp theme disable twentysixteen --network
+    $ fin theme disable twentysixteen --network
     Success: Network disabled the 'Twenty Sixteen' theme.
 
 
 
-### fp theme enable
+### fin theme enable
 
 Enables a theme on a FinPress multisite install.
 
 ~~~
-fp theme enable <theme> [--network] [--activate]
+fin theme enable <theme> [--network] [--activate]
 ~~~
 
 Permits theme to be activated from the dashboard of a site on a FinPress
@@ -937,26 +937,26 @@ multisite install.
 **EXAMPLES**
 
     # Enable theme
-    $ fp theme enable twentysixteen
+    $ fin theme enable twentysixteen
     Success: Enabled the 'Twenty Sixteen' theme.
 
     # Network enable theme
-    $ fp theme enable twentysixteen --network
+    $ fin theme enable twentysixteen --network
     Success: Network enabled the 'Twenty Sixteen' theme.
 
     # Network enable and activate theme for current site
-    $ fp theme enable twentysixteen --activate
+    $ fin theme enable twentysixteen --activate
     Success: Enabled the 'Twenty Sixteen' theme.
     Success: Switched to 'Twenty Sixteen' theme.
 
 
 
-### fp theme get
+### fin theme get
 
 Gets details about a theme.
 
 ~~~
-fp theme get <theme> [--field=<field>] [--fields=<fields>] [--format=<format>]
+fin theme get <theme> [--field=<field>] [--fields=<fields>] [--format=<format>]
 ~~~
 
 **OPTIONS**
@@ -983,7 +983,7 @@ fp theme get <theme> [--field=<field>] [--fields=<fields>] [--format=<format>]
 
 **EXAMPLES**
 
-    $ fp theme get twentysixteen --fields=name,title,version
+    $ fin theme get twentysixteen --fields=name,title,version
     +---------+----------------+
     | Field   | Value          |
     +---------+----------------+
@@ -994,12 +994,12 @@ fp theme get <theme> [--field=<field>] [--fields=<fields>] [--format=<format>]
 
 
 
-### fp theme install
+### fin theme install
 
 Installs one or more themes.
 
 ~~~
-fp theme install <theme|zip|url>... [--version=<version>] [--force] [--ignore-requirements] [--activate] [--insecure]
+fin theme install <theme|zip|url>... [--version=<version>] [--force] [--ignore-requirements] [--activate] [--insecure]
 ~~~
 
 **OPTIONS**
@@ -1028,7 +1028,7 @@ fp theme install <theme|zip|url>... [--version=<version>] [--force] [--ignore-re
 **EXAMPLES**
 
     # Install the latest version from finpress.org and activate
-    $ fp theme install twentysixteen --activate
+    $ fin theme install twentysixteen --activate
     Installing Twenty Sixteen (1.2)
     Downloading install package from http://downloads.finpress.org/theme/twentysixteen.1.2.zip...
     Unpacking the package...
@@ -1039,19 +1039,19 @@ fp theme install <theme|zip|url>... [--version=<version>] [--force] [--ignore-re
     Success: Installed 1 of 1 themes.
 
     # Install from a local zip file
-    $ fp theme install ../my-theme.zip
+    $ fin theme install ../my-theme.zip
 
     # Install from a remote zip file
-    $ fp theme install http://s3.amazonaws.com/bucketname/my-theme.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
+    $ fin theme install http://s3.amazonaws.com/bucketname/my-theme.zip?AWSAccessKeyId=123&Expires=456&Signature=abcdef
 
 
 
-### fp theme is-installed
+### fin theme is-installed
 
 Checks if a given theme is installed.
 
 ~~~
-fp theme is-installed <theme>
+fin theme is-installed <theme>
 ~~~
 
 Returns exit code 0 when installed, 1 when uninstalled.
@@ -1064,18 +1064,18 @@ Returns exit code 0 when installed, 1 when uninstalled.
 **EXAMPLES**
 
     # Check whether theme is installed; exit status 0 if installed, otherwise 1
-    $ fp theme is-installed hello
+    $ fin theme is-installed hello
     $ echo $?
     1
 
 
 
-### fp theme list
+### fin theme list
 
 Gets a list of themes.
 
 ~~~
-fp theme list [--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>] [--status=<status>] [--skip-update-check]
+fin theme list [--<field>=<value>] [--field=<field>] [--fields=<fields>] [--format=<format>] [--status=<status>] [--skip-update-check]
 ~~~
 
 **OPTIONS**
@@ -1134,45 +1134,45 @@ These fields are optionally available:
 **EXAMPLES**
 
     # List inactive themes.
-    $ fp theme list --status=inactive --format=csv
+    $ fin theme list --status=inactive --format=csv
     name,status,update,version,update_version,auto_update
     twentyfourteen,inactive,none,3.8,,off
     twentysixteen,inactive,available,3.0,3.1,off
 
 
 
-### fp theme mod
+### fin theme mod
 
 Sets, gets, and removes theme mods.
 
 ~~~
-fp theme mod
+fin theme mod
 ~~~
 
 **EXAMPLES**
 
     # Set the 'background_color' theme mod to '000000'.
-    $ fp theme mod set background_color 000000
+    $ fin theme mod set background_color 000000
     Success: Theme mod background_color set to 000000.
 
     # Get single theme mod in JSON format.
-    $ fp theme mod get background_color --format=json
+    $ fin theme mod get background_color --format=json
     [{"key":"background_color","value":"dd3333"}]
 
     # Remove all theme mods.
-    $ fp theme mod remove --all
+    $ fin theme mod remove --all
     Success: Theme mods removed.
 
 
 
 
 
-### fp theme mod get
+### fin theme mod get
 
 Gets one or more theme mods.
 
 ~~~
-fp theme mod get [<mod>...] [--field=<field>] [--all] [--format=<format>]
+fin theme mod get [<mod>...] [--field=<field>] [--all] [--format=<format>]
 ~~~
 
 **OPTIONS**
@@ -1200,7 +1200,7 @@ fp theme mod get [<mod>...] [--field=<field>] [--all] [--format=<format>]
 **EXAMPLES**
 
     # Get all theme mods.
-    $ fp theme mod get --all
+    $ fin theme mod get --all
     +------------------+---------+
     | key              | value   |
     +------------------+---------+
@@ -1210,15 +1210,15 @@ fp theme mod get [<mod>...] [--field=<field>] [--all] [--format=<format>]
     +------------------+---------+
 
     # Get single theme mod in JSON format.
-    $ fp theme mod get background_color --format=json
+    $ fin theme mod get background_color --format=json
     [{"key":"background_color","value":"dd3333"}]
 
     # Get value of a single theme mod.
-    $ fp theme mod get background_color --field=value
+    $ fin theme mod get background_color --field=value
     dd3333
 
     # Get multiple theme mods.
-    $ fp theme mod get background_color header_textcolor
+    $ fin theme mod get background_color header_textcolor
     +------------------+--------+
     | key              | value  |
     +------------------+--------+
@@ -1228,12 +1228,12 @@ fp theme mod get [<mod>...] [--field=<field>] [--all] [--format=<format>]
 
 
 
-### fp theme mod set
+### fin theme mod set
 
 Sets the value of a theme mod.
 
 ~~~
-fp theme mod set <mod> <value>
+fin theme mod set <mod> <value>
 ~~~
 
 **OPTIONS**
@@ -1247,17 +1247,17 @@ fp theme mod set <mod> <value>
 **EXAMPLES**
 
     # Set theme mod
-    $ fp theme mod set background_color 000000
+    $ fin theme mod set background_color 000000
     Success: Theme mod background_color set to 000000.
 
 
 
-### fp theme mod remove
+### fin theme mod remove
 
 Removes one or more theme mods.
 
 ~~~
-fp theme mod remove [<mod>...] [--all]
+fin theme mod remove [<mod>...] [--all]
 ~~~
 
 **OPTIONS**
@@ -1271,25 +1271,25 @@ fp theme mod remove [<mod>...] [--all]
 **EXAMPLES**
 
     # Remove all theme mods.
-    $ fp theme mod remove --all
+    $ fin theme mod remove --all
     Success: Theme mods removed.
 
     # Remove single theme mod.
-    $ fp theme mod remove background_color
+    $ fin theme mod remove background_color
     Success: 1 mod removed.
 
     # Remove multiple theme mods.
-    $ fp theme mod remove background_color header_textcolor
+    $ fin theme mod remove background_color header_textcolor
     Success: 2 mods removed.
 
 
 
-### fp theme path
+### fin theme path
 
 Gets the path to a theme or to the theme directory.
 
 ~~~
-fp theme path [<theme>] [--dir]
+fin theme path [<theme>] [--dir]
 ~~~
 
 **OPTIONS**
@@ -1305,20 +1305,20 @@ fp theme path [<theme>] [--dir]
 **EXAMPLES**
 
     # Get theme path
-    $ fp theme path
-    /var/www/example.com/public_html/fp-content/themes
+    $ fin theme path
+    /var/www/example.com/public_html/fin-content/themes
 
     # Change directory to theme path
-    $ cd $(fp theme path)
+    $ cd $(fin theme path)
 
 
 
-### fp theme search
+### fin theme search
 
 Searches the FinPress.org theme directory.
 
 ~~~
-fp theme search <search> [--page=<page>] [--per-page=<per-page>] [--field=<field>] [--fields=<fields>] [--format=<format>]
+fin theme search <search> [--page=<page>] [--per-page=<per-page>] [--field=<field>] [--fields=<fields>] [--format=<format>]
 ~~~
 
 Displays themes in the FinPress.org theme directory matching a given
@@ -1370,7 +1370,7 @@ search query.
 
 **EXAMPLES**
 
-    $ fp theme search photo --per-page=6
+    $ fin theme search photo --per-page=6
     Success: Showing 6 of 203 themes.
     +----------------------+----------------------+--------+
     | name                 | slug                 | rating |
@@ -1379,18 +1379,18 @@ search query.
     | Infinite Photography | infinite-photography | 100    |
     | PhotoBook            | photobook            | 100    |
     | BG Photo Frame       | bg-photo-frame       | 0      |
-    | fPhotography         | fphotography         | 0      |
+    | fPhotography         | finhotography         | 0      |
     | Photo Perfect        | photo-perfect        | 98     |
     +----------------------+----------------------+--------+
 
 
 
-### fp theme status
+### fin theme status
 
 Reveals the status of one or all themes.
 
 ~~~
-fp theme status [<theme>]
+fin theme status [<theme>]
 ~~~
 
 **OPTIONS**
@@ -1400,7 +1400,7 @@ fp theme status [<theme>]
 
 **EXAMPLES**
 
-    $ fp theme status twentysixteen
+    $ fin theme status twentysixteen
     Theme twentysixteen details:
          Name: Twenty Sixteen
          Status: Inactive
@@ -1409,12 +1409,12 @@ fp theme status [<theme>]
 
 
 
-### fp theme update
+### fin theme update
 
 Updates one or more themes.
 
 ~~~
-fp theme update [<theme>...] [--all] [--exclude=<theme-names>] [--minor] [--patch] [--format=<format>] [--version=<version>] [--dry-run] [--insecure]
+fin theme update [<theme>...] [--all] [--exclude=<theme-names>] [--minor] [--patch] [--format=<format>] [--version=<version>] [--dry-run] [--insecure]
 ~~~
 
 **OPTIONS**
@@ -1457,7 +1457,7 @@ fp theme update [<theme>...] [--all] [--exclude=<theme-names>] [--minor] [--patc
 **EXAMPLES**
 
     # Update multiple themes
-    $ fp theme update twentyfifteen twentysixteen
+    $ fin theme update twentyfifteen twentysixteen
     Downloading update from https://downloads.finpress.org/theme/twentyfifteen.1.5.zip...
     Unpacking the update...
     Installing the latest version...
@@ -1477,7 +1477,7 @@ fp theme update [<theme>...] [--all] [--exclude=<theme-names>] [--minor] [--patc
     Success: Updated 2 of 2 themes.
 
     # Exclude themes updates when bulk updating the themes
-    $ fp theme update --all --exclude=twentyfifteen
+    $ fin theme update --all --exclude=twentyfifteen
     Downloading update from https://downloads.finpress.org/theme/astra.1.0.5.1.zip...
     Unpacking the update...
     Installing the latest version...
@@ -1497,16 +1497,16 @@ fp theme update [<theme>...] [--all] [--exclude=<theme-names>] [--minor] [--patc
     Success: Updated 2 of 2 themes.
 
     # Update all themes
-    $ fp theme update --all
+    $ fin theme update --all
 
 
 
-### fp theme mod list
+### fin theme mod list
 
 Gets a list of theme mods.
 
 ~~~
-fp theme mod list [--field=<field>] [--format=<format>]
+fin theme mod list [--field=<field>] [--format=<format>]
 ~~~
 
 **OPTIONS**
@@ -1528,7 +1528,7 @@ fp theme mod list [--field=<field>] [--format=<format>]
 **EXAMPLES**
 
     # Gets a list of theme mods.
-    $ fp theme mod list
+    $ fin theme mod list
     +------------------+---------+
     | key              | value   |
     +------------------+---------+
@@ -1539,11 +1539,11 @@ fp theme mod list [--field=<field>] [--format=<format>]
 
 ## Installing
 
-This package is included with FP-CLI itself, no additional installation necessary.
+This package is included with FIN-CLI itself, no additional installation necessary.
 
-To install the latest version of this package over what's included in FP-CLI, run:
+To install the latest version of this package over what's included in FIN-CLI, run:
 
-    fp package install git@github.com:fp-cli/extension-command.git
+    fin package install git@github.com:fin-cli/extension-command.git
 
 ## Contributing
 
@@ -1551,25 +1551,25 @@ We appreciate you taking the initiative to contribute to this project.
 
 Contributing isn’t limited to just code. We encourage you to contribute in the way that best fits your abilities, by writing tutorials, giving a demo at your local meetup, helping other users with their support questions, or revising our documentation.
 
-For a more thorough introduction, [check out FP-CLI's guide to contributing](https://make.finpress.org/cli/handbook/contributing/). This package follows those policy and guidelines.
+For a more thorough introduction, [check out FIN-CLI's guide to contributing](https://make.finpress.org/cli/handbook/contributing/). This package follows those policy and guidelines.
 
 ### Reporting a bug
 
 Think you’ve found a bug? We’d love for you to help us get it fixed.
 
-Before you create a new issue, you should [search existing issues](https://github.com/fp-cli/extension-command/issues?q=label%3Abug%20) to see if there’s an existing resolution to it, or if it’s already been fixed in a newer version.
+Before you create a new issue, you should [search existing issues](https://github.com/fin-cli/extension-command/issues?q=label%3Abug%20) to see if there’s an existing resolution to it, or if it’s already been fixed in a newer version.
 
-Once you’ve done a bit of searching and discovered there isn’t an open or fixed issue for your bug, please [create a new issue](https://github.com/fp-cli/extension-command/issues/new). Include as much detail as you can, and clear steps to reproduce if possible. For more guidance, [review our bug report documentation](https://make.finpress.org/cli/handbook/bug-reports/).
+Once you’ve done a bit of searching and discovered there isn’t an open or fixed issue for your bug, please [create a new issue](https://github.com/fin-cli/extension-command/issues/new). Include as much detail as you can, and clear steps to reproduce if possible. For more guidance, [review our bug report documentation](https://make.finpress.org/cli/handbook/bug-reports/).
 
 ### Creating a pull request
 
-Want to contribute a new feature? Please first [open a new issue](https://github.com/fp-cli/extension-command/issues/new) to discuss whether the feature is a good fit for the project.
+Want to contribute a new feature? Please first [open a new issue](https://github.com/fin-cli/extension-command/issues/new) to discuss whether the feature is a good fit for the project.
 
 Once you've decided to commit the time to seeing your pull request through, [please follow our guidelines for creating a pull request](https://make.finpress.org/cli/handbook/pull-requests/) to make sure it's a pleasant experience. See "[Setting up](https://make.finpress.org/cli/handbook/pull-requests/#setting-up)" for details specific to working on this package locally.
 
 ## Support
 
-GitHub issues aren't for general support questions, but there are other venues you can try: https://fp-cli.org/#support
+GitHub issues aren't for general support questions, but there are other venues you can try: https://fin-cli.org/#support
 
 
-*This README.md is generated dynamically from the project's codebase using `fp scaffold package-readme` ([doc](https://github.com/fp-cli/scaffold-package-command#fp-scaffold-package-readme)). To suggest changes, please submit a pull request against the corresponding part of the codebase.*
+*This README.md is generated dynamically from the project's codebase using `fin scaffold package-readme` ([doc](https://github.com/fin-cli/scaffold-package-command#fin-scaffold-package-readme)). To suggest changes, please submit a pull request against the corresponding part of the codebase.*

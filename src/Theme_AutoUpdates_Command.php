@@ -1,9 +1,9 @@
 <?php
 
-use FP_CLI\Fetchers\Theme;
-use FP_CLI\Formatter;
-use FP_CLI\ParseThemeNameInput;
-use FP_CLI\Utils;
+use FIN_CLI\Fetchers\Theme;
+use FIN_CLI\Formatter;
+use FIN_CLI\ParseThemeNameInput;
+use FIN_CLI\Utils;
 
 /**
  * Manages theme auto-updates.
@@ -11,25 +11,25 @@ use FP_CLI\Utils;
  * ## EXAMPLES
  *
  *     # Enable the auto-updates for a theme
- *     $ fp theme auto-updates enable twentysixteen
+ *     $ fin theme auto-updates enable twentysixteen
  *     Theme auto-updates for 'twentysixteen' enabled.
  *     Success: Enabled 1 of 1 theme auto-updates.
  *
  *     # Disable the auto-updates for a theme
- *     $ fp theme auto-updates disable twentysixteen
+ *     $ fin theme auto-updates disable twentysixteen
  *     Theme auto-updates for 'twentysixteen' disabled.
  *     Success: Disabled 1 of 1 theme auto-updates.
  *
  *     # Get the status of theme auto-updates
- *     $ fp theme auto-updates status twentysixteen
+ *     $ fin theme auto-updates status twentysixteen
  *     Auto-updates for theme 'twentysixteen' are disabled.
  *
- * @package fp-cli
+ * @package fin-cli
  */
 class Theme_AutoUpdates_Command {
 
 	/**
-	 * @use ParseThemeNameInput<\FP_Theme>
+	 * @use ParseThemeNameInput<\FIN_Theme>
 	 */
 	use ParseThemeNameInput;
 
@@ -72,7 +72,7 @@ class Theme_AutoUpdates_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Enable the auto-updates for a theme
-	 *     $ fp theme auto-updates enable twentysixteen
+	 *     $ fin theme auto-updates enable twentysixteen
 	 *     Theme auto-updates for 'twentysixteen' enabled.
 	 *     Success: Enabled 1 of 1 theme auto-updates.
 	 */
@@ -105,7 +105,7 @@ class Theme_AutoUpdates_Command {
 			++$count;
 
 			if ( $enabled ) {
-				FP_CLI::warning(
+				FIN_CLI::warning(
 					"Auto-updates already enabled for theme {$theme->stylesheet}."
 				);
 			} else {
@@ -115,7 +115,7 @@ class Theme_AutoUpdates_Command {
 		}
 
 		if ( 0 === $count ) {
-			FP_CLI::error(
+			FIN_CLI::error(
 				'No themes provided to enable auto-updates for.'
 			);
 		}
@@ -149,7 +149,7 @@ class Theme_AutoUpdates_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Disable the auto-updates for a theme
-	 *     $ fp theme auto-updates disable twentysixteen
+	 *     $ fin theme auto-updates disable twentysixteen
 	 *     Theme auto-updates for 'twentysixteen' disabled.
 	 *     Success: Disabled 1 of 1 theme auto-updates.
 	 */
@@ -182,7 +182,7 @@ class Theme_AutoUpdates_Command {
 			++$count;
 
 			if ( ! $enabled ) {
-				FP_CLI::warning(
+				FIN_CLI::warning(
 					"Auto-updates already disabled for theme {$theme->stylesheet}."
 				);
 			} else {
@@ -192,7 +192,7 @@ class Theme_AutoUpdates_Command {
 		}
 
 		if ( 0 === $count ) {
-			FP_CLI::error(
+			FIN_CLI::error(
 				'No themes provided to disable auto-updates for.'
 			);
 		}
@@ -249,7 +249,7 @@ class Theme_AutoUpdates_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Get the status of theme auto-updates
-	 *     $ fp theme auto-updates status twentysixteen
+	 *     $ fin theme auto-updates status twentysixteen
 	 *     +---------------+----------+
 	 *     | name          | status   |
 	 *     +---------------+----------+
@@ -257,7 +257,7 @@ class Theme_AutoUpdates_Command {
 	 *     +---------------+----------+
 	 *
 	 *     # Get the list of themes that have auto-updates enabled
-	 *     $ fp theme auto-updates status --all --enabled-only --field=name
+	 *     $ fin theme auto-updates status --all --enabled-only --field=name
 	 *     twentysixteen
 	 *     twentyseventeen
 	 */
@@ -267,7 +267,7 @@ class Theme_AutoUpdates_Command {
 		$disabled_only = Utils\get_flag_value( $assoc_args, 'disabled-only', false );
 
 		if ( $enabled_only && $disabled_only ) {
-			FP_CLI::error(
+			FIN_CLI::error(
 				'--enabled-only and --disabled-only are mutually exclusive and '
 				. 'cannot be used at the same time.'
 			);

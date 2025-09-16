@@ -4,16 +4,16 @@ Feature: Install FinPress plugins
     Given an empty cache
 
   Scenario: Branch names should be removed from Github projects
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin install https://github.com/fp-cli-test/generic-example-plugin/archive/refs/heads/master.zip --activate`
+    When I run `fin plugin install https://github.com/fin-cli-test/generic-example-plugin/archive/refs/heads/master.zip --activate`
     Then STDOUT should contain:
       """
       Downloading install
       """
     And STDOUT should contain:
       """
-      package from https://github.com/fp-cli-test/generic-example-plugin/archive/refs/heads/master.zip
+      package from https://github.com/fin-cli-test/generic-example-plugin/archive/refs/heads/master.zip
       """
     And STDOUT should contain:
       """
@@ -23,10 +23,10 @@ Feature: Install FinPress plugins
       """
       Plugin installed successfully.
       """
-    And the fp-content/plugins/generic-example-plugin directory should exist
-    And the fp-content/plugins/generic-example-plugin-master directory should not exist
+    And the fin-content/plugins/generic-example-plugin directory should exist
+    And the fin-content/plugins/generic-example-plugin-master directory should not exist
 
-    When I try `fp plugin install https://github.com/fp-cli-test/generic-example-plugin/archive/refs/heads/master.zip`
+    When I try `fin plugin install https://github.com/fin-cli-test/generic-example-plugin/archive/refs/heads/master.zip`
     Then STDERR should contain:
       """
       Warning: Destination folder already exists
@@ -35,33 +35,33 @@ Feature: Install FinPress plugins
       """
       Error: No plugins installed.
       """
-    And the fp-content/plugins/generic-example-plugin directory should exist
-    And the fp-content/plugins/generic-example-plugin-master directory should not exist
+    And the fin-content/plugins/generic-example-plugin directory should exist
+    And the fin-content/plugins/generic-example-plugin-master directory should not exist
     And the return code should be 1
 
-    When I run `fp plugin install https://github.com/fp-cli-test/generic-example-plugin/archive/refs/heads/master.zip --force`
+    When I run `fin plugin install https://github.com/fin-cli-test/generic-example-plugin/archive/refs/heads/master.zip --force`
     Then STDOUT should contain:
       """
       Plugin updated successfully.
       """
-    And the fp-content/plugins/generic-example-plugin directory should exist
-    And the fp-content/plugins/generic-example-plugin-master directory should not exist
+    And the fin-content/plugins/generic-example-plugin directory should exist
+    And the fin-content/plugins/generic-example-plugin-master directory should not exist
 
     # However if the plugin slug ('modern-framework') does not match the project name then it's downloaded to wrong directory.
-    When I run `fp plugin install https://github.com/Miller-Media/modern-finpress/archive/master.zip`
+    When I run `fin plugin install https://github.com/Miller-Media/modern-finpress/archive/master.zip`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
       """
     And STDOUT should match /Renamed Github-based project from 'modern-(?:finpress|framework)-master' to 'modern-finpress'/
     # Wrong directory.
-    And the fp-content/plugins/modern-finpress directory should exist
-    And the fp-content/plugins/modern-framework directory should not exist
+    And the fin-content/plugins/modern-finpress directory should exist
+    And the fin-content/plugins/modern-framework directory should not exist
 
   Scenario: Don't attempt to rename ZIPs uploaded to GitHub's releases page
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin install https://github.com/fp-cli-test/generic-example-plugin/releases/download/v0.1.0/generic-example-plugin.0.1.0.zip`
+    When I run `fin plugin install https://github.com/fin-cli-test/generic-example-plugin/releases/download/v0.1.0/generic-example-plugin.0.1.0.zip`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
@@ -70,12 +70,12 @@ Feature: Install FinPress plugins
       """
       Renamed Github-based project from 'generic-example-plugin-0.1.0' to 'generic-example-plugin'.
       """
-    And the fp-content/plugins/generic-example-plugin directory should exist
+    And the fin-content/plugins/generic-example-plugin directory should exist
 
   Scenario: Don't attempt to rename ZIPs coming from a GitHub raw source
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin install https://github.com/Miller-Media/modern-finpress/raw/master/builds/modern-framework-stable.zip`
+    When I run `fin plugin install https://github.com/Miller-Media/modern-finpress/raw/master/builds/modern-framework-stable.zip`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
@@ -84,18 +84,18 @@ Feature: Install FinPress plugins
       """
       Renamed Github-based project from 'modern-framework-stable' to 'modern-framework'.
       """
-    And the fp-content/plugins/modern-framework directory should exist
+    And the fin-content/plugins/modern-framework directory should exist
 
-  Scenario: Installing respects FP_PROXY_HOST and FP_PROXY_PORT
-    Given a FP install
+  Scenario: Installing respects FIN_PROXY_HOST and FIN_PROXY_PORT
+    Given a FIN install
     And a invalid-proxy-details.php file:
       """
       <?php
-      define( 'FP_PROXY_HOST', 'https://fp-cli.org' );
-      define( 'FP_PROXY_PORT', '443' );
+      define( 'FIN_PROXY_HOST', 'https://fin-cli.org' );
+      define( 'FIN_PROXY_PORT', '443' );
       """
 
-    When I try `fp --require=invalid-proxy-details.php plugin install debug-bar`
+    When I try `fin --require=invalid-proxy-details.php plugin install debug-bar`
     Then STDERR should contain:
       """
       Warning: debug-bar: An unexpected error occurred. Something may be wrong with FinPress.org or this server&#8217;s configuration.
@@ -107,16 +107,16 @@ Feature: Install FinPress plugins
     And STDOUT should be empty
     And the return code should be 1
 
-    When I run `fp plugin install debug-bar`
+    When I run `fin plugin install debug-bar`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
       """
 
   Scenario: Return code is 1 when one or more plugin installations fail
-    Given a FP install
+    Given a FIN install
 
-    When I try `fp plugin install site-secrets site-secrets-not-a-plugin`
+    When I try `fin plugin install site-secrets site-secrets-not-a-plugin`
     Then STDERR should contain:
       """
       Warning:
@@ -139,7 +139,7 @@ Feature: Install FinPress plugins
       """
     And the return code should be 1
 
-    When I try `fp plugin install site-secrets`
+    When I try `fin plugin install site-secrets`
     Then STDOUT should be:
       """
       Success: Plugin already installed.
@@ -150,7 +150,7 @@ Feature: Install FinPress plugins
       """
     And the return code should be 0
 
-    When I try `fp plugin install site-secrets-not-a-plugin`
+    When I try `fin plugin install site-secrets-not-a-plugin`
     Then STDERR should contain:
       """
       Warning:
@@ -166,18 +166,18 @@ Feature: Install FinPress plugins
     And the return code should be 1
 
   Scenario: Paths aren't backslashed when destination folder already exists
-    Given a FP install
+    Given a FIN install
 
     When I run `pwd`
     Then save STDOUT as {WORKING_DIR}
 
-    When I run `rm fp-content/plugins/akismet/akismet.php`
+    When I run `rm fin-content/plugins/akismet/akismet.php`
     Then the return code should be 0
 
-    When I try `fp plugin install akismet --ignore-requirements`
+    When I try `fin plugin install akismet --ignore-requirements`
     Then STDERR should contain:
       """
-      Warning: Destination folder already exists. "{WORKING_DIR}/fp-content/plugins/akismet/"
+      Warning: Destination folder already exists. "{WORKING_DIR}/fin-content/plugins/akismet/"
       """
     And STDERR should contain:
       """
@@ -186,26 +186,26 @@ Feature: Install FinPress plugins
     And the return code should be 1
 
   Scenario: For Github archive URLs use the Github project name as the plugin directory
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin install https://github.com/fp-cli-test/generic-example-plugin/archive/v0.1.0.zip`
+    When I run `fin plugin install https://github.com/fin-cli-test/generic-example-plugin/archive/v0.1.0.zip`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
       """
     And STDOUT should contain:
       """
-      package from https://github.com/fp-cli-test/generic-example-plugin/archive/v0.1.0.zip
+      package from https://github.com/fin-cli-test/generic-example-plugin/archive/v0.1.0.zip
       """
     And STDOUT should contain:
       """
       Renamed Github-based project from 'generic-example-plugin-0.1.0' to 'generic-example-plugin'.
       """
-    And the fp-content/plugins/generic-example-plugin directory should exist
-    And the fp-content/plugins/generic-example-plugi directory should not exist
-    And the fp-content/plugins/generic-example-plugin-0.1.0 directory should not exist
+    And the fin-content/plugins/generic-example-plugin directory should exist
+    And the fin-content/plugins/generic-example-plugi directory should not exist
+    And the fin-content/plugins/generic-example-plugin-0.1.0 directory should not exist
 
-    When I run `fp plugin install https://github.com/Automattic/sensei/archive/version/1.9.19.zip`
+    When I run `fin plugin install https://github.com/Automattic/sensei/archive/version/1.9.19.zip`
     Then STDOUT should contain:
       """
       Plugin installed successfully.
@@ -218,17 +218,17 @@ Feature: Install FinPress plugins
       """
       Renamed Github-based project from 'sensei-version-1.9.19' to 'sensei'.
       """
-    And the fp-content/plugins/sensei directory should exist
-    And the fp-content/plugins/archive directory should not exist
-    And the fp-content/plugins/sensei-version-1.9.19 directory should not exist
+    And the fin-content/plugins/sensei directory should exist
+    And the fin-content/plugins/archive directory should not exist
+    And the fin-content/plugins/sensei-version-1.9.19 directory should not exist
 
   Scenario: Verify installed plugin activation
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp plugin install site-secrets`
+    When I run `fin plugin install site-secrets`
     Then STDOUT should not be empty
 
-    When I try `fp plugin install site-secrets --activate`
+    When I try `fin plugin install site-secrets --activate`
     Then STDERR should contain:
       """
       Warning: site-secrets: Plugin already installed.
@@ -243,15 +243,15 @@ Feature: Install FinPress plugins
 
   @require-php-7
   Scenario: Can't install plugin that requires a newer version of FinPress
-    Given a FP install
+    Given a FIN install
 
-    When I run `fp core download --version=6.4 --force`
-    And I run `rm -r fp-content/themes/*`
+    When I run `fin core download --version=6.4 --force`
+    And I run `rm -r fin-content/themes/*`
 
-    And I try `fp plugin install fp-super-cache`
+    And I try `fin plugin install fin-super-cache`
     Then STDERR should contain:
       """
-      Warning: fp-super-cache: This plugin does not work with your version of FinPress
+      Warning: fin-super-cache: This plugin does not work with your version of FinPress
       """
 
     And STDERR should contain:
@@ -259,11 +259,11 @@ Feature: Install FinPress plugins
       Error: No plugins installed.
       """
 
-  @less-than-php-7.4 @require-fp-6.6
+  @less-than-php-7.4 @require-fin-6.6
   Scenario: Can't install plugin that requires a newer version of PHP
-    Given a FP install
+    Given a FIN install
 
-    And I try `fp plugin install contact-form-7`
+    And I try `fin plugin install contact-form-7`
     Then STDERR should contain:
       """
       Warning: contact-form-7: This plugin does not work with your version of PHP

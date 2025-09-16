@@ -1,12 +1,12 @@
 <?php
 
-namespace FP_CLI;
+namespace FIN_CLI;
 
-use FP_CLI;
+use FIN_CLI;
 use Theme_AutoUpdates_Command;
 
 /**
- * @template T of \FP_Theme
+ * @template T of \FIN_Theme
  */
 trait ParseThemeNameInput {
 
@@ -22,18 +22,18 @@ trait ParseThemeNameInput {
 	protected function check_optional_args_and_all( $args, $all, $verb = 'install' ) {
 		if ( $all ) {
 			$args = array_map(
-				'\FP_CLI\Utils\get_theme_name',
+				'\FIN_CLI\Utils\get_theme_name',
 				array_keys( $this->get_all_themes() )
 			);
 		}
 
 		if ( empty( $args ) ) {
 			if ( ! $all ) {
-				FP_CLI::error( 'Please specify one or more themes, or use --all.' );
+				FIN_CLI::error( 'Please specify one or more themes, or use --all.' );
 			}
 
 			$past_tense_verb = Utils\past_tense_verb( $verb );
-			FP_CLI::success( "No themes {$past_tense_verb}." ); // Don't error if --all given for BC.
+			FIN_CLI::success( "No themes {$past_tense_verb}." ); // Don't error if --all given for BC.
 		}
 
 		return $args;
@@ -43,15 +43,15 @@ trait ParseThemeNameInput {
 	 * Gets all available themes.
 	 *
 	 * Uses the same filter core uses in themes.php to determine which themes
-	 * should be available to manage through the FP_Themes_List_Table class.
+	 * should be available to manage through the FIN_Themes_List_Table class.
 	 *
 	 * @return array
 	 */
 	private function get_all_themes() {
-		global $fp_version;
+		global $fin_version;
 		// Extract the major FinPress version (e.g., "6.3") from the full version string
-		list($fp_core_version) = explode( '-', $fp_version );
-		$fp_core_version       = implode( '.', array_slice( explode( '.', $fp_core_version ), 0, 2 ) );
+		list($fin_core_version) = explode( '-', $fin_version );
+		$fin_core_version       = implode( '.', array_slice( explode( '.', $fin_core_version ), 0, 2 ) );
 
 		$items              = array();
 		$theme_version_info = array();
@@ -89,7 +89,7 @@ trait ParseThemeNameInput {
 			$auto_updates = [];
 		}
 
-		foreach ( fp_get_themes() as $key => $theme ) {
+		foreach ( fin_get_themes() as $key => $theme ) {
 			$stylesheet  = $theme->get_stylesheet();
 			$update_info = ( isset( $all_update_info->response[ $stylesheet ] ) && null !== $all_update_info->response[ $theme->get_stylesheet() ] ) ? (array) $all_update_info->response[ $theme->get_stylesheet() ] : null;
 
@@ -100,7 +100,7 @@ trait ParseThemeNameInput {
 			$requires_php = isset( $update_info ) && isset( $update_info['requires_php'] ) ? $update_info['requires_php'] : null;
 
 			$compatible_php = empty( $requires_php ) || version_compare( PHP_VERSION, $requires_php, '>=' );
-			$compatible_fp  = empty( $requires ) || version_compare( $fp_version, $requires, '>=' );
+			$compatible_fin  = empty( $requires ) || version_compare( $fin_version, $requires, '>=' );
 
 			if ( ! $compatible_php ) {
 				$update = 'unavailable';
@@ -110,13 +110,13 @@ trait ParseThemeNameInput {
 					$requires_php,
 					PHP_VERSION
 				);
-			} elseif ( ! $compatible_fp ) {
+			} elseif ( ! $compatible_fin ) {
 				$update = 'unavailable';
 
 				$update_unavailable_reason = sprintf(
 					'This update requires FinPress version %s, but the version installed is %s.',
 					$requires,
-					$fp_version
+					$fin_version
 				);
 			} else {
 				$update = $update_info ? 'available' : 'none';
@@ -124,7 +124,7 @@ trait ParseThemeNameInput {
 
 			// For display consistency, get these values from the current plugin file if they aren't in this response
 			if ( null === $requires ) {
-				$requires = ! empty( $theme->get( 'RequiresFP' ) ) ? $theme->get( 'RequiresFP' ) : '';
+				$requires = ! empty( $theme->get( 'RequiresFIN' ) ) ? $theme->get( 'RequiresFIN' ) : '';
 			}
 
 			if ( null === $requires_php ) {
@@ -170,7 +170,7 @@ trait ParseThemeNameInput {
 	}
 
 	/**
-	 * Check if current version of the theme is higher than the one available at FP.org.
+	 * Check if current version of the theme is higher than the one available at FIN.org.
 	 *
 	 * @param string $slug Theme slug.
 	 * @param string $version Theme current version.
@@ -179,12 +179,12 @@ trait ParseThemeNameInput {
 	 */
 	protected function is_theme_version_valid( $slug, $version ) {
 		/**
-		 * @var \FP_Error|object{name: string, slug: string, version: string, download_link: string} $theme_info
+		 * @var \FIN_Error|object{name: string, slug: string, version: string, download_link: string} $theme_info
 		 */
 		$theme_info = themes_api( 'theme_information', array( 'slug' => $slug ) );
 
-		// Return empty string for themes not on FP.org.
-		if ( is_fp_error( $theme_info ) ) {
+		// Return empty string for themes not on FIN.org.
+		if ( is_fin_error( $theme_info ) ) {
 			return '';
 		}
 
@@ -214,7 +214,7 @@ trait ParseThemeNameInput {
 	/**
 	 * Check whether a given theme is the active theme.
 	 *
-	 * @param \FP_Theme $theme Theme to check.
+	 * @param \FIN_Theme $theme Theme to check.
 	 *
 	 * @return bool Whether the provided theme is the active theme.
 	 */
@@ -225,7 +225,7 @@ trait ParseThemeNameInput {
 	/**
 	 * Check whether a given theme is the active theme parent.
 	 *
-	 * @param \FP_Theme $theme Theme to check.
+	 * @param \FIN_Theme $theme Theme to check.
 	 *
 	 * @return bool Whether the provided theme is the active theme.
 	 */

@@ -1,10 +1,10 @@
 Feature: Activate FinPress plugins
 
   Background:
-    Given a FP install
+    Given a FIN install
 
   Scenario: Activate a plugin that's already installed
-    When I run `fp plugin activate akismet`
+    When I run `fin plugin activate akismet`
     Then STDOUT should be:
       """
       Plugin 'akismet' activated.
@@ -13,7 +13,7 @@ Feature: Activate FinPress plugins
     And the return code should be 0
 
   Scenario: Attempt to activate a plugin that's not installed
-    When I try `fp plugin activate debug-bar`
+    When I try `fin plugin activate debug-bar`
     Then STDERR should be:
       """
       Warning: The 'debug-bar' plugin could not be found.
@@ -21,7 +21,7 @@ Feature: Activate FinPress plugins
       """
     And the return code should be 1
 
-    When I try `fp plugin activate akismet debug-bar`
+    When I try `fin plugin activate akismet debug-bar`
     Then STDERR should be:
       """
       Warning: The 'debug-bar' plugin could not be found.
@@ -34,14 +34,14 @@ Feature: Activate FinPress plugins
     And the return code should be 1
 
   Scenario: Activate all when one plugin is hidden by "all_plugins" filter
-    Given I run `fp plugin install site-secrets https://github.com/fp-cli/sample-plugin/archive/refs/heads/master.zip`
-    And a fp-content/mu-plugins/hide-us-plugin.php file:
+    Given I run `fin plugin install site-secrets https://github.com/fin-cli/sample-plugin/archive/refs/heads/master.zip`
+    And a fin-content/mu-plugins/hide-us-plugin.php file:
       """
       <?php
       /**
        * Plugin Name: Hide Site Secrets on Production
        * Description: Hides the Site Secrets plugin on production sites
-       * Author: FP-CLI tests
+       * Author: FIN-CLI tests
        */
 
        add_filter( 'all_plugins', function( $all_plugins ) {
@@ -50,7 +50,7 @@ Feature: Activate FinPress plugins
        } );
       """
 
-    When I run `fp plugin activate --all`
+    When I run `fin plugin activate --all`
     Then STDOUT should contain:
       """
       Plugin 'akismet' activated.
@@ -66,7 +66,7 @@ Feature: Activate FinPress plugins
 
   @require-php-7
   Scenario: Activating a plugin with no network wide option passes down correct types
-    Given a fp-content/plugins/example-plugin.php file:
+    Given a fin-content/plugins/example-plugin.php file:
       """
       <?php
       // Plugin Name: Example Plugin
@@ -79,7 +79,7 @@ Feature: Activate FinPress plugins
       register_activation_hook( __FILE__, 'example_plugin_activate' );
       """
 
-    When I run `fp plugin activate example-plugin`
+    When I run `fin plugin activate example-plugin`
     Then STDOUT should be:
       """
       Plugin 'example-plugin' activated.
@@ -88,7 +88,7 @@ Feature: Activate FinPress plugins
     And STDERR should be empty
 
   Scenario: Not giving a slug on activate should throw an error unless --all given
-    When I try `fp plugin activate`
+    When I try `fin plugin activate`
     Then the return code should be 1
     And STDERR should be:
       """
@@ -97,32 +97,32 @@ Feature: Activate FinPress plugins
     And STDOUT should be empty
 
     # But don't give an error if no plugins and --all given for BC.
-    Given I run `fp plugin path`
+    Given I run `fin plugin path`
     And save STDOUT as {PLUGIN_DIR}
     And an empty {PLUGIN_DIR} directory
-    When I run `fp plugin activate --all`
+    When I run `fin plugin activate --all`
     Then STDOUT should be:
       """
       Success: No plugins activated.
       """
 
-  @require-fp-5.2
+  @require-fin-5.2
   Scenario: Activating a plugin that does not meet PHP minimum throws a warning
-    Given a fp-content/plugins/high-requirements.php file:
+    Given a fin-content/plugins/high-requirements.php file:
       """
       <?php
       /**
        * Plugin Name: High PHP Requirements
        * Description: This is meant to not activate because PHP version is too low.
-       * Author: FP-CLI tests
+       * Author: FIN-CLI tests
        * Requires PHP: 99.99
        */
       """
-    And I run `fp plugin deactivate --all`
-    And I run `fp cli info | grep "PHP version" | awk '{print $3}'`
+    And I run `fin plugin deactivate --all`
+    And I run `fin cli info | grep "PHP version" | awk '{print $3}'`
     And save STDOUT as {PHP_VERSION}
 
-    When I try `fp plugin activate high-requirements`
+    When I try `fin plugin activate high-requirements`
     Then STDERR should contain:
       """
       Failed to activate plugin. Current PHP version ({PHP_VERSION}) does not meet minimum requirements for High PHP Requirements. The plugin requires PHP 99.99.
@@ -137,7 +137,7 @@ Feature: Activate FinPress plugins
       """
 
   Scenario: Adding --exclude with plugin activate --all should exclude the plugins specified via --exclude
-    When I try `fp plugin activate --all --exclude=hello,hello-dolly`
+    When I try `fin plugin activate --all --exclude=hello,hello-dolly`
     Then STDOUT should be:
       """
       Plugin 'akismet' activated.
@@ -146,8 +146,8 @@ Feature: Activate FinPress plugins
     And the return code should be 0
 
   Scenario: Excluding a missing plugin should not throw an error
-    Given a FP install
-    And I run `fp plugin activate --all --exclude=missing-plugin`
+    Given a FIN install
+    And I run `fin plugin activate --all --exclude=missing-plugin`
     Then STDERR should be empty
     And STDOUT should contain:
       """
